@@ -3,7 +3,6 @@
 import dynamic from 'next/dynamic';
 import { ReactNode, useEffect, useState } from 'react';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
-import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
 // Dynamically import ConnectButton to avoid SSR issues with Web3Modal
@@ -30,11 +29,17 @@ export function WalletGuard({
   fallback 
 }: WalletGuardProps) {
   const { isConnected, isAuthenticated, connectedAddress } = useWalletAuth();
+  const [mounted, setMounted] = useState(false);
   const [adminState, setAdminState] = useState<AdminCheckState>({
     isChecking: true,
     isAdmin: false,
     error: null,
   });
+
+  // Prevent hydration mismatch by waiting for client mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -49,26 +54,14 @@ export function WalletGuard({
       }
 
       try {
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from('admin_users')
-          .select('id, role')
-          .eq('wallet_address', connectedAddress.toLowerCase())
-          .single();
-
-        if (error || !data) {
-          setAdminState({
-            isChecking: false,
-            isAdmin: false,
-            error: null,
-          });
-          return;
-        }
+        // Use API route to check admin status (bypasses RLS)
+        const response = await fetch('/api/auth/admin');
+        const data = await response.json();
 
         setAdminState({
           isChecking: false,
-          isAdmin: true,
-          error: null,
+          isAdmin: data.isAdmin === true,
+          error: data.error || null,
         });
       } catch {
         setAdminState({
@@ -81,6 +74,18 @@ export function WalletGuard({
 
     checkAdminStatus();
   }, [isAuthenticated, connectedAddress, requireAdmin]);
+
+  // Show loading state during SSR and before client mount to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-4">
+          <span className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Not connected - show connect prompt
   if (!isConnected) {

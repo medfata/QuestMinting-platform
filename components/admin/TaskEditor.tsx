@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
+import { cn } from '@/lib/utils';
 import type { QuestTaskInput } from '@/types/quest';
 import type { QuestTaskType } from '@/types/database';
 
@@ -78,19 +79,24 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
       </div>
 
       {tasks.length === 0 ? (
-        <Card padding="lg" className="text-center">
-          <p className="text-gray-400">No tasks configured. Add at least one task.</p>
+        <Card variant="glass" padding="lg" className="text-center">
+          <p className="text-muted-foreground">No tasks configured. Add at least one task.</p>
         </Card>
       ) : (
         <div className="space-y-3">
           {tasks.map((task, index) => (
-            <Card key={index} padding="md" className="relative">
+            <Card 
+              key={index} 
+              variant="glass" 
+              padding="md" 
+              className="relative transition-all duration-300 hover:border-white/20"
+            >
               <div className="absolute right-3 top-3 flex gap-1">
                 <button
                   type="button"
                   onClick={() => moveTask(index, 'up')}
                   disabled={index === 0}
-                  className="rounded p-1 text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-30"
+                  className="rounded p-1.5 text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-30 transition-all duration-200"
                   title="Move up"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -101,7 +107,7 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
                   type="button"
                   onClick={() => moveTask(index, 'down')}
                   disabled={index === tasks.length - 1}
-                  className="rounded p-1 text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-30"
+                  className="rounded p-1.5 text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-30 transition-all duration-200"
                   title="Move down"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -111,7 +117,7 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
                 <button
                   type="button"
                   onClick={() => removeTask(index)}
-                  className="rounded p-1 text-gray-400 hover:bg-red-500/20 hover:text-red-400"
+                  className="rounded p-1.5 text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200"
                   title="Remove task"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -124,13 +130,17 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
               <div className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="w-full">
-                    <label className="mb-1.5 block text-sm font-medium text-[var(--color-text,#f8fafc)]">
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">
                       Task Type
                     </label>
                     <select
                       value={task.type}
                       onChange={(e) => updateTask(index, 'type', e.target.value as QuestTaskType)}
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-[var(--color-text,#f8fafc)] focus:border-[var(--color-primary,#3b82f6)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary,#3b82f6)] transition-colors"
+                      className={cn(
+                        'w-full rounded-lg border bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
+                        'focus:outline-none focus:ring-2 focus:ring-offset-0',
+                        'border-white/10 hover:border-white/20 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
+                      )}
                     >
                       {TASK_TYPES.map((type) => (
                         <option key={type.value} value={type.value} className="bg-zinc-900">
@@ -157,7 +167,7 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
                 />
 
                 <div className="w-full">
-                  <label className="mb-1.5 block text-sm font-medium text-[var(--color-text,#f8fafc)]">
+                  <label className="mb-1.5 block text-sm font-medium text-foreground">
                     Description (optional)
                   </label>
                   <textarea
@@ -165,13 +175,18 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
                     onChange={(e) => updateTask(index, 'description', e.target.value || null)}
                     placeholder="Additional instructions for this task..."
                     rows={2}
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-[var(--color-text,#f8fafc)] placeholder:text-gray-400 focus:border-[var(--color-primary,#3b82f6)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary,#3b82f6)] transition-colors"
+                    className={cn(
+                      'w-full rounded-lg border bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
+                      'placeholder:text-muted-foreground',
+                      'focus:outline-none focus:ring-2 focus:ring-offset-0',
+                      'border-white/10 hover:border-white/20 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
+                    )}
                   />
                 </div>
               </div>
 
-              <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
-                <span className="rounded bg-white/10 px-2 py-0.5">
+              <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="rounded bg-primary/10 border border-primary/20 px-2 py-0.5 text-primary">
                   {getTaskTypeInfo(task.type).icon} {getTaskTypeInfo(task.type).label}
                 </span>
                 <span>•</span>

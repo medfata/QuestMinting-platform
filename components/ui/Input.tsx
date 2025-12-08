@@ -1,15 +1,16 @@
 'use client';
 
-import { InputHTMLAttributes, forwardRef } from 'react';
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
-export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string;
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className = '', label, error, helperText, id, ...props }, ref) => {
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, label, error, helperText, id, ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 
     return (
@@ -17,28 +18,37 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="mb-1.5 block text-sm font-medium text-[var(--color-text,#f8fafc)]"
+            className="mb-1.5 block text-sm font-medium text-foreground"
           >
             {label}
           </label>
         )}
         <input
-          ref={ref}
+          type={type}
           id={inputId}
-          className={`w-full rounded-lg border bg-white/5 px-4 py-2.5 text-[var(--color-text,#f8fafc)] placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-colors ${
+          className={cn(
+            'flex h-10 w-full rounded-lg border bg-white/5 backdrop-blur-sm px-4 py-2 text-sm text-foreground transition-all duration-300',
+            'placeholder:text-muted-foreground',
+            'focus:outline-none focus:ring-2 focus:ring-offset-0',
+            'disabled:cursor-not-allowed disabled:opacity-50',
             error
-              ? 'border-red-500 focus:ring-red-500'
-              : 'border-white/10 focus:border-[var(--color-primary,#3b82f6)] focus:ring-[var(--color-primary,#3b82f6)]'
-          } ${className}`}
+              ? 'border-destructive focus:border-destructive focus:ring-destructive/50'
+              : 'border-white/10 hover:border-white/20 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]',
+            className
+          )}
+          ref={ref}
           {...props}
         />
-        {error && <p className="mt-1.5 text-sm text-red-500">{error}</p>}
+        {error && (
+          <p className="mt-1.5 text-sm text-destructive">{error}</p>
+        )}
         {helperText && !error && (
-          <p className="mt-1.5 text-sm text-gray-400">{helperText}</p>
+          <p className="mt-1.5 text-sm text-muted-foreground">{helperText}</p>
         )}
       </div>
     );
   }
 );
-
 Input.displayName = 'Input';
+
+export { Input };

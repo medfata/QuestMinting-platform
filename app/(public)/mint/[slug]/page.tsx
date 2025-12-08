@@ -10,7 +10,9 @@ import { useMint } from '@/hooks/useMint';
 import { ThemedContainer } from '@/components/layout/ThemedContainer';
 import { MintTierSelector } from '@/components/campaigns/MintTierSelector';
 import { Button } from '@/components/ui/Button';
-import { Card, CardContent } from '@/components/ui/Card';
+import { GlowCard } from '@/components/futuristic/glow-card';
+import { AnimatedBackground } from '@/components/futuristic/animated-background';
+import { TransactionStatus } from '@/components/campaigns/TransactionStatus';
 import type { MintFunCampaign, MintTier, CampaignTheme } from '@/types/campaign';
 import { toCampaignTheme } from '@/types/campaign';
 import { DEFAULT_CAMPAIGN_THEME } from '@/types/theme';
@@ -54,7 +56,7 @@ export default function MintFunCampaignPage({ params }: PageProps) {
 
         // Fetch campaign
         const { data: campaignData, error: campaignError } = await supabase
-          .from('mintfun_campaigns')
+          .from('mint_platform_mintfun_campaigns')
           .select('*')
           .eq('slug', slug)
           .eq('is_active', true)
@@ -71,7 +73,7 @@ export default function MintFunCampaignPage({ params }: PageProps) {
 
         // Fetch mint tiers
         const { data: tiersData, error: tiersError } = await supabase
-          .from('mint_tiers')
+          .from('mint_platform_mint_tiers')
           .select('*')
           .eq('campaign_id', campaignData.id)
           .order('order_index', { ascending: true });
@@ -135,9 +137,14 @@ export default function MintFunCampaignPage({ params }: PageProps) {
   if (loading) {
     return (
       <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="main">
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-primary)] border-t-transparent" />
-        </div>
+        <AnimatedBackground variant="subtle" className="min-h-screen">
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="relative">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/30 border-t-primary" />
+              <div className="absolute inset-0 h-12 w-12 animate-pulse rounded-full bg-primary/20 blur-xl" />
+            </div>
+          </div>
+        </AnimatedBackground>
       </ThemedContainer>
     );
   }
@@ -145,140 +152,155 @@ export default function MintFunCampaignPage({ params }: PageProps) {
   if (error || !campaign) {
     return (
       <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="main">
-        <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-          <h1 className="text-2xl font-bold">{error || 'Campaign not found'}</h1>
-          <Link href="/">
-            <Button variant="outline">Back to Home</Button>
-          </Link>
-        </div>
+        <AnimatedBackground variant="subtle" className="min-h-screen">
+          <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+            <h1 className="text-2xl font-bold">{error || 'Campaign not found'}</h1>
+            <Link href="/">
+              <Button variant="glass">Back to Home</Button>
+            </Link>
+          </div>
+        </AnimatedBackground>
       </ThemedContainer>
     );
   }
 
   return (
     <ThemedContainer theme={theme} as="main" applyToDocument>
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        {/* Header */}
-        <header className="mb-8 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-[var(--color-text)]/70 transition-colors hover:text-[var(--color-text)]"
-          >
-            ← Back
-          </Link>
-          <ConnectButton />
-        </header>
+      <AnimatedBackground variant="subtle" className="min-h-screen">
+        <div className="mx-auto max-w-6xl px-4 py-8">
+          {/* Header */}
+          <header className="mb-8 flex items-center justify-between">
+            <Link
+              href="/"
+              className="group flex items-center gap-2 text-foreground/70 transition-colors hover:text-foreground"
+            >
+              <span className="transition-transform group-hover:-translate-x-1">←</span>
+              <span>Back</span>
+            </Link>
+            <ConnectButton />
+          </header>
 
-        {/* Campaign Content */}
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Left: Image */}
-          <div className="relative aspect-square overflow-hidden rounded-2xl">
-            <Image
-              src={campaign.image_url}
-              alt={campaign.title}
-              fill
-              className="object-cover"
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-          </div>
+          {/* Campaign Content */}
+          <div className="grid gap-8 lg:grid-cols-2">
+            {/* Left: Image */}
+            <GlowCard
+              glowColor="primary"
+              intensity="low"
+              hoverLift={false}
+              className="relative aspect-square overflow-hidden"
+              padding="none"
+            >
+              <Image
+                src={campaign.image_url}
+                alt={campaign.title}
+                fill
+                className="object-cover"
+                priority
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            </GlowCard>
 
-          {/* Right: Details & Minting */}
-          <div className="flex flex-col gap-6">
-            <div>
-              <h1 className="mb-2 text-3xl font-bold text-[var(--color-text)]">
-                {campaign.title}
-              </h1>
-              {campaign.description && (
-                <p className="text-lg text-[var(--color-text)]/70">
-                  {campaign.description}
-                </p>
-              )}
-            </div>
-
-            <Card variant="default" padding="lg">
-              <CardContent className="space-y-6">
-                {/* Tier Selection */}
-                <MintTierSelector
-                  tiers={campaign.mint_tiers}
-                  selectedTierId={selectedTier?.id || null}
-                  onSelect={setSelectedTier}
-                  quantity={quantity}
-                  onQuantityChange={setQuantity}
-                  disabled={isPending || isConfirming}
-                />
-
-                {/* Mint Button */}
-                {!isConnected ? (
-                  <div className="space-y-3">
-                    <p className="text-center text-sm text-[var(--color-text)]/70">
-                      Connect your wallet to mint
-                    </p>
-                    <ConnectButton className="w-full" />
-                  </div>
-                ) : isWrongChain ? (
-                  <Button
-                    size="lg"
-                    className="w-full"
-                    onClick={() => switchChain({ chainId: campaign.chain_id })}
-                  >
-                    Switch Network
-                  </Button>
-                ) : (
-                  <Button
-                    size="lg"
-                    className="w-full"
-                    onClick={handleMint}
-                    disabled={!selectedTier || isPending || isConfirming}
-                    isLoading={isPending || isConfirming}
-                  >
-                    {isPending
-                      ? 'Confirm in Wallet...'
-                      : isConfirming
-                        ? 'Confirming...'
-                        : 'Mint Now'}
-                  </Button>
+            {/* Right: Details & Minting */}
+            <div className="flex flex-col gap-6">
+              <div className="motion-safe:animate-fade-in">
+                <h1 className="mb-2 text-3xl font-bold text-foreground">
+                  {campaign.title}
+                </h1>
+                {campaign.description && (
+                  <p className="text-lg text-foreground/70">
+                    {campaign.description}
+                  </p>
                 )}
+              </div>
 
-                {/* Status Messages */}
-                {mintError && (
-                  <div className="rounded-lg bg-red-500/10 p-4 text-center">
-                    <p className="text-sm text-red-400">{mintError.message}</p>
-                    <button
-                      onClick={resetMint}
-                      className="mt-2 text-xs text-red-400 underline hover:no-underline"
+              <GlowCard
+                glowColor="primary"
+                intensity="medium"
+                hoverLift={false}
+                padding="lg"
+                className="motion-safe:animate-fade-in"
+                style={{ animationDelay: '100ms' }}
+              >
+                <div className="space-y-6">
+                  {/* Tier Selection */}
+                  <MintTierSelector
+                    tiers={campaign.mint_tiers}
+                    selectedTierId={selectedTier?.id || null}
+                    onSelect={setSelectedTier}
+                    quantity={quantity}
+                    onQuantityChange={setQuantity}
+                    disabled={isPending || isConfirming}
+                  />
+
+                  {/* Mint Button */}
+                  {!isConnected ? (
+                    <div className="space-y-3">
+                      <p className="text-center text-sm text-foreground/70">
+                        Connect your wallet to mint
+                      </p>
+                      <ConnectButton className="w-full" />
+                    </div>
+                  ) : isWrongChain ? (
+                    <Button
+                      variant="glow"
+                      size="lg"
+                      className="w-full"
+                      onClick={() => switchChain({ chainId: campaign.chain_id })}
                     >
-                      Try again
-                    </button>
-                  </div>
-                )}
-
-                {isSuccess && txHash && (
-                  <div className="rounded-lg bg-green-500/10 p-4 text-center">
-                    <p className="mb-2 text-sm font-medium text-green-400">
-                      Mint successful!
-                    </p>
-                    <a
-                      href={`https://etherscan.io/tx/${txHash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-green-400 underline hover:no-underline"
+                      Switch Network
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="glow"
+                      size="lg"
+                      className="w-full"
+                      onClick={handleMint}
+                      disabled={!selectedTier || isPending || isConfirming}
+                      isLoading={isPending || isConfirming}
                     >
-                      View transaction
-                    </a>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      {isPending
+                        ? 'Confirm in Wallet...'
+                        : isConfirming
+                          ? 'Confirming...'
+                          : 'Mint Now'}
+                    </Button>
+                  )}
 
-            {/* Campaign Info */}
-            <div className="text-sm text-[var(--color-text)]/50">
-              <p>Contract: {campaign.contract_address}</p>
-              <p>Chain ID: {campaign.chain_id}</p>
+                  {/* Transaction Status */}
+                  <TransactionStatus
+                    status={mintStatus}
+                    error={mintError}
+                    txHash={txHash}
+                    onReset={resetMint}
+                    chainId={campaign.chain_id}
+                  />
+                </div>
+              </GlowCard>
+
+              {/* Campaign Info */}
+              <GlowCard
+                glowColor="secondary"
+                intensity="low"
+                hoverLift={false}
+                padding="md"
+                className="motion-safe:animate-fade-in"
+                style={{ animationDelay: '200ms' }}
+              >
+                <div className="text-sm text-foreground/50 space-y-1">
+                  <p className="flex items-center justify-between">
+                    <span>Contract</span>
+                    <span className="font-mono text-foreground/70">{campaign.contract_address.slice(0, 6)}...{campaign.contract_address.slice(-4)}</span>
+                  </p>
+                  <p className="flex items-center justify-between">
+                    <span>Chain ID</span>
+                    <span className="text-foreground/70">{campaign.chain_id}</span>
+                  </p>
+                </div>
+              </GlowCard>
             </div>
           </div>
         </div>
-      </div>
+      </AnimatedBackground>
     </ThemedContainer>
   );
 }

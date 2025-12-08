@@ -61,7 +61,7 @@ export default function NewMintFunPage() {
     try {
       // Create campaign
       const { data: campaign, error: campaignError } = await supabase
-        .from('mintfun_campaigns')
+        .from('mint_platform_mintfun_campaigns')
         .insert({
           slug: formData.slug,
           title: formData.title,
@@ -97,7 +97,7 @@ export default function NewMintFunPage() {
         }));
 
         const { error: tiersError } = await supabase
-          .from('mint_tiers')
+          .from('mint_platform_mint_tiers')
           .insert(tiersToInsert);
 
         if (tiersError) {

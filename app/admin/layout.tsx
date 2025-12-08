@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { WalletGuard } from '@/components/wallet/WalletGuard';
+import { cn } from '@/lib/utils';
 
 // Dynamically import ConnectButton to avoid SSR issues with Web3Modal
 const ConnectButton = dynamic(
@@ -73,16 +74,29 @@ function AdminSidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 z-30 h-screen w-64 border-r border-white/10 bg-zinc-900">
+    <aside className="fixed left-0 top-0 z-30 h-screen w-64 border-r border-white/10 bg-black/40 backdrop-blur-xl">
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-white/10 px-6">
         <Link href="/admin" className="flex items-center gap-2 text-lg font-bold text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+            className="text-primary drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.6)]"
+          >
             <path d="M12 2L2 7l10 5 10-5-10-5z" />
             <path d="M2 17l10 5 10-5" />
             <path d="M2 12l10 5 10-5" />
           </svg>
-          Admin Panel
+          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Admin Panel
+          </span>
         </Link>
       </div>
 
@@ -92,25 +106,42 @@ function AdminSidebar() {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+            className={cn(
+              'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-300',
               isActive(item.href)
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-400 hover:bg-white/5 hover:text-white'
-            }`}
+                ? 'bg-primary/20 text-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)] border border-primary/30'
+                : 'text-gray-400 hover:bg-white/5 hover:text-white hover:border-white/10 border border-transparent'
+            )}
           >
-            {item.icon}
+            <span className={cn(
+              'transition-all duration-300',
+              isActive(item.href) && 'drop-shadow-[0_0_6px_rgba(var(--primary-rgb),0.6)]'
+            )}>
+              {item.icon}
+            </span>
             {item.label}
           </Link>
         ))}
       </nav>
 
       {/* Back to site link */}
-      <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 p-4">
+      <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 p-4 bg-black/20">
         <Link
           href="/"
-          className="flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-white"
+          className="flex items-center gap-2 text-sm text-gray-400 transition-all duration-300 hover:text-primary group"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="16" 
+            height="16" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+            className="transition-transform duration-300 group-hover:-translate-x-1"
+          >
             <line x1="19" y1="12" x2="5" y2="12" />
             <polyline points="12 19 5 12 12 5" />
           </svg>
@@ -123,7 +154,9 @@ function AdminSidebar() {
 
 function AdminHeader() {
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-white/10 bg-zinc-950/80 px-6 backdrop-blur-md">
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-white/10 bg-black/60 backdrop-blur-xl px-6">
+      {/* Subtle gradient accent line */}
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       <div />
       <ConnectButton />
     </header>
@@ -133,9 +166,19 @@ function AdminHeader() {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <WalletGuard requireAdmin>
-      <div className="min-h-screen bg-zinc-950">
+      {/* Background with subtle gradient */}
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-zinc-950 to-black">
+        {/* Subtle grid pattern overlay */}
+        <div 
+          className="fixed inset-0 opacity-[0.02] pointer-events-none"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px',
+          }}
+        />
         <AdminSidebar />
-        <div className="ml-64">
+        <div className="ml-64 relative">
           <AdminHeader />
           <main className="p-6">{children}</main>
         </div>

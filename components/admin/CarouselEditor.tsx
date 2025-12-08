@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { cn } from '@/lib/utils';
 
 interface CampaignOption {
   id: string;
@@ -31,11 +32,11 @@ export function CarouselEditor({ selectedCampaigns, onChange }: CarouselEditorPr
 
       const [mintfunRes, questRes] = await Promise.all([
         supabase
-          .from('mintfun_campaigns')
+          .from('mint_platform_mintfun_campaigns')
           .select('id, slug, title, image_url, is_active')
           .order('created_at', { ascending: false }),
         supabase
-          .from('quest_campaigns')
+          .from('mint_platform_quest_campaigns')
           .select('id, slug, title, image_url, is_active')
           .order('created_at', { ascending: false }),
       ]);
@@ -91,7 +92,7 @@ export function CarouselEditor({ selectedCampaigns, onChange }: CarouselEditorPr
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <span className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+        <span className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]" />
       </div>
     );
   }
@@ -104,7 +105,7 @@ export function CarouselEditor({ selectedCampaigns, onChange }: CarouselEditorPr
           Featured Campaigns ({selectedCampaigns.length})
         </h4>
         {selectedCampaignObjects.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-white/20 p-6 text-center text-gray-400">
+          <div className="rounded-lg border border-dashed border-white/20 bg-white/5 backdrop-blur-sm p-6 text-center text-muted-foreground">
             No campaigns selected. Add campaigns from the list below.
           </div>
         ) : (
@@ -112,14 +113,14 @@ export function CarouselEditor({ selectedCampaigns, onChange }: CarouselEditorPr
             {selectedCampaignObjects.map((campaign, index) => (
               <div
                 key={campaign.id}
-                className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3"
+                className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 backdrop-blur-sm p-3 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.07]"
               >
                 <div className="flex flex-col gap-1">
                   <button
                     type="button"
                     onClick={() => moveCampaign(index, 'up')}
                     disabled={index === 0}
-                    className="text-gray-400 hover:text-white disabled:opacity-30"
+                    className="text-gray-400 hover:text-white disabled:opacity-30 transition-colors duration-200"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="18 15 12 9 6 15" />
@@ -129,45 +130,46 @@ export function CarouselEditor({ selectedCampaigns, onChange }: CarouselEditorPr
                     type="button"
                     onClick={() => moveCampaign(index, 'down')}
                     disabled={index === selectedCampaigns.length - 1}
-                    className="text-gray-400 hover:text-white disabled:opacity-30"
+                    className="text-gray-400 hover:text-white disabled:opacity-30 transition-colors duration-200"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="6 9 12 15 18 9" />
                     </svg>
                   </button>
                 </div>
-                <span className="text-sm text-gray-500">{index + 1}</span>
+                <span className="text-sm text-muted-foreground font-medium">{index + 1}</span>
                 {campaign.image_url && (
                   <img
                     src={campaign.image_url}
                     alt={campaign.title}
-                    className="h-10 w-10 rounded object-cover"
+                    className="h-10 w-10 rounded object-cover ring-1 ring-white/10"
                   />
                 )}
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-white">{campaign.title}</span>
                     <span
-                      className={`rounded px-1.5 py-0.5 text-xs ${
+                      className={cn(
+                        'rounded px-1.5 py-0.5 text-xs border',
                         campaign.type === 'mintfun'
-                          ? 'bg-purple-500/20 text-purple-400'
-                          : 'bg-blue-500/20 text-blue-400'
-                      }`}
+                          ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                          : 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                      )}
                     >
                       {campaign.type === 'mintfun' ? 'MintFun' : 'Quest'}
                     </span>
                     {!campaign.is_active && (
-                      <span className="rounded bg-yellow-500/20 px-1.5 py-0.5 text-xs text-yellow-400">
+                      <span className="rounded bg-yellow-500/20 border border-yellow-500/30 px-1.5 py-0.5 text-xs text-yellow-400">
                         Inactive
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-400">/{campaign.slug}</p>
+                  <p className="text-sm text-muted-foreground">/{campaign.slug}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => removeCampaign(campaign.id)}
-                  className="text-gray-400 hover:text-red-400"
+                  className="text-gray-400 hover:text-red-400 transition-colors duration-200"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18" />
@@ -190,47 +192,48 @@ export function CarouselEditor({ selectedCampaigns, onChange }: CarouselEditorPr
           className="mb-3"
         />
         {availableCampaigns.length === 0 ? (
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             {search ? 'No campaigns match your search.' : 'All campaigns are already featured.'}
           </p>
         ) : (
-          <div className="max-h-64 space-y-2 overflow-y-auto">
+          <div className="max-h-64 space-y-2 overflow-y-auto pr-1">
             {availableCampaigns.map((campaign) => (
               <div
                 key={campaign.id}
-                className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3"
+                className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 backdrop-blur-sm p-3 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.07]"
               >
                 <div className="flex items-center gap-3">
                   {campaign.image_url && (
                     <img
                       src={campaign.image_url}
                       alt={campaign.title}
-                      className="h-10 w-10 rounded object-cover"
+                      className="h-10 w-10 rounded object-cover ring-1 ring-white/10"
                     />
                   )}
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-white">{campaign.title}</span>
                       <span
-                        className={`rounded px-1.5 py-0.5 text-xs ${
+                        className={cn(
+                          'rounded px-1.5 py-0.5 text-xs border',
                           campaign.type === 'mintfun'
-                            ? 'bg-purple-500/20 text-purple-400'
-                            : 'bg-blue-500/20 text-blue-400'
-                        }`}
+                            ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                            : 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                        )}
                       >
                         {campaign.type === 'mintfun' ? 'MintFun' : 'Quest'}
                       </span>
                       {!campaign.is_active && (
-                        <span className="rounded bg-yellow-500/20 px-1.5 py-0.5 text-xs text-yellow-400">
+                        <span className="rounded bg-yellow-500/20 border border-yellow-500/30 px-1.5 py-0.5 text-xs text-yellow-400">
                           Inactive
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-400">/{campaign.slug}</p>
+                    <p className="text-sm text-muted-foreground">/{campaign.slug}</p>
                   </div>
                 </div>
                 <Button
-                  variant="ghost"
+                  variant="glass"
                   size="sm"
                   onClick={() => addCampaign(campaign.id)}
                 >

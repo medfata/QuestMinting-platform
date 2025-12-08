@@ -1,16 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Header, Footer, ThemedContainer } from '@/components/layout';
 import { Carousel, Button } from '@/components/ui';
+import { AnimatedBackground, FloatingParticles, GradientText } from '@/components/futuristic';
 import { MintFunCard } from '@/components/campaigns/MintFunCard';
 import { QuestCard } from '@/components/campaigns/QuestCard';
 import type { MintFunCampaign } from '@/types/campaign';
 import type { QuestCampaign } from '@/types/quest';
-import type { GlobalTheme, HomePageConfig } from '@/types/theme';
+import type { HomePageConfig } from '@/types/theme';
 import { DEFAULT_GLOBAL_THEME } from '@/types/theme';
 import type { HomeConfigRow, MintfunCampaignRow, QuestCampaignRow, MintTierRow, QuestTaskRow, EligibilityConditionRow } from '@/types/database';
 import { toCampaignTheme } from '@/types/campaign';
@@ -43,7 +43,7 @@ export default function HomePage() {
       try {
         // Fetch home config
         const { data: configData } = await supabase
-          .from('home_config')
+          .from('mint_platform_home_config')
           .select('*')
           .limit(1)
           .single();
@@ -73,14 +73,14 @@ export default function HomePage() {
 
         // Fetch MintFun campaigns with tiers
         const { data: mintfunData } = await supabase
-          .from('mintfun_campaigns')
-          .select('*, mint_tiers(*)')
+          .from('mint_platform_mintfun_campaigns')
+          .select('*, mint_platform_mint_tiers(*)')
           .eq('is_active', true)
           .order('created_at', { ascending: false })
           .limit(6);
 
         if (mintfunData) {
-          for (const row of mintfunData as (MintfunCampaignRow & { mint_tiers: MintTierRow[] })[]) {
+          for (const row of mintfunData as (MintfunCampaignRow & { mint_platform_mint_tiers: MintTierRow[] })[]) {
             campaigns.push({
               type: 'mintfun',
               campaign: {
@@ -91,7 +91,7 @@ export default function HomePage() {
                 image_url: row.image_url,
                 chain_id: row.chain_id,
                 contract_address: row.contract_address,
-                mint_tiers: row.mint_tiers.map(tier => ({
+                mint_tiers: row.mint_platform_mint_tiers.map(tier => ({
                   id: tier.id,
                   campaign_id: tier.campaign_id,
                   name: tier.name,
@@ -111,14 +111,14 @@ export default function HomePage() {
 
         // Fetch Quest campaigns with tasks and eligibility
         const { data: questData } = await supabase
-          .from('quest_campaigns')
-          .select('*, quest_tasks(*), eligibility_conditions(*)')
+          .from('mint_platform_quest_campaigns')
+          .select('*, mint_platform_quest_tasks(*), mint_platform_eligibility_conditions(*)')
           .eq('is_active', true)
           .order('created_at', { ascending: false })
           .limit(6);
 
         if (questData) {
-          for (const row of questData as (QuestCampaignRow & { quest_tasks: QuestTaskRow[]; eligibility_conditions: EligibilityConditionRow[] })[]) {
+          for (const row of questData as (QuestCampaignRow & { mint_platform_quest_tasks: QuestTaskRow[]; mint_platform_eligibility_conditions: EligibilityConditionRow[] })[]) {
             campaigns.push({
               type: 'quest',
               campaign: {
@@ -129,7 +129,7 @@ export default function HomePage() {
                 image_url: row.image_url,
                 chain_id: row.chain_id,
                 contract_address: row.contract_address,
-                tasks: row.quest_tasks.map(task => ({
+                tasks: row.mint_platform_quest_tasks.map(task => ({
                   id: task.id,
                   quest_id: task.quest_id,
                   type: task.type,
@@ -139,12 +139,12 @@ export default function HomePage() {
                   verification_data: task.verification_data,
                   order_index: task.order_index,
                 })),
-                eligibility: row.eligibility_conditions?.[0] ? {
-                  id: row.eligibility_conditions[0].id,
-                  quest_id: row.eligibility_conditions[0].quest_id,
-                  type: row.eligibility_conditions[0].type,
-                  min_amount: row.eligibility_conditions[0].min_amount,
-                  contract_address: row.eligibility_conditions[0].contract_address,
+                eligibility: row.mint_platform_eligibility_conditions?.[0] ? {
+                  id: row.mint_platform_eligibility_conditions[0].id,
+                  quest_id: row.mint_platform_eligibility_conditions[0].quest_id,
+                  type: row.mint_platform_eligibility_conditions[0].type,
+                  min_amount: row.mint_platform_eligibility_conditions[0].min_amount,
+                  contract_address: row.mint_platform_eligibility_conditions[0].contract_address,
                 } : null,
                 theme: toCampaignTheme(row.theme),
                 is_active: row.is_active,
@@ -183,45 +183,54 @@ export default function HomePage() {
     <ThemedContainer theme={homeConfig.theme} applyToDocument as="div">
       <Header />
       
-      <main className="min-h-screen">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden py-20 sm:py-32">
-          {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-primary)]/10 via-transparent to-transparent" />
+      <main id="main-content" className="min-h-screen">
+        {/* Hero Section with Futuristic Background */}
+        <AnimatedBackground variant="hero" className="min-h-[90vh] flex items-center">
+          <FloatingParticles count={20} speed="slow" />
           
-          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
             <div className="text-center">
+              {/* Subtitle */}
               {homeConfig.hero_subtitle && (
-                <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--color-primary)]">
+                <p className="mb-6 text-sm font-semibold uppercase tracking-[0.2em] text-primary">
                   {homeConfig.hero_subtitle}
                 </p>
               )}
-              <h1 
-                className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
+              
+              {/* Hero title with gradient text */}
+              <GradientText
+                as="h1"
+                className="mb-8 text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl"
                 style={{ fontFamily: homeConfig.theme.heading_font }}
+                animate={true}
+                animationDuration={6}
               >
                 {homeConfig.hero_title}
-              </h1>
+              </GradientText>
+              
+              {/* Description */}
               {homeConfig.hero_description && (
-                <p className="mx-auto mb-8 max-w-2xl text-lg text-[var(--color-text)]/70">
+                <p className="mx-auto mb-10 max-w-2xl text-lg sm:text-xl text-muted-foreground">
                   {homeConfig.hero_description}
                 </p>
               )}
+              
+              {/* CTA Buttons with glow effects */}
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Button size="lg" variant="primary">
+                <Button size="xl" variant="glow">
                   Explore Campaigns
                 </Button>
-                <Button size="lg" variant="outline">
+                <Button size="xl" variant="glass">
                   Learn More
                 </Button>
               </div>
             </div>
           </div>
-        </section>
+        </AnimatedBackground>
 
         {/* Featured Campaigns Carousel */}
         {featuredCampaigns.length > 0 && (
-          <section className="py-16">
+          <section className="py-16 bg-gradient-to-b from-transparent to-background/50">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="mb-8 flex items-center justify-between">
                 <h2 
@@ -232,7 +241,7 @@ export default function HomePage() {
                 </h2>
                 <Link 
                   href="/campaigns" 
-                  className="text-sm font-medium text-[var(--color-primary)] hover:underline"
+                  className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                 >
                   View All →
                 </Link>
@@ -241,12 +250,20 @@ export default function HomePage() {
               <Carousel autoPlay autoPlayInterval={6000} showDots showArrows>
                 {/* Group campaigns into slides of 3 */}
                 {chunkArray(featuredCampaigns, 3).map((group, slideIndex) => (
-                  <div key={slideIndex} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {group.map((item) => (
+                  <div key={slideIndex} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 px-1">
+                    {group.map((item, cardIndex) => (
                       item.type === 'mintfun' ? (
-                        <MintFunCard key={item.campaign.id} campaign={item.campaign} />
+                        <MintFunCard 
+                          key={item.campaign.id} 
+                          campaign={item.campaign}
+                          animationDelay={cardIndex * 100}
+                        />
                       ) : (
-                        <QuestCard key={item.campaign.id} campaign={item.campaign} />
+                        <QuestCard 
+                          key={item.campaign.id} 
+                          campaign={item.campaign}
+                          animationDelay={cardIndex * 100}
+                        />
                       )
                     ))}
                   </div>
@@ -274,17 +291,25 @@ export default function HomePage() {
               </div>
             ) : featuredCampaigns.length > 0 ? (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {featuredCampaigns.map((item) => (
+                {featuredCampaigns.map((item, index) => (
                   item.type === 'mintfun' ? (
-                    <MintFunCard key={item.campaign.id} campaign={item.campaign} />
+                    <MintFunCard 
+                      key={item.campaign.id} 
+                      campaign={item.campaign} 
+                      animationDelay={index * 100}
+                    />
                   ) : (
-                    <QuestCard key={item.campaign.id} campaign={item.campaign} />
+                    <QuestCard 
+                      key={item.campaign.id} 
+                      campaign={item.campaign}
+                      animationDelay={index * 100}
+                    />
                   )
                 ))}
               </div>
             ) : (
-              <div className="rounded-xl border border-white/10 bg-white/5 p-12 text-center">
-                <p className="text-lg text-[var(--color-text)]/70">
+              <div className="rounded-xl glass p-12 text-center">
+                <p className="text-lg text-muted-foreground">
                   No campaigns available yet. Check back soon!
                 </p>
               </div>
@@ -307,17 +332,17 @@ function chunkArray<T>(array: T[], size: number): T[][] {
   return chunks;
 }
 
-// Loading skeleton component
+// Loading skeleton component with futuristic styling
 function CampaignSkeleton() {
   return (
-    <div className="animate-pulse overflow-hidden rounded-xl bg-white/5">
-      <div className="aspect-square bg-white/10" />
+    <div className="overflow-hidden rounded-xl glass">
+      <div className="aspect-square bg-white/5 motion-safe:animate-shimmer" style={{ backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)', backgroundSize: '200% 100%' }} />
       <div className="p-4">
-        <div className="mb-2 h-5 w-3/4 rounded bg-white/10" />
-        <div className="h-4 w-full rounded bg-white/10" />
+        <div className="mb-2 h-5 w-3/4 rounded bg-white/10 motion-safe:animate-shimmer" style={{ backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)', backgroundSize: '200% 100%' }} />
+        <div className="h-4 w-full rounded bg-white/10 motion-safe:animate-shimmer" style={{ backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)', backgroundSize: '200% 100%' }} />
       </div>
       <div className="border-t border-white/10 p-4">
-        <div className="h-4 w-1/2 rounded bg-white/10" />
+        <div className="h-4 w-1/2 rounded bg-white/10 motion-safe:animate-shimmer" style={{ backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)', backgroundSize: '200% 100%' }} />
       </div>
     </div>
   );

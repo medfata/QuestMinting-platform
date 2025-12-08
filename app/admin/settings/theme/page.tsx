@@ -21,7 +21,7 @@ export default function GlobalThemeSettingsPage() {
     const fetchConfig = async () => {
       const supabase = createClient();
       const { data, error } = await supabase
-        .from('home_config')
+        .from('mint_platform_home_config')
         .select('id, theme')
         .limit(1)
         .single();
@@ -52,13 +52,13 @@ export default function GlobalThemeSettingsPage() {
     let error;
     if (configId) {
       const result = await supabase
-        .from('home_config')
+        .from('mint_platform_home_config')
         .update(payload)
         .eq('id', configId);
       error = result.error;
     } else {
       const result = await supabase
-        .from('home_config')
+        .from('mint_platform_home_config')
         .insert({
           hero_title: 'Welcome',
           theme,

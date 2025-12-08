@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
+import { cn } from '@/lib/utils';
 import type { MintTierInput } from '@/types/campaign';
 
 interface MintTierEditorProps {
@@ -66,19 +67,24 @@ export function MintTierEditor({ tiers, onChange }: MintTierEditorProps) {
       </div>
 
       {tiers.length === 0 ? (
-        <Card padding="lg" className="text-center">
-          <p className="text-gray-400">No tiers configured. Add at least one tier.</p>
+        <Card variant="glass" padding="lg" className="text-center">
+          <p className="text-muted-foreground">No tiers configured. Add at least one tier.</p>
         </Card>
       ) : (
         <div className="space-y-3">
           {tiers.map((tier, index) => (
-            <Card key={index} padding="md" className="relative">
+            <Card 
+              key={index} 
+              variant="glass" 
+              padding="md" 
+              className="relative transition-all duration-300 hover:border-white/20"
+            >
               <div className="absolute right-3 top-3 flex gap-1">
                 <button
                   type="button"
                   onClick={() => moveTier(index, 'up')}
                   disabled={index === 0}
-                  className="rounded p-1 text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-30"
+                  className="rounded p-1.5 text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-30 transition-all duration-200"
                   title="Move up"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -89,7 +95,7 @@ export function MintTierEditor({ tiers, onChange }: MintTierEditorProps) {
                   type="button"
                   onClick={() => moveTier(index, 'down')}
                   disabled={index === tiers.length - 1}
-                  className="rounded p-1 text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-30"
+                  className="rounded p-1.5 text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-30 transition-all duration-200"
                   title="Move down"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -99,7 +105,7 @@ export function MintTierEditor({ tiers, onChange }: MintTierEditorProps) {
                 <button
                   type="button"
                   onClick={() => removeTier(index)}
-                  className="rounded p-1 text-gray-400 hover:bg-red-500/20 hover:text-red-400"
+                  className="rounded p-1.5 text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200"
                   title="Remove tier"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -151,8 +157,13 @@ export function MintTierEditor({ tiers, onChange }: MintTierEditorProps) {
                 />
               </div>
 
-              <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
-                <span className="rounded bg-white/10 px-2 py-0.5">
+              <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                <span className={cn(
+                  'rounded px-2 py-0.5 border',
+                  parseFloat(tier.price) === 0 
+                    ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                    : 'bg-primary/10 border-primary/20 text-primary'
+                )}>
                   {parseFloat(tier.price) === 0 ? 'Free' : `${tier.price} ETH`}
                 </span>
                 <span>•</span>

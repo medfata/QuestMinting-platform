@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     
     // Upsert wallet session (create or update)
     const { error: sessionError } = await supabase
-      .from('wallet_sessions')
+      .from('mint_platform_wallet_sessions')
       .upsert(
         {
           wallet_address: walletAddress,
@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
     // Verify session exists in Supabase
     const supabase = await createClient();
     const { data: session } = await supabase
-      .from('wallet_sessions')
+      .from('mint_platform_wallet_sessions')
       .select('wallet_address, expires_at')
       .eq('wallet_address', sessionCookie.value)
       .single();

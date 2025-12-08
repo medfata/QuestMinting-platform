@@ -48,7 +48,7 @@ export default function EditQuestPage() {
 
       // Fetch quest campaign
       const { data: quest, error: questError } = await supabase
-        .from('quest_campaigns')
+        .from('mint_platform_quest_campaigns')
         .select('*')
         .eq('id', questId)
         .single();
@@ -60,14 +60,14 @@ export default function EditQuestPage() {
 
       // Fetch tasks
       const { data: tasksData } = await supabase
-        .from('quest_tasks')
+        .from('mint_platform_quest_tasks')
         .select('*')
         .eq('quest_id', questId)
         .order('order_index');
 
       // Fetch eligibility condition
       const { data: eligibilityData } = await supabase
-        .from('eligibility_conditions')
+        .from('mint_platform_eligibility_conditions')
         .select('*')
         .eq('quest_id', questId)
         .single();
@@ -162,7 +162,7 @@ export default function EditQuestPage() {
     try {
       // Update quest campaign
       const { error: questError } = await supabase
-        .from('quest_campaigns')
+        .from('mint_platform_quest_campaigns')
         .update({
           slug: formData.slug,
           title: formData.title,
@@ -187,7 +187,7 @@ export default function EditQuestPage() {
       }
 
       // Delete existing tasks and recreate
-      await supabase.from('quest_tasks').delete().eq('quest_id', questId);
+      await supabase.from('mint_platform_quest_tasks').delete().eq('quest_id', questId);
 
       if (tasks.length > 0) {
         const tasksToInsert = tasks.map((task) => ({
@@ -201,7 +201,7 @@ export default function EditQuestPage() {
         }));
 
         const { error: tasksError } = await supabase
-          .from('quest_tasks')
+          .from('mint_platform_quest_tasks')
           .insert(tasksToInsert);
 
         if (tasksError) {
@@ -212,11 +212,11 @@ export default function EditQuestPage() {
       }
 
       // Delete existing eligibility and recreate if enabled
-      await supabase.from('eligibility_conditions').delete().eq('quest_id', questId);
+      await supabase.from('mint_platform_eligibility_conditions').delete().eq('quest_id', questId);
 
       if (eligibility) {
         const { error: eligibilityError } = await supabase
-          .from('eligibility_conditions')
+          .from('mint_platform_eligibility_conditions')
           .insert({
             quest_id: questId,
             type: eligibility.type,
@@ -244,7 +244,7 @@ export default function EditQuestPage() {
 
     try {
       const { error } = await supabase
-        .from('quest_campaigns')
+        .from('mint_platform_quest_campaigns')
         .delete()
         .eq('id', questId);
 

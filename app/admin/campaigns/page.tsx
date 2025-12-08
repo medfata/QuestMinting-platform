@@ -30,8 +30,8 @@ export default function CampaignsPage() {
       const supabase = createClient();
 
       const [mintfunRes, questRes] = await Promise.all([
-        supabase.from('mintfun_campaigns').select('id, slug, title, is_active, created_at, chain_id').order('created_at', { ascending: false }),
-        supabase.from('quest_campaigns').select('id, slug, title, is_active, created_at, chain_id').order('created_at', { ascending: false }),
+        supabase.from('mint_platform_mintfun_campaigns').select('id, slug, title, is_active, created_at, chain_id').order('created_at', { ascending: false }),
+        supabase.from('mint_platform_quest_campaigns').select('id, slug, title, is_active, created_at, chain_id').order('created_at', { ascending: false }),
       ]);
 
       if (mintfunRes.data) setMintfunCampaigns(mintfunRes.data);

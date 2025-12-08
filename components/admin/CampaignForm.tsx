@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/Input';
 import { createClient } from '@/lib/supabase/client';
+import { cn } from '@/lib/utils';
 import type { SupportedChain } from '@/types/chain';
 
 export interface CampaignFormData {
@@ -30,7 +31,7 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false }:
     const fetchChains = async () => {
       const supabase = createClient();
       const { data: chainsData } = await supabase
-        .from('supported_chains')
+        .from('mint_platform_supported_chains')
         .select('*')
         .eq('is_enabled', true)
         .order('name');
@@ -80,7 +81,7 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false }:
       />
 
       <div className="w-full">
-        <label className="mb-1.5 block text-sm font-medium text-[var(--color-text,#f8fafc)]">
+        <label className="mb-1.5 block text-sm font-medium text-foreground">
           Description
         </label>
         <textarea
@@ -88,9 +89,16 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false }:
           onChange={(e) => handleChange('description', e.target.value)}
           placeholder="Describe your campaign..."
           rows={3}
-          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-[var(--color-text,#f8fafc)] placeholder:text-gray-400 focus:border-[var(--color-primary,#3b82f6)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary,#3b82f6)] transition-colors"
+          className={cn(
+            'w-full rounded-lg border bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
+            'placeholder:text-muted-foreground',
+            'focus:outline-none focus:ring-2 focus:ring-offset-0',
+            errors.description
+              ? 'border-destructive focus:border-destructive focus:ring-destructive/50'
+              : 'border-white/10 hover:border-white/20 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
+          )}
         />
-        {errors.description && <p className="mt-1.5 text-sm text-red-500">{errors.description}</p>}
+        {errors.description && <p className="mt-1.5 text-sm text-destructive">{errors.description}</p>}
       </div>
 
       <Input
@@ -102,12 +110,12 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false }:
       />
 
       {data.image_url && (
-        <div className="rounded-lg border border-white/10 p-3">
-          <p className="mb-2 text-xs text-gray-400">Preview</p>
+        <div className="rounded-lg border border-white/10 bg-white/5 backdrop-blur-sm p-3 transition-all duration-300 hover:border-white/20">
+          <p className="mb-2 text-xs text-muted-foreground">Preview</p>
           <img
             src={data.image_url}
             alt="Campaign preview"
-            className="h-32 w-32 rounded-lg object-cover"
+            className="h-32 w-32 rounded-lg object-cover ring-1 ring-white/10"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
             }}
@@ -116,14 +124,19 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false }:
       )}
 
       <div className="w-full">
-        <label className="mb-1.5 block text-sm font-medium text-[var(--color-text,#f8fafc)]">
+        <label className="mb-1.5 block text-sm font-medium text-foreground">
           Chain
         </label>
         <select
           value={data.chain_id}
           onChange={(e) => handleChange('chain_id', parseInt(e.target.value))}
           disabled={isLoadingChains}
-          className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-[var(--color-text,#f8fafc)] focus:border-[var(--color-primary,#3b82f6)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary,#3b82f6)] transition-colors disabled:opacity-50"
+          className={cn(
+            'w-full rounded-lg border bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
+            'focus:outline-none focus:ring-2 focus:ring-offset-0',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            'border-white/10 hover:border-white/20 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
+          )}
         >
           <option value={0} className="bg-zinc-900">Select a chain</option>
           {chains.map((chain) => (
@@ -132,7 +145,7 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false }:
             </option>
           ))}
         </select>
-        {errors.chain_id && <p className="mt-1.5 text-sm text-red-500">{errors.chain_id}</p>}
+        {errors.chain_id && <p className="mt-1.5 text-sm text-destructive">{errors.chain_id}</p>}
       </div>
 
       <Input
@@ -151,9 +164,14 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false }:
             onChange={(e) => handleChange('is_active', e.target.checked)}
             className="peer sr-only"
           />
-          <div className="peer h-6 w-11 rounded-full bg-white/10 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-focus:ring-2 peer-focus:ring-blue-500" />
+          <div className={cn(
+            'peer h-6 w-11 rounded-full bg-white/10 transition-all duration-300',
+            'after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[\'\']',
+            'peer-checked:bg-primary peer-checked:shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)] peer-checked:after:translate-x-full',
+            'peer-focus:ring-2 peer-focus:ring-primary/50'
+          )} />
         </label>
-        <span className="text-sm text-[var(--color-text,#f8fafc)]">
+        <span className="text-sm text-foreground">
           {data.is_active ? 'Active' : 'Inactive'}
         </span>
       </div>

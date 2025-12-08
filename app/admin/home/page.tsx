@@ -39,7 +39,7 @@ export default function HomePageSettingsPage() {
     const fetchConfig = async () => {
       const supabase = createClient();
       const { data, error } = await supabase
-        .from('home_config')
+        .from('mint_platform_home_config')
         .select('*')
         .limit(1)
         .single();
@@ -80,13 +80,13 @@ export default function HomePageSettingsPage() {
     let error;
     if (configId) {
       const result = await supabase
-        .from('home_config')
+        .from('mint_platform_home_config')
         .update(payload)
         .eq('id', configId);
       error = result.error;
     } else {
       const result = await supabase
-        .from('home_config')
+        .from('mint_platform_home_config')
         .insert(payload)
         .select()
         .single();

@@ -44,7 +44,7 @@ export default function EditMintFunPage() {
 
       // Fetch campaign
       const { data: campaign, error: campaignError } = await supabase
-        .from('mintfun_campaigns')
+        .from('mint_platform_mintfun_campaigns')
         .select('*')
         .eq('id', campaignId)
         .single();
@@ -56,7 +56,7 @@ export default function EditMintFunPage() {
 
       // Fetch tiers
       const { data: tiersData } = await supabase
-        .from('mint_tiers')
+        .from('mint_platform_mint_tiers')
         .select('*')
         .eq('campaign_id', campaignId)
         .order('order_index');
@@ -127,7 +127,7 @@ export default function EditMintFunPage() {
     try {
       // Update campaign
       const { error: campaignError } = await supabase
-        .from('mintfun_campaigns')
+        .from('mint_platform_mintfun_campaigns')
         .update({
           slug: formData.slug,
           title: formData.title,
@@ -152,7 +152,7 @@ export default function EditMintFunPage() {
       }
 
       // Delete existing tiers and recreate
-      await supabase.from('mint_tiers').delete().eq('campaign_id', campaignId);
+      await supabase.from('mint_platform_mint_tiers').delete().eq('campaign_id', campaignId);
 
       if (tiers.length > 0) {
         const tiersToInsert = tiers.map((tier) => ({
@@ -165,7 +165,7 @@ export default function EditMintFunPage() {
         }));
 
         const { error: tiersError } = await supabase
-          .from('mint_tiers')
+          .from('mint_platform_mint_tiers')
           .insert(tiersToInsert);
 
         if (tiersError) {
@@ -188,7 +188,7 @@ export default function EditMintFunPage() {
 
     try {
       const { error } = await supabase
-        .from('mintfun_campaigns')
+        .from('mint_platform_mintfun_campaigns')
         .delete()
         .eq('id', campaignId);
 

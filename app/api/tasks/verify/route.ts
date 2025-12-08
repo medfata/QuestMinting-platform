@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     // Verify the task exists and belongs to the quest
     const { data: task, error: taskError } = await supabase
-      .from('quest_tasks')
+      .from('mint_platform_quest_tasks')
       .select('id, quest_id, type, external_url, verification_data')
       .eq('id', taskId)
       .eq('quest_id', questId)
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     // Check if already completed
     const { data: existingCompletion } = await supabase
-      .from('user_task_completions')
+      .from('mint_platform_user_task_completions')
       .select('id')
       .eq('task_id', taskId)
       .eq('wallet_address', normalizedAddress)
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     // Record the completion
     const { error: insertError } = await supabase
-      .from('user_task_completions')
+      .from('mint_platform_user_task_completions')
       .insert({
         task_id: taskId,
         wallet_address: normalizedAddress,
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
 
     // Get all tasks for the quest
     const { data: tasks, error: tasksError } = await supabase
-      .from('quest_tasks')
+      .from('mint_platform_quest_tasks')
       .select('id')
       .eq('quest_id', questId);
 
@@ -166,7 +166,7 @@ export async function GET(request: NextRequest) {
 
     // Get completions for this user
     const { data: completions, error: completionsError } = await supabase
-      .from('user_task_completions')
+      .from('mint_platform_user_task_completions')
       .select('task_id, completed_at')
       .eq('wallet_address', normalizedAddress)
       .in('task_id', taskIds);

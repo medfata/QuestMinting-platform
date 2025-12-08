@@ -88,7 +88,7 @@ export default function NewQuestPage() {
     try {
       // Create quest campaign
       const { data: quest, error: questError } = await supabase
-        .from('quest_campaigns')
+        .from('mint_platform_quest_campaigns')
         .insert({
           slug: formData.slug,
           title: formData.title,
@@ -125,7 +125,7 @@ export default function NewQuestPage() {
         }));
 
         const { error: tasksError } = await supabase
-          .from('quest_tasks')
+          .from('mint_platform_quest_tasks')
           .insert(tasksToInsert);
 
         if (tasksError) {
@@ -138,7 +138,7 @@ export default function NewQuestPage() {
       // Create eligibility condition if enabled
       if (eligibility) {
         const { error: eligibilityError } = await supabase
-          .from('eligibility_conditions')
+          .from('mint_platform_eligibility_conditions')
           .insert({
             quest_id: quest.id,
             type: eligibility.type,

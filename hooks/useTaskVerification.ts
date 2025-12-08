@@ -42,7 +42,7 @@ export function useTaskVerification({
       const taskIds = tasks.map((t) => t.id);
 
       const { data, error } = await supabase
-        .from('user_task_completions')
+        .from('mint_platform_user_task_completions')
         .select('task_id, completed_at')
         .eq('wallet_address', address.toLowerCase())
         .in('task_id', taskIds);

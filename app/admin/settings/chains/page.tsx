@@ -8,6 +8,36 @@ import { Input } from '@/components/ui/Input';
 import { searchChains, getPopularChains, transformToSupportedChain, isTestnet } from '@/lib/services/chainlist';
 import type { ChainlistNetwork } from '@/types/chain';
 import type { SupportedChainRow, SupportedChainInsert } from '@/types/database';
+import Image from 'next/image';
+
+// Get chain icon URL from LlamaFi
+function getChainIconUrl(chainSlug: string): string {
+  return `https://icons.llamao.fi/icons/chains/rsz_${chainSlug}.jpg`;
+}
+
+// Chain icon component with fallback
+function ChainIcon({ chainSlug, shortName, className = '' }: { chainSlug: string; shortName: string; className?: string }) {
+  const [hasError, setHasError] = useState(false);
+  
+  if (hasError) {
+    return (
+      <div className={`flex items-center justify-center rounded-full bg-gray-500/20 text-gray-400 font-bold text-sm ${className}`}>
+        {shortName.slice(0, 3).toUpperCase()}
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={getChainIconUrl(chainSlug)}
+      alt={shortName}
+      width={40}
+      height={40}
+      className={`rounded-full ${className}`}
+      onError={() => setHasError(true)}
+    />
+  );
+}
 
 interface ChainWithStatus extends ChainlistNetwork {
   dbRecord?: SupportedChainRow;
@@ -29,7 +59,7 @@ export default function ChainManagementPage() {
   const fetchEnabledChains = useCallback(async () => {
     const supabase = createClient();
     const { data, error } = await supabase
-      .from('supported_chains')
+      .from('mint_platform_supported_chains')
       .select('*')
       .order('name');
 
@@ -132,7 +162,7 @@ export default function ChainManagementPage() {
     };
 
     const { data, error } = await supabase
-      .from('supported_chains')
+      .from('mint_platform_supported_chains')
       .upsert(insertData, { onConflict: 'chain_id' })
       .select()
       .single();
@@ -170,7 +200,7 @@ export default function ChainManagementPage() {
 
     const supabase = createClient();
     const { error } = await supabase
-      .from('supported_chains')
+      .from('mint_platform_supported_chains')
       .update({ is_enabled: false })
       .eq('chain_id', chain.chainId);
 
@@ -200,7 +230,7 @@ export default function ChainManagementPage() {
 
     const supabase = createClient();
     const { data, error } = await supabase
-      .from('supported_chains')
+      .from('mint_platform_supported_chains')
       .update(updates)
       .eq('chain_id', chainId)
       .select()
@@ -301,9 +331,11 @@ export default function ChainManagementPage() {
                     className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 font-bold text-sm">
-                        {chain.short_name.slice(0, 3).toUpperCase()}
-                      </div>
+                      <ChainIcon 
+                        chainSlug={chain.chain_slug} 
+                        shortName={chain.short_name} 
+                        className="h-10 w-10"
+                      />
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-white">{chain.name}</span>
@@ -380,9 +412,11 @@ export default function ChainManagementPage() {
                   className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-500/20 text-gray-400 font-bold text-sm">
-                      {chain.shortName.slice(0, 3).toUpperCase()}
-                    </div>
+                    <ChainIcon 
+                      chainSlug={chain.chainSlug ?? chain.shortName.toLowerCase()} 
+                      shortName={chain.shortName} 
+                      className="h-10 w-10"
+                    />
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-white">{chain.name}</span>

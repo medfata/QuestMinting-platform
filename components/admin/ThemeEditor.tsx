@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { cn } from '@/lib/utils';
 import type { CampaignTheme } from '@/types/campaign';
 import { DEFAULT_CAMPAIGN_THEME } from '@/types/theme';
 
@@ -29,16 +31,24 @@ function ColorInput({ label, value, onChange }: ColorInputProps) {
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-[var(--color-text,#f8fafc)]">
+      <label className="block text-sm font-medium text-foreground">
         {label}
       </label>
       <div className="flex items-center gap-3">
-        <div className="relative">
+        <div className="relative group">
           <input
             type="color"
             value={value}
             onChange={(e) => handleColorChange(e.target.value)}
-            className="h-10 w-10 cursor-pointer rounded-lg border border-white/10 bg-transparent"
+            className={cn(
+              'h-10 w-10 cursor-pointer rounded-lg border bg-transparent transition-all duration-300',
+              'border-white/10 hover:border-white/30',
+              'focus:outline-none focus:ring-2 focus:ring-primary/50'
+            )}
+          />
+          <div 
+            className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+            style={{ boxShadow: `0 0 15px ${value}40` }}
           />
         </div>
         <input
@@ -47,7 +57,12 @@ function ColorInput({ label, value, onChange }: ColorInputProps) {
           onChange={(e) => handleColorChange(e.target.value)}
           onBlur={() => setInputValue(value)}
           placeholder="#000000"
-          className="w-28 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-[var(--color-text,#f8fafc)] placeholder:text-gray-400 focus:border-[var(--color-primary,#3b82f6)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary,#3b82f6)]"
+          className={cn(
+            'w-28 rounded-lg border bg-white/5 backdrop-blur-sm px-3 py-2 text-sm text-foreground transition-all duration-300',
+            'placeholder:text-muted-foreground',
+            'focus:outline-none focus:ring-2 focus:ring-offset-0',
+            'border-white/10 hover:border-white/20 focus:border-primary focus:ring-primary/30'
+          )}
         />
       </div>
     </div>
@@ -67,13 +82,14 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium text-white">Theme Colors</h3>
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           onClick={resetToDefaults}
-          className="text-sm text-gray-400 hover:text-white transition-colors"
         >
           Reset to defaults
-        </button>
+        </Button>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -100,12 +116,12 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
       </div>
 
       {/* Live Preview */}
-      <Card padding="none" className="overflow-hidden">
-        <div className="p-3 text-xs font-medium text-gray-400 border-b border-white/10">
+      <Card variant="glass" padding="none" className="overflow-hidden">
+        <div className="p-3 text-xs font-medium text-muted-foreground border-b border-white/10 bg-white/5">
           Preview
         </div>
         <div
-          className="p-6"
+          className="p-6 transition-colors duration-300"
           style={{ backgroundColor: theme.background_color }}
         >
           <div className="space-y-4">
@@ -124,15 +140,21 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
             <div className="flex gap-3">
               <button
                 type="button"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-                style={{ backgroundColor: theme.primary_color }}
+                className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:opacity-90 hover:shadow-lg"
+                style={{ 
+                  backgroundColor: theme.primary_color,
+                  boxShadow: `0 0 20px ${theme.primary_color}40`
+                }}
               >
                 Primary Button
               </button>
               <button
                 type="button"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-                style={{ backgroundColor: theme.secondary_color }}
+                className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:opacity-90 hover:shadow-lg"
+                style={{ 
+                  backgroundColor: theme.secondary_color,
+                  boxShadow: `0 0 20px ${theme.secondary_color}40`
+                }}
               >
                 Secondary Button
               </button>

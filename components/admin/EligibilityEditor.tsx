@@ -2,6 +2,7 @@
 
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
+import { cn } from '@/lib/utils';
 import type { EligibilityConditionInput } from '@/types/quest';
 import type { EligibilityType } from '@/types/database';
 
@@ -49,7 +50,7 @@ export function EligibilityEditor({ eligibility, onChange }: EligibilityEditorPr
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium text-white">Eligibility Conditions</h3>
-          <p className="text-sm text-gray-400">Optional requirements users must meet to participate</p>
+          <p className="text-sm text-muted-foreground">Optional requirements users must meet to participate</p>
         </div>
         <label className="relative inline-flex cursor-pointer items-center">
           <input
@@ -58,14 +59,19 @@ export function EligibilityEditor({ eligibility, onChange }: EligibilityEditorPr
             onChange={handleToggle}
             className="peer sr-only"
           />
-          <div className="peer h-6 w-11 rounded-full bg-white/10 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-focus:ring-2 peer-focus:ring-blue-500" />
+          <div className={cn(
+            'peer h-6 w-11 rounded-full bg-white/10 transition-all duration-300',
+            'after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[\'\']',
+            'peer-checked:bg-primary peer-checked:shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)] peer-checked:after:translate-x-full',
+            'peer-focus:ring-2 peer-focus:ring-primary/50'
+          )} />
         </label>
       </div>
 
       {isEnabled && eligibility && (
-        <Card padding="md" className="space-y-4">
+        <Card variant="glass" padding="md" className="space-y-4">
           <div className="w-full">
-            <label className="mb-1.5 block text-sm font-medium text-[var(--color-text,#f8fafc)]">
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
               Condition Type
             </label>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -74,14 +80,15 @@ export function EligibilityEditor({ eligibility, onChange }: EligibilityEditorPr
                   key={type.value}
                   type="button"
                   onClick={() => handleTypeChange(type.value)}
-                  className={`rounded-lg border p-4 text-left transition-colors ${
+                  className={cn(
+                    'rounded-lg border p-4 text-left transition-all duration-300',
                     eligibility.type === type.value
-                      ? 'border-blue-500 bg-blue-500/10'
-                      : 'border-white/10 bg-white/5 hover:border-white/20'
-                  }`}
+                      ? 'border-primary bg-primary/10 shadow-[0_0_15px_rgba(var(--primary-rgb),0.2)]'
+                      : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.07]'
+                  )}
                 >
                   <div className="font-medium text-white">{type.label}</div>
-                  <div className="mt-1 text-sm text-gray-400">{type.description}</div>
+                  <div className="mt-1 text-sm text-muted-foreground">{type.description}</div>
                 </button>
               ))}
             </div>
@@ -116,7 +123,7 @@ export function EligibilityEditor({ eligibility, onChange }: EligibilityEditorPr
             />
           </div>
 
-          <div className="rounded-lg bg-white/5 p-3 text-sm text-gray-400">
+          <div className="rounded-lg bg-white/5 border border-white/10 p-3 text-sm text-muted-foreground">
             <span className="font-medium text-white">Preview: </span>
             {eligibility.type === 'nft' ? (
               <>
@@ -134,8 +141,8 @@ export function EligibilityEditor({ eligibility, onChange }: EligibilityEditorPr
       )}
 
       {!isEnabled && (
-        <Card padding="md" className="text-center">
-          <p className="text-gray-400">No eligibility conditions. Anyone can participate in this quest.</p>
+        <Card variant="glass" padding="md" className="text-center">
+          <p className="text-muted-foreground">No eligibility conditions. Anyone can participate in this quest.</p>
         </Card>
       )}
     </div>

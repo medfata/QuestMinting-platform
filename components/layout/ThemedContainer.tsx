@@ -3,12 +3,121 @@
 import { HTMLAttributes, forwardRef, useEffect } from 'react';
 import type { CampaignTheme } from '@/types/campaign';
 import type { GlobalTheme } from '@/types/theme';
-import { getThemeStyle, applyThemeToDocument, removeThemeFromDocument } from '@/lib/utils/theme';
+import { cn } from '@/lib/utils';
+
+/**
+ * Converts hex color to RGB values for CSS variable compatibility
+ */
+function hexToRgbValues(hex: string): string {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return '0 0 0';
+  return `${parseInt(result[1], 16)} ${parseInt(result[2], 16)} ${parseInt(result[3], 16)}`;
+}
+
+/**
+ * Converts theme to CSS custom properties compatible with shadcn/ui
+ */
+function themeToCSSProperties(theme: CampaignTheme | GlobalTheme): Record<string, string> {
+  // Convert hex colors to RGB values for shadcn/ui compatibility
+  const primaryRgb = hexToRgbValues(theme.primary_color);
+  const secondaryRgb = hexToRgbValues(theme.secondary_color);
+  const backgroundRgb = hexToRgbValues(theme.background_color);
+  const textRgb = hexToRgbValues(theme.text_color);
+
+  const vars: Record<string, string> = {
+    // Legacy CSS variables (for backward compatibility)
+    '--color-primary': theme.primary_color,
+    '--color-secondary': theme.secondary_color,
+    '--color-background': theme.background_color,
+    '--color-text': theme.text_color,
+    
+    // shadcn/ui compatible RGB variables
+    '--primary': primaryRgb,
+    '--primary-rgb': primaryRgb.replace(/ /g, ', '),
+    '--secondary': secondaryRgb,
+    '--secondary-rgb': secondaryRgb.replace(/ /g, ', '),
+    '--background': backgroundRgb,
+    '--foreground': textRgb,
+    
+    // Card and popover inherit from background
+    '--card': backgroundRgb,
+    '--card-foreground': textRgb,
+    '--popover': backgroundRgb,
+    '--popover-foreground': textRgb,
+    
+    // Glow effects based on theme colors
+    '--glow-primary': `rgba(${primaryRgb.replace(/ /g, ', ')}, 0.5)`,
+    '--glow-secondary': `rgba(${secondaryRgb.replace(/ /g, ', ')}, 0.5)`,
+  };
+
+  if ('heading_font' in theme) {
+    vars['--font-heading'] = theme.heading_font;
+    vars['--font-body'] = theme.body_font;
+  }
+
+  return vars;
+}
+
+/**
+ * Generates inline style object from theme for React components
+ */
+function getThemeStyle(theme: CampaignTheme | GlobalTheme): React.CSSProperties {
+  return themeToCSSProperties(theme) as React.CSSProperties;
+}
+
+/**
+ * Applies theme CSS variables to document root
+ */
+function applyThemeToDocument(theme: CampaignTheme | GlobalTheme): void {
+  if (typeof document === 'undefined') return;
+
+  const vars = themeToCSSProperties(theme);
+  const root = document.documentElement;
+
+  Object.entries(vars).forEach(([key, value]) => {
+    root.style.setProperty(key, value);
+  });
+}
+
+/**
+ * Removes theme CSS variables from document root
+ */
+function removeThemeFromDocument(): void {
+  if (typeof document === 'undefined') return;
+
+  const root = document.documentElement;
+  const themeVars = [
+    '--color-primary',
+    '--color-secondary',
+    '--color-background',
+    '--color-text',
+    '--primary',
+    '--primary-rgb',
+    '--secondary',
+    '--secondary-rgb',
+    '--background',
+    '--foreground',
+    '--card',
+    '--card-foreground',
+    '--popover',
+    '--popover-foreground',
+    '--glow-primary',
+    '--glow-secondary',
+    '--font-heading',
+    '--font-body',
+  ];
+
+  themeVars.forEach((key) => {
+    root.style.removeProperty(key);
+  });
+}
 
 export interface ThemedContainerProps extends HTMLAttributes<HTMLDivElement> {
   theme: CampaignTheme | GlobalTheme;
   applyToDocument?: boolean;
   as?: 'div' | 'main' | 'section' | 'article';
+  /** Enable glassmorphism background effect */
+  glass?: boolean;
 }
 
 export const ThemedContainer = forwardRef<HTMLDivElement, ThemedContainerProps>(
@@ -18,6 +127,7 @@ export const ThemedContainer = forwardRef<HTMLDivElement, ThemedContainerProps>(
       theme,
       applyToDocument = false,
       as: Component = 'div',
+      glass = false,
       children,
       style,
       ...props
@@ -46,7 +156,11 @@ export const ThemedContainer = forwardRef<HTMLDivElement, ThemedContainerProps>(
     return (
       <Component
         ref={ref}
-        className={`min-h-screen bg-[var(--color-background)] text-[var(--color-text)] ${className}`}
+        className={cn(
+          'min-h-screen bg-background text-foreground',
+          glass && 'backdrop-blur-sm',
+          className
+        )}
         style={{ ...combinedStyle, ...fontStyles }}
         {...props}
       >
@@ -63,16 +177,21 @@ ThemedContainer.displayName = 'ThemedContainer';
  */
 export interface ThemedSectionProps extends HTMLAttributes<HTMLDivElement> {
   theme: CampaignTheme | GlobalTheme;
+  /** Enable glassmorphism background effect */
+  glass?: boolean;
 }
 
 export const ThemedSection = forwardRef<HTMLDivElement, ThemedSectionProps>(
-  ({ className = '', theme, children, style, ...props }, ref) => {
+  ({ className = '', theme, glass = false, children, style, ...props }, ref) => {
     const themeStyle = getThemeStyle(theme);
 
     return (
       <div
         ref={ref}
-        className={className}
+        className={cn(
+          glass && 'bg-white/5 backdrop-blur-md border border-white/10 rounded-lg',
+          className
+        )}
         style={{ ...themeStyle, ...style }}
         {...props}
       >

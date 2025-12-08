@@ -6,6 +6,17 @@ const nextConfig: NextConfig = {
   
   // Empty turbopack config to silence the warning
   turbopack: {},
+
+  // Allow external images from LlamaFi for chain icons
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'icons.llamao.fi',
+        pathname: '/icons/chains/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

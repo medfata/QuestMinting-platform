@@ -56,7 +56,7 @@ export default function QuestCampaignPage({ params }: PageProps) {
 
         // Fetch campaign
         const { data: campaignData, error: campaignError } = await supabase
-          .from('quest_campaigns')
+          .from('mint_platform_quest_campaigns')
           .select('*')
           .eq('slug', slug)
           .eq('is_active', true)
@@ -73,7 +73,7 @@ export default function QuestCampaignPage({ params }: PageProps) {
 
         // Fetch tasks
         const { data: tasksData, error: tasksError } = await supabase
-          .from('quest_tasks')
+          .from('mint_platform_quest_tasks')
           .select('*')
           .eq('quest_id', campaignData.id)
           .order('order_index', { ascending: true });
@@ -82,7 +82,7 @@ export default function QuestCampaignPage({ params }: PageProps) {
 
         // Fetch eligibility condition
         const { data: eligibilityData } = await supabase
-          .from('eligibility_conditions')
+          .from('mint_platform_eligibility_conditions')
           .select('*')
           .eq('quest_id', campaignData.id)
           .single();

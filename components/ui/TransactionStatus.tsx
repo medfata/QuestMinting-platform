@@ -19,13 +19,13 @@ export const TransactionStatus = forwardRef<HTMLDivElement, TransactionStatusPro
 
     const stateConfig = {
       pending: {
-        icon: <SpinnerIcon className="h-5 w-5 animate-spin text-blue-400" />,
+        icon: <SpinnerIcon className="h-5 w-5 motion-safe:animate-spin text-blue-400" />,
         title: 'Waiting for confirmation',
         description: 'Please confirm the transaction in your wallet',
         bgColor: 'bg-blue-500/10 border-blue-500/30',
       },
       confirming: {
-        icon: <SpinnerIcon className="h-5 w-5 animate-spin text-yellow-400" />,
+        icon: <SpinnerIcon className="h-5 w-5 motion-safe:animate-spin text-yellow-400" />,
         title: 'Transaction submitted',
         description: 'Waiting for blockchain confirmation...',
         bgColor: 'bg-yellow-500/10 border-yellow-500/30',
