@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
-/* Default to dark theme */
+/* Enable class-based dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Base variables and dark theme defaults */
 :root {
   --radius: 0.75rem;
   
@@ -20,10 +23,30 @@
   --destructive-foreground: 255 255 255;
   
   --ring: 99 102 241;
+  
+  /* Dark theme as default fallback */
+  --background: 10 10 15;
+  --foreground: 248 250 252;
+  --accent-foreground: 10 10 15;
+  --muted: 30 30 40;
+  --muted-foreground: 179 179 179;
+  --card: 15 15 20;
+  --card-foreground: 248 250 252;
+  --popover: 15 15 20;
+  --popover-foreground: 248 250 252;
+  --border: 45 45 55;
+  --input: 30 30 40;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-bg-hover: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-hover: rgba(255, 255, 255, 0.2);
+  --glass-blur: 20px;
+  --glow-primary: rgba(99, 102, 241, 0.5);
+  --glow-secondary: rgba(168, 85, 247, 0.5);
+  --glow-accent: rgba(34, 211, 238, 0.5);
 }
 
-/* Dark theme (default) */
-:root,
+/* Dark theme (explicit class) */
 .dark {
   --background: 10 10 15;
   --foreground: 248 250 252;

@@ -10,7 +10,7 @@ interface ConnectButtonProps {
   requireAuth?: boolean; // If true, automatically prompt for SIWE after wallet connect
 }
 
-export function ConnectButton({ className = '', requireAuth = false }: ConnectButtonProps) {
+export function ConnectButton({ className = '', requireAuth = true }: ConnectButtonProps) {
   const { open } = useWeb3Modal();
   const { isConnecting } = useAccount();
   const { 
@@ -20,7 +20,8 @@ export function ConnectButton({ className = '', requireAuth = false }: ConnectBu
     connectedAddress, 
     signIn, 
     signOut,
-    error 
+    error,
+    canAutoSignIn
   } = useWalletAuth();
 
   // Format address for display (0x1234...5678)
@@ -28,47 +29,49 @@ export function ConnectButton({ className = '', requireAuth = false }: ConnectBu
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
-  // Auto-trigger SIWE when wallet connects and requireAuth is true
+  // Auto-trigger SIWE when wallet connects (only after session check completes)
   useEffect(() => {
-    if (requireAuth && isConnected && !isAuthenticated && !isAuthenticating) {
+    if (requireAuth && isConnected && canAutoSignIn) {
       signIn();
     }
-  }, [requireAuth, isConnected, isAuthenticated, isAuthenticating, signIn]);
+  }, [requireAuth, isConnected, canAutoSignIn, signIn]);
 
   if (isConnecting || isAuthenticating) {
     return (
       <button
         disabled
-        className={`flex items-center gap-2 rounded-full bg-zinc-800 px-4 py-2 text-sm font-medium text-white opacity-70 ${className}`}
+        className={`flex items-center gap-2 rounded-full bg-zinc-200 dark:bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-900 dark:text-white opacity-70 ${className}`}
       >
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-900 dark:border-white border-t-transparent" />
         {isAuthenticating ? 'Signing...' : 'Connecting...'}
       </button>
     );
   }
 
-  // Connected but not authenticated - show sign in button
+  // Connected but not authenticated - show retry button only if there was an error
   if (isConnected && connectedAddress && !isAuthenticated) {
     return (
       <div className="flex flex-col items-end gap-1">
         <div className="flex items-center gap-2">
           <button
             onClick={() => open({ view: 'Account' })}
-            className={`flex items-center gap-2 rounded-full bg-zinc-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 ${className}`}
+            className={`flex items-center gap-2 rounded-full bg-zinc-200 dark:bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-900 dark:text-white transition-colors hover:bg-zinc-300 dark:hover:bg-zinc-700 ${className}`}
           >
             <span className="h-2 w-2 rounded-full bg-yellow-500" />
             {formatAddress(connectedAddress)}
           </button>
-          <button
-            onClick={signIn}
-            className="rounded-full bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500"
-            title="Sign in with Ethereum"
-          >
-            Sign In
-          </button>
+          {error && (
+            <button
+              onClick={signIn}
+              className="rounded-full bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500"
+              title="Retry sign in"
+            >
+              Retry
+            </button>
+          )}
         </div>
         {error && (
-          <span className="text-xs text-red-400">{error}</span>
+          <span className="text-xs text-red-500 dark:text-red-400">{error}</span>
         )}
       </div>
     );
@@ -80,14 +83,14 @@ export function ConnectButton({ className = '', requireAuth = false }: ConnectBu
       <div className="flex items-center gap-2">
         <button
           onClick={() => open({ view: 'Account' })}
-          className={`flex items-center gap-2 rounded-full bg-zinc-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 ${className}`}
+          className={`flex items-center gap-2 rounded-full bg-zinc-200 dark:bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-900 dark:text-white transition-colors hover:bg-zinc-300 dark:hover:bg-zinc-700 ${className}`}
         >
           <span className="h-2 w-2 rounded-full bg-green-500" />
           {formatAddress(connectedAddress)}
         </button>
         <button
           onClick={signOut}
-          className="rounded-full bg-zinc-900 px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
+          className="rounded-full bg-zinc-100 dark:bg-zinc-900 px-3 py-2 text-sm font-medium text-zinc-500 dark:text-zinc-400 transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
           title="Sign out"
         >
           <svg

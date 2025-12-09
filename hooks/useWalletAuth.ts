@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAccount, useSignMessage, useDisconnect } from 'wagmi';
 
 interface AuthState {
   isAuthenticated: boolean;
   isAuthenticating: boolean;
+  isCheckingSession: boolean;
   address: string | null;
   error: string | null;
 }
@@ -39,10 +40,13 @@ export function useWalletAuth() {
   const { address, isConnected, chainId } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { disconnect } = useDisconnect();
+  const sessionCheckRef = useRef<string | null>(null);
+  const userSignedOutRef = useRef(false); // Track if user explicitly signed out
   
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     isAuthenticating: false,
+    isCheckingSession: true, // Start as true to prevent premature sign-in
     address: null,
     error: null,
   });
@@ -50,6 +54,12 @@ export function useWalletAuth() {
   // Check existing session on mount and when address changes
   useEffect(() => {
     const checkSession = async () => {
+      // Prevent duplicate checks for the same address
+      if (sessionCheckRef.current === address) return;
+      sessionCheckRef.current = address ?? null;
+
+      setAuthState(prev => ({ ...prev, isCheckingSession: true }));
+      
       try {
         const response = await fetch('/api/auth/verify');
         const data = await response.json();
@@ -60,14 +70,16 @@ export function useWalletAuth() {
             setAuthState({
               isAuthenticated: true,
               isAuthenticating: false,
+              isCheckingSession: false,
               address: data.address,
               error: null,
             });
           } else {
-            // Session exists but for different wallet, clear it
+            // Session exists but for different wallet
             setAuthState({
               isAuthenticated: false,
               isAuthenticating: false,
+              isCheckingSession: false,
               address: null,
               error: null,
             });
@@ -76,6 +88,7 @@ export function useWalletAuth() {
           setAuthState(prev => ({
             ...prev,
             isAuthenticated: false,
+            isCheckingSession: false,
             address: null,
           }));
         }
@@ -84,6 +97,7 @@ export function useWalletAuth() {
         setAuthState(prev => ({
           ...prev,
           isAuthenticated: false,
+          isCheckingSession: false,
           address: null,
         }));
       }
@@ -92,9 +106,11 @@ export function useWalletAuth() {
     if (isConnected && address) {
       checkSession();
     } else {
+      sessionCheckRef.current = null;
       setAuthState({
         isAuthenticated: false,
         isAuthenticating: false,
+        isCheckingSession: false,
         address: null,
         error: null,
       });
@@ -186,21 +202,32 @@ export function useWalletAuth() {
   // Sign out
   const signOut = useCallback(async () => {
     try {
+      // Mark that user explicitly signed out to prevent auto-sign-in
+      userSignedOutRef.current = true;
+      
       await fetch('/api/auth/verify', { method: 'DELETE' });
       
       setAuthState({
         isAuthenticated: false,
         isAuthenticating: false,
+        isCheckingSession: false,
         address: null,
         error: null,
       });
 
-      // Optionally disconnect wallet
+      // Disconnect wallet
       disconnect();
     } catch (error) {
       console.error('Sign out error:', error);
     }
   }, [disconnect]);
+
+  // Reset userSignedOut flag when wallet disconnects completely
+  useEffect(() => {
+    if (!isConnected) {
+      userSignedOutRef.current = false;
+    }
+  }, [isConnected]);
 
   return {
     ...authState,
@@ -208,5 +235,7 @@ export function useWalletAuth() {
     connectedAddress: address,
     signIn,
     signOut,
+    // Computed property: ready to auto-sign-in (session checked, not authenticated, not already signing, user didn't just sign out)
+    canAutoSignIn: !authState.isCheckingSession && !authState.isAuthenticated && !authState.isAuthenticating && !authState.error && !userSignedOutRef.current,
   };
 }
