@@ -6,3 +6,5 @@ export type { FooterProps } from './Footer';
 
 export { ThemedContainer, ThemedSection } from './ThemedContainer';
 export type { ThemedContainerProps, ThemedSectionProps } from './ThemedContainer';
+
+export { PublicLoadingProvider, usePublicLoading } from './PublicLoadingProvider';

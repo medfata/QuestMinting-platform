@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useAccount, useSwitchChain } from 'wagmi';
 import { createClient } from '@/lib/supabase/client';
 import { useMint } from '@/hooks/useMint';
-import { ThemedContainer } from '@/components/layout/ThemedContainer';
+import { ThemedContainer, usePublicLoading } from '@/components/layout';
 import { MintTierSelector } from '@/components/campaigns/MintTierSelector';
 import { Button } from '@/components/ui/Button';
 import { GlowCard } from '@/components/futuristic/glow-card';

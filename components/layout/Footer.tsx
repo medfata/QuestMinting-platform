@@ -16,47 +16,91 @@ export const Footer = forwardRef<HTMLElement, FooterProps>(
       <footer
         ref={ref}
         className={cn(
-          'relative border-t border-white/10',
-          'bg-background/50 backdrop-blur-md',
+          'relative border-t border-border/50',
           className
         )}
         {...props}
       >
-        {/* Subtle gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-50 pointer-events-none" />
+        {/* Background gradient - theme aware */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent pointer-events-none" />
         
-        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            {/* Copyright */}
-            <p className="text-sm text-muted-foreground">
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="grid gap-12 md:grid-cols-4">
+            {/* Brand Column */}
+            <div className="md:col-span-2">
+              <Link href="/" className="inline-flex items-center gap-3 mb-4">
+                <div className="relative w-10 h-10 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent rounded-xl opacity-80" />
+                  <div className="absolute inset-[2px] bg-background rounded-[10px]" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="relative z-10 text-foreground"
+                  >
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                    <path d="M2 17l10 5 10-5" />
+                    <path d="M2 12l10 5 10-5" />
+                  </svg>
+                </div>
+                <span className="text-xl font-semibold text-foreground">MintPlatform</span>
+              </Link>
+              <p className="text-muted-foreground max-w-sm mb-6">
+                Discover, collect, and mint unique digital art across multiple blockchains. Complete quests to earn exclusive free mints.
+              </p>
+              
+              {/* Social Links */}
+              {showSocials && (
+                <div className="flex items-center gap-3">
+                  <SocialLink
+                    href="https://twitter.com"
+                    label="Twitter"
+                    icon={<TwitterIcon />}
+                  />
+                  <SocialLink
+                    href="https://discord.com"
+                    label="Discord"
+                    icon={<DiscordIcon />}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Explore</h4>
+              <ul className="space-y-3">
+                <li><FooterLink href="/">Home</FooterLink></li>
+                <li><FooterLink href="#explore">MintFun</FooterLink></li>
+                <li><FooterLink href="#quests">Quests</FooterLink></li>
+              </ul>
+            </div>
+
+            {/* Legal Links */}
+            <div>
+              <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Legal</h4>
+              <ul className="space-y-3">
+                <li><FooterLink href="/terms">Terms of Service</FooterLink></li>
+                <li><FooterLink href="/privacy">Privacy Policy</FooterLink></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="mt-12 pt-8 border-t border-border/50">
+            <p className="text-sm text-muted-foreground text-center">
               © {currentYear}{' '}
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-medium">
                 MintPlatform
               </span>
               . All rights reserved.
             </p>
-
-            {/* Links */}
-            <nav className="flex items-center gap-6">
-              <FooterLink href="/terms">Terms</FooterLink>
-              <FooterLink href="/privacy">Privacy</FooterLink>
-            </nav>
-
-            {/* Social Links */}
-            {showSocials && (
-              <div className="flex items-center gap-3">
-                <SocialLink
-                  href="https://twitter.com"
-                  label="Twitter"
-                  icon={<TwitterIcon />}
-                />
-                <SocialLink
-                  href="https://discord.com"
-                  label="Discord"
-                  icon={<DiscordIcon />}
-                />
-              </div>
-            )}
           </div>
         </div>
       </footer>
@@ -79,7 +123,7 @@ function FooterLink({ href, children }: FooterLinkProps) {
       className={cn(
         'text-sm text-muted-foreground',
         'transition-all duration-300',
-        'hover:text-foreground hover:drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.3)]'
+        'hover:text-foreground'
       )}
     >
       {children}
@@ -87,7 +131,7 @@ function FooterLink({ href, children }: FooterLinkProps) {
   );
 }
 
-// Social link component with glassmorphism
+// Social link component
 interface SocialLinkProps {
   href: string;
   label: string;
@@ -102,12 +146,12 @@ function SocialLink({ href, label, icon }: SocialLinkProps) {
       rel="noopener noreferrer"
       aria-label={label}
       className={cn(
-        'flex h-9 w-9 items-center justify-center rounded-lg',
-        'bg-white/5 border border-white/10',
+        'flex h-10 w-10 items-center justify-center rounded-xl',
+        'bg-foreground/5 border border-foreground/10',
         'text-muted-foreground',
         'transition-all duration-300',
-        'hover:bg-white/10 hover:border-white/20',
-        'hover:text-foreground hover:shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]'
+        'hover:bg-foreground/10 hover:border-foreground/20',
+        'hover:text-foreground hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.2)]'
       )}
     >
       {icon}

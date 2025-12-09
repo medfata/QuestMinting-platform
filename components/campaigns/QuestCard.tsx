@@ -77,7 +77,7 @@ export function QuestCard({ campaign, className = '', animationDelay = 0 }: Ques
         </CardContent>
         
         {/* Footer with divider */}
-        <CardFooter className="border-t border-white/10 p-4">
+        <CardFooter className="border-t border-border p-4">
           <div className="flex w-full items-center justify-between">
             <span className="text-sm font-medium text-primary">
               Free Mint

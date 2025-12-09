@@ -12,13 +12,13 @@ const cardVariants = cva(
         default:
           'bg-card border border-border',
         glass:
-          'bg-white/5 backdrop-blur-xl border border-white/10 hover:border-white/20 hover:bg-white/[0.07]',
+          'glass glass-hover backdrop-blur-xl',
         elevated:
-          'bg-card shadow-lg shadow-black/20 border border-border',
+          'bg-card shadow-lg shadow-black/10 dark:shadow-black/20 border border-border',
         outlined:
           'border-2 border-primary bg-transparent',
         glow:
-          'bg-white/5 backdrop-blur-xl border border-white/10 hover:border-primary/50 hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.15)]',
+          'glass backdrop-blur-xl hover:border-primary/50 hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.15)]',
       },
       padding: {
         none: '',

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/components/theme';
 
 export interface AnimatedBackgroundProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'hero' | 'subtle' | 'minimal';
@@ -11,18 +12,25 @@ export interface AnimatedBackgroundProps extends React.HTMLAttributes<HTMLDivEle
 
 const AnimatedBackground = React.forwardRef<HTMLDivElement, AnimatedBackgroundProps>(
   ({ className, variant = 'hero', showGrid = true, showOrbs = true, children, ...props }, ref) => {
+    const { resolvedTheme } = useTheme();
+    const isLight = resolvedTheme === 'light';
+
     return (
       <div
         ref={ref}
         className={cn('relative overflow-hidden', className)}
         {...props}
       >
-        {/* Base gradient layer */}
+        {/* Base gradient layer - theme aware */}
         <div
-          className={cn(
-            'absolute inset-0 bg-gradient-to-br from-background via-background to-background',
-            variant === 'hero' && 'from-[rgb(10,10,20)] via-[rgb(15,15,25)] to-[rgb(10,10,15)]'
-          )}
+          className="absolute inset-0 transition-colors duration-500"
+          style={{
+            background: variant === 'hero'
+              ? isLight
+                ? 'linear-gradient(to bottom right, rgb(248,249,255), rgb(240,242,255), rgb(232,234,255))'
+                : 'linear-gradient(to bottom right, rgb(10,10,20), rgb(15,15,25), rgb(10,10,15))'
+              : undefined,
+          }}
         />
 
         {/* Animated gradient orbs */}
@@ -58,18 +66,19 @@ const AnimatedBackground = React.forwardRef<HTMLDivElement, AnimatedBackgroundPr
           </>
         )}
 
-        {/* Grid pattern overlay */}
+        {/* Grid pattern overlay - theme aware */}
         {showGrid && (
           <div
             className={cn(
-              'absolute inset-0 opacity-[0.03]',
-              variant === 'hero' && 'opacity-[0.05]'
+              'absolute inset-0 transition-opacity duration-500',
+              variant === 'hero' ? (isLight ? 'opacity-[0.06]' : 'opacity-[0.05]') : (isLight ? 'opacity-[0.04]' : 'opacity-[0.03]')
             )}
             style={{
-              backgroundImage: `
-                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
-              `,
+              backgroundImage: isLight
+                ? `linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
+                   linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`
+                : `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                   linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
               backgroundSize: '50px 50px',
             }}
           />

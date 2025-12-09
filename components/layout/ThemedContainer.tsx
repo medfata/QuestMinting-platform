@@ -16,13 +16,12 @@ function hexToRgbValues(hex: string): string {
 
 /**
  * Converts theme to CSS custom properties compatible with shadcn/ui
+ * Does NOT override background/foreground to respect light/dark theme toggle
  */
 function themeToCSSProperties(theme: CampaignTheme | GlobalTheme): Record<string, string> {
   // Convert hex colors to RGB values for shadcn/ui compatibility
   const primaryRgb = hexToRgbValues(theme.primary_color);
   const secondaryRgb = hexToRgbValues(theme.secondary_color);
-  const backgroundRgb = hexToRgbValues(theme.background_color);
-  const textRgb = hexToRgbValues(theme.text_color);
 
   const vars: Record<string, string> = {
     // Legacy CSS variables (for backward compatibility)
@@ -31,19 +30,12 @@ function themeToCSSProperties(theme: CampaignTheme | GlobalTheme): Record<string
     '--color-background': theme.background_color,
     '--color-text': theme.text_color,
     
-    // shadcn/ui compatible RGB variables
+    // shadcn/ui compatible RGB variables - only primary/secondary colors
+    // Background and foreground are controlled by light/dark theme in globals.css
     '--primary': primaryRgb,
     '--primary-rgb': primaryRgb.replace(/ /g, ', '),
     '--secondary': secondaryRgb,
     '--secondary-rgb': secondaryRgb.replace(/ /g, ', '),
-    '--background': backgroundRgb,
-    '--foreground': textRgb,
-    
-    // Card and popover inherit from background
-    '--card': backgroundRgb,
-    '--card-foreground': textRgb,
-    '--popover': backgroundRgb,
-    '--popover-foreground': textRgb,
     
     // Glow effects based on theme colors
     '--glow-primary': `rgba(${primaryRgb.replace(/ /g, ', ')}, 0.5)`,
@@ -95,12 +87,6 @@ function removeThemeFromDocument(): void {
     '--primary-rgb',
     '--secondary',
     '--secondary-rgb',
-    '--background',
-    '--foreground',
-    '--card',
-    '--card-foreground',
-    '--popover',
-    '--popover-foreground',
     '--glow-primary',
     '--glow-secondary',
     '--font-heading',
@@ -189,7 +175,7 @@ export const ThemedSection = forwardRef<HTMLDivElement, ThemedSectionProps>(
       <div
         ref={ref}
         className={cn(
-          glass && 'bg-white/5 backdrop-blur-md border border-white/10 rounded-lg',
+          glass && 'glass backdrop-blur-md rounded-lg',
           className
         )}
         style={{ ...themeStyle, ...style }}

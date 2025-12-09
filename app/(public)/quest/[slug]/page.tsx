@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useMint } from '@/hooks/useMint';
 import { useEligibility } from '@/hooks/useEligibility';
 import { useTaskVerification } from '@/hooks/useTaskVerification';
-import { ThemedContainer } from '@/components/layout/ThemedContainer';
+import { ThemedContainer, usePublicLoading } from '@/components/layout';
 import { TaskList } from '@/components/campaigns/TaskList';
 import { EligibilityBadge } from '@/components/campaigns/EligibilityBadge';
 import { Button } from '@/components/ui/Button';

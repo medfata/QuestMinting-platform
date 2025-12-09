@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { WalletProvider } from "@/components/wallet/WalletProvider";
+import { ThemeProvider } from "@/components/theme";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -32,9 +33,11 @@ export default function RootLayout({
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
-        <WalletProvider>
-          {children}
-        </WalletProvider>
+        <ThemeProvider>
+          <WalletProvider>
+            {children}
+          </WalletProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
