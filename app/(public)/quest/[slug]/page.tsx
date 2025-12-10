@@ -152,8 +152,10 @@ export default function QuestCampaignPage({ params }: PageProps) {
       return;
     }
 
+    // Use the campaign's token_id for minting
+    const tokenIdToMint = campaign.token_id ? parseInt(campaign.token_id) : 0;
     // Quest mints are free (price = 0)
-    await mint(0, 1, '0');
+    await mint(tokenIdToMint, 1, '0');
   };
 
   const theme: CampaignTheme = campaign?.theme || DEFAULT_CAMPAIGN_THEME;

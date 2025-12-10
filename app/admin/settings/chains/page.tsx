@@ -2,10 +2,12 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useSwitchChain, useAccount } from 'wagmi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { searchChains, getPopularChains, transformToSupportedChain, isTestnet } from '@/lib/services/chainlist';
+import { useDeployContract } from '@/hooks/useDeployContract';
 import type { ChainlistNetwork } from '@/types/chain';
 import type { SupportedChainRow, SupportedChainInsert } from '@/types/database';
 import Image from 'next/image';
@@ -257,7 +259,7 @@ export default function ChainManagementPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <span className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+        <span className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -266,19 +268,19 @@ export default function ChainManagementPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Chain Management</h1>
-          <p className="mt-1 text-sm text-gray-400">
+          <h1 className="text-2xl font-bold text-foreground">Chain Management</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Search and enable blockchain networks for your campaigns
           </p>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-red-400">
+        <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-red-600 dark:text-red-400">
           {error}
           <button
             onClick={() => setError(null)}
-            className="ml-2 text-red-300 hover:text-red-200"
+            className="ml-2 text-red-500 hover:text-red-400"
           >
             ×
           </button>
@@ -298,12 +300,12 @@ export default function ChainManagementPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
               <input
                 type="checkbox"
                 checked={includeTestnets}
                 onChange={(e) => setIncludeTestnets(e.target.checked)}
-                className="rounded border-gray-600 bg-white/5 text-blue-500 focus:ring-blue-500"
+                className="rounded border-border bg-foreground/5 text-primary focus:ring-primary"
               />
               Include Testnets
             </label>
@@ -320,7 +322,7 @@ export default function ChainManagementPage() {
         </CardHeader>
         <CardContent>
           {enabledChains.filter((c) => c.is_enabled).length === 0 ? (
-            <p className="text-gray-400">No chains enabled yet. Search and enable chains below.</p>
+            <p className="text-muted-foreground">No chains enabled yet. Search and enable chains below.</p>
           ) : (
             <div className="space-y-3">
               {enabledChains
@@ -328,7 +330,7 @@ export default function ChainManagementPage() {
                 .map((chain) => (
                   <div
                     key={chain.id}
-                    className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4"
+                    className="flex items-center justify-between rounded-lg border border-border bg-foreground/5 p-4"
                   >
                     <div className="flex items-center gap-4">
                       <ChainIcon 
@@ -338,14 +340,14 @@ export default function ChainManagementPage() {
                       />
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-white">{chain.name}</span>
+                          <span className="font-medium text-foreground">{chain.name}</span>
                           {chain.is_testnet && (
-                            <span className="rounded bg-yellow-500/20 px-1.5 py-0.5 text-xs text-yellow-400">
+                            <span className="rounded bg-yellow-500/20 px-1.5 py-0.5 text-xs text-yellow-600 dark:text-yellow-400">
                               Testnet
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-gray-400">
+                        <div className="text-sm text-muted-foreground">
                           Chain ID: {chain.chain_id} • {chain.native_currency.symbol}
                         </div>
                       </div>
@@ -395,13 +397,13 @@ export default function ChainManagementPage() {
           <CardTitle>
             {searchQuery ? 'Search Results' : 'Popular Chains'}
             {isSearching && (
-              <span className="ml-2 h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent inline-block" />
+              <span className="ml-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent inline-block" />
             )}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {chains.length === 0 ? (
-            <p className="text-gray-400">
+            <p className="text-muted-foreground">
               {searchQuery ? 'No chains found matching your search.' : 'No chains available.'}
             </p>
           ) : (
@@ -409,7 +411,7 @@ export default function ChainManagementPage() {
               {chains.map((chain) => (
                 <div
                   key={chain.chainId}
-                  className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4"
+                  className="flex items-center justify-between rounded-lg border border-border bg-foreground/5 p-4"
                 >
                   <div className="flex items-center gap-4">
                     <ChainIcon 
@@ -419,19 +421,19 @@ export default function ChainManagementPage() {
                     />
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-white">{chain.name}</span>
+                        <span className="font-medium text-foreground">{chain.name}</span>
                         {isTestnet(chain) && (
-                          <span className="rounded bg-yellow-500/20 px-1.5 py-0.5 text-xs text-yellow-400">
+                          <span className="rounded bg-yellow-500/20 px-1.5 py-0.5 text-xs text-yellow-600 dark:text-yellow-400">
                             Testnet
                           </span>
                         )}
                         {chain.isEnabled && (
-                          <span className="rounded bg-green-500/20 px-1.5 py-0.5 text-xs text-green-400">
+                          <span className="rounded bg-green-500/20 px-1.5 py-0.5 text-xs text-green-600 dark:text-green-400">
                             Enabled
                           </span>
                         )}
                       </div>
-                      <div className="text-sm text-gray-400">
+                      <div className="text-sm text-muted-foreground">
                         Chain ID: {chain.chainId} • {chain.nativeCurrency.symbol}
                         {chain.tvl && ` • TVL: $${(chain.tvl / 1e9).toFixed(2)}B`}
                       </div>
@@ -443,7 +445,7 @@ export default function ChainManagementPage() {
                         href={chain.explorers[0].url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-gray-400 hover:text-white"
+                        className="text-sm text-muted-foreground hover:text-foreground"
                       >
                         Explorer ↗
                       </a>
@@ -500,6 +502,86 @@ interface ChainConfigModalProps {
 function ChainConfigModal({ chain, onClose, onSave, isSaving }: ChainConfigModalProps) {
   const [rpcUrls, setRpcUrls] = useState(chain.rpc_urls.join('\n'));
   const [mintContractAddress, setMintContractAddress] = useState(chain.mint_contract_address || '');
+  const [contractName, setContractName] = useState('QuestMint');
+  const [contractSymbol, setContractSymbol] = useState('QMINT');
+  const [isSwitching, setIsSwitching] = useState(false);
+
+  const { address, chainId: connectedChainId } = useAccount();
+  const { switchChain } = useSwitchChain();
+  const {
+    deploy,
+    error: deployError,
+    txHash,
+    contractAddress: deployedAddress,
+    reset: resetDeploy,
+    isPending,
+    isDeploying,
+    isSuccess: isDeploySuccess,
+  } = useDeployContract();
+
+  const isWrongChain = connectedChainId !== chain.chain_id;
+
+  // Add chain to wallet and switch
+  const handleSwitchChain = async () => {
+    if (!window.ethereum) {
+      alert('Please install a Web3 wallet');
+      return;
+    }
+
+    setIsSwitching(true);
+    try {
+      // First try to switch
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: `0x${chain.chain_id.toString(16)}` }],
+        });
+      } catch (switchError: unknown) {
+        // If chain doesn't exist, add it
+        if ((switchError as { code?: number })?.code === 4902) {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: `0x${chain.chain_id.toString(16)}`,
+              chainName: chain.name,
+              nativeCurrency: {
+                name: chain.native_currency.name,
+                symbol: chain.native_currency.symbol,
+                decimals: chain.native_currency.decimals,
+              },
+              rpcUrls: chain.rpc_urls,
+              blockExplorerUrls: chain.explorer_url ? [chain.explorer_url] : undefined,
+            }],
+          });
+        } else {
+          throw switchError;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to switch chain:', error);
+      alert('Failed to switch chain. Please try manually in your wallet.');
+    } finally {
+      setIsSwitching(false);
+    }
+  };
+
+  const handleDeploy = async () => {
+    if (isWrongChain) {
+      await handleSwitchChain();
+      return;
+    }
+
+    const deployedAddr = await deploy({
+      name: contractName,
+      symbol: contractSymbol,
+      contractURI: '',
+      chainId: chain.chain_id,
+    });
+
+    if (deployedAddr) {
+      setMintContractAddress(deployedAddr);
+    }
+  };
 
   const handleSave = () => {
     const urls = rpcUrls
@@ -515,12 +597,12 @@ function ChainConfigModal({ chain, onClose, onSave, isSaving }: ChainConfigModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-xl border border-white/10 bg-zinc-900 p-6 shadow-xl">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border border-border bg-background p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">Configure {chain.name}</h2>
+          <h2 className="text-xl font-bold text-foreground">Configure {chain.name}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white"
+            className="text-muted-foreground hover:text-foreground"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />
@@ -531,28 +613,100 @@ function ChainConfigModal({ chain, onClose, onSave, isSaving }: ChainConfigModal
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-white">
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
               Chain ID
             </label>
-            <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-gray-400">
+            <div className="rounded-lg border border-border bg-foreground/5 px-4 py-2.5 text-muted-foreground">
               {chain.chain_id}
             </div>
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-white">
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
               RPC URLs (one per line)
             </label>
             <textarea
               value={rpcUrls}
               onChange={(e) => setRpcUrls(e.target.value)}
               rows={4}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-white placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border border-border bg-foreground/5 px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="https://rpc.example.com"
             />
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-muted-foreground">
               Multiple RPCs provide fallback options if one fails
             </p>
+          </div>
+
+          {/* Deploy Contract Section */}
+          <div className="rounded-lg border border-border bg-foreground/5 p-4 space-y-3">
+            <h3 className="font-medium text-foreground">Deploy QuestMint Contract</h3>
+            <p className="text-xs text-muted-foreground">
+              Deploy a new ERC1155 contract for minting on this chain
+            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label="Contract Name"
+                value={contractName}
+                onChange={(e) => setContractName(e.target.value)}
+                placeholder="QuestMint"
+              />
+              <Input
+                label="Symbol"
+                value={contractSymbol}
+                onChange={(e) => setContractSymbol(e.target.value)}
+                placeholder="QMINT"
+              />
+            </div>
+
+            {deployError && (
+              <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400">
+                {deployError.message}
+                <button
+                  onClick={resetDeploy}
+                  className="ml-2 underline hover:no-underline"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
+            {isDeploySuccess && deployedAddress && (
+              <div className="rounded-lg bg-green-500/10 p-3 text-sm text-green-600 dark:text-green-400">
+                Contract deployed at: {deployedAddress.slice(0, 10)}...{deployedAddress.slice(-8)}
+                {txHash && (
+                  <a
+                    href={`${chain.explorer_url}/tx/${txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 underline hover:no-underline"
+                  >
+                    View tx ↗
+                  </a>
+                )}
+              </div>
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDeploy}
+              isLoading={isPending || isDeploying || isSwitching}
+              disabled={!address || isPending || isDeploying || isSwitching}
+              className="w-full"
+            >
+              {!address
+                ? 'Connect Wallet to Deploy'
+                : isSwitching
+                  ? 'Switching Network...'
+                  : isWrongChain
+                    ? `Switch to ${chain.name}`
+                    : isPending
+                      ? 'Confirm in Wallet...'
+                      : isDeploying
+                        ? 'Deploying...'
+                        : 'Deploy Contract'}
+            </Button>
           </div>
 
           <Input
@@ -560,7 +714,7 @@ function ChainConfigModal({ chain, onClose, onSave, isSaving }: ChainConfigModal
             value={mintContractAddress}
             onChange={(e) => setMintContractAddress(e.target.value)}
             placeholder="0x..."
-            helperText="The default mint contract address for this chain"
+            helperText="The default mint contract address for this chain (auto-filled after deploy)"
           />
         </div>
 

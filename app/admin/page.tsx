@@ -38,7 +38,7 @@ function StatCard({ title, value, subtitle, subtitleColor = 'gray', icon, glowCo
       variant="glass" 
       className={cn(
         'group relative overflow-hidden transition-all duration-300',
-        'hover:-translate-y-1 hover:border-white/20',
+        'hover:-translate-y-1 hover:border-border',
         'hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.15)]'
       )}
     >
@@ -48,17 +48,17 @@ function StatCard({ title, value, subtitle, subtitleColor = 'gray', icon, glowCo
       <CardContent className="pt-5 relative">
         <div className="flex items-start justify-between">
           <div>
-            <div className="text-sm text-gray-400">{title}</div>
-            <div className="mt-1 text-3xl font-bold text-white">{value}</div>
+            <div className="text-sm text-muted-foreground">{title}</div>
+            <div className="mt-1 text-3xl font-bold text-foreground">{value}</div>
             <div className={cn(
               'mt-1 text-sm',
-              subtitleColor === 'green' ? 'text-green-400' : 'text-gray-500'
+              subtitleColor === 'green' ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
             )}>
               {subtitle}
             </div>
           </div>
           <div className={cn(
-            'p-2 rounded-lg bg-white/5 text-gray-400',
+            'p-2 rounded-lg bg-foreground/5 text-muted-foreground',
             'group-hover:bg-primary/10 group-hover:text-primary',
             'transition-all duration-300'
           )}>
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
         <Link href="/admin/campaigns">
           <Button variant="glow">View All Campaigns</Button>
         </Link>
@@ -214,7 +214,7 @@ export default function AdminDashboard() {
       <div className="grid gap-4 sm:grid-cols-2">
         <Card 
           variant="glass" 
-          className="transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]"
+          className="transition-all duration-300 hover:border-border hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]"
         >
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
@@ -246,35 +246,35 @@ export default function AdminDashboard() {
         {/* Recent Campaigns */}
         <Card 
           variant="glass" 
-          className="transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]"
+          className="transition-all duration-300 hover:border-border hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]"
         >
           <CardHeader>
             <CardTitle>Recent Campaigns</CardTitle>
           </CardHeader>
           <CardContent>
             {recentCampaigns.length === 0 ? (
-              <p className="text-sm text-gray-400">No campaigns yet</p>
+              <p className="text-sm text-muted-foreground">No campaigns yet</p>
             ) : (
               <ul className="space-y-3">
                 {recentCampaigns.map((campaign) => (
                   <li 
                     key={campaign.id} 
-                    className="flex items-center justify-between p-2 -mx-2 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                    className="flex items-center justify-between p-2 -mx-2 rounded-lg transition-colors duration-200 hover:bg-foreground/5"
                   >
                     <div className="flex items-center gap-3">
                       <span
                         className={cn(
                           'rounded px-2 py-0.5 text-xs font-medium border',
                           campaign.type === 'mintfun'
-                            ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
-                            : 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                            ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30'
+                            : 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30'
                         )}
                       >
                         {campaign.type === 'mintfun' ? 'MintFun' : 'Quest'}
                       </span>
                       <Link
                         href={`/admin/campaigns/${campaign.type}/${campaign.id}`}
-                        className="text-sm text-white hover:text-primary transition-colors duration-200"
+                        className="text-sm text-foreground hover:text-primary transition-colors duration-200"
                       >
                         {campaign.title}
                       </Link>
@@ -285,10 +285,10 @@ export default function AdminDashboard() {
                           'h-2 w-2 rounded-full',
                           campaign.is_active 
                             ? 'bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]' 
-                            : 'bg-gray-500'
+                            : 'bg-muted-foreground'
                         )}
                       />
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         {formatDate(campaign.created_at)}
                       </span>
                     </div>

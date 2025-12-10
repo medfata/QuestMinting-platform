@@ -42,7 +42,7 @@ function ColorInput({ label, value, onChange }: ColorInputProps) {
             onChange={(e) => handleColorChange(e.target.value)}
             className={cn(
               'h-10 w-10 cursor-pointer rounded-lg border bg-transparent transition-all duration-300',
-              'border-white/10 hover:border-white/30',
+              'border-border hover:border-border/80',
               'focus:outline-none focus:ring-2 focus:ring-primary/50'
             )}
           />
@@ -58,10 +58,10 @@ function ColorInput({ label, value, onChange }: ColorInputProps) {
           onBlur={() => setInputValue(value)}
           placeholder="#000000"
           className={cn(
-            'w-28 rounded-lg border bg-white/5 backdrop-blur-sm px-3 py-2 text-sm text-foreground transition-all duration-300',
+            'w-28 rounded-lg border bg-foreground/5 backdrop-blur-sm px-3 py-2 text-sm text-foreground transition-all duration-300',
             'placeholder:text-muted-foreground',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
-            'border-white/10 hover:border-white/20 focus:border-primary focus:ring-primary/30'
+            'border-border hover:border-border/80 focus:border-primary focus:ring-primary/30'
           )}
         />
       </div>
@@ -81,7 +81,7 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-white">Theme Colors</h3>
+        <h3 className="text-lg font-medium text-foreground">Theme Colors</h3>
         <Button
           type="button"
           variant="ghost"
@@ -117,7 +117,7 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
 
       {/* Live Preview */}
       <Card variant="glass" padding="none" className="overflow-hidden">
-        <div className="p-3 text-xs font-medium text-muted-foreground border-b border-white/10 bg-white/5">
+        <div className="p-3 text-xs font-medium text-muted-foreground border-b border-border bg-foreground/5">
           Preview
         </div>
         <div

@@ -72,7 +72,7 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-white">Quest Tasks</h3>
+        <h3 className="text-lg font-medium text-foreground">Quest Tasks</h3>
         <Button type="button" variant="outline" size="sm" onClick={addTask}>
           + Add Task
         </Button>
@@ -96,7 +96,7 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
                   type="button"
                   onClick={() => moveTask(index, 'up')}
                   disabled={index === 0}
-                  className="rounded p-1.5 text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-30 transition-all duration-200"
+                  className="rounded p-1.5 text-muted-foreground hover:bg-foreground/10 hover:text-foreground disabled:opacity-30 transition-all duration-200"
                   title="Move up"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -107,7 +107,7 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
                   type="button"
                   onClick={() => moveTask(index, 'down')}
                   disabled={index === tasks.length - 1}
-                  className="rounded p-1.5 text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-30 transition-all duration-200"
+                  className="rounded p-1.5 text-muted-foreground hover:bg-foreground/10 hover:text-foreground disabled:opacity-30 transition-all duration-200"
                   title="Move down"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -117,7 +117,7 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
                 <button
                   type="button"
                   onClick={() => removeTask(index)}
-                  className="rounded p-1.5 text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200"
+                  className="rounded p-1.5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 transition-all duration-200"
                   title="Remove task"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -137,13 +137,13 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
                       value={task.type}
                       onChange={(e) => updateTask(index, 'type', e.target.value as QuestTaskType)}
                       className={cn(
-                        'w-full rounded-lg border bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
+                        'w-full rounded-lg border bg-foreground/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
                         'focus:outline-none focus:ring-2 focus:ring-offset-0',
-                        'border-white/10 hover:border-white/20 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
+                        'border-border hover:border-border/80 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
                       )}
                     >
                       {TASK_TYPES.map((type) => (
-                        <option key={type.value} value={type.value} className="bg-zinc-900">
+                        <option key={type.value} value={type.value} className="bg-background text-foreground">
                           {type.icon} {type.label}
                         </option>
                       ))}
@@ -176,10 +176,10 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
                     placeholder="Additional instructions for this task..."
                     rows={2}
                     className={cn(
-                      'w-full rounded-lg border bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
+                      'w-full rounded-lg border bg-foreground/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
                       'placeholder:text-muted-foreground',
                       'focus:outline-none focus:ring-2 focus:ring-offset-0',
-                      'border-white/10 hover:border-white/20 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
+                      'border-border hover:border-border/80 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
                     )}
                   />
                 </div>

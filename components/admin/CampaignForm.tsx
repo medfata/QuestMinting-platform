@@ -21,9 +21,10 @@ interface CampaignFormProps {
   onChange: (data: CampaignFormData) => void;
   errors?: Partial<Record<keyof CampaignFormData, string>>;
   isEditing?: boolean;
+  onChainSelect?: (chain: SupportedChain | null) => void;
 }
 
-export function CampaignForm({ data, onChange, errors = {}, isEditing = false }: CampaignFormProps) {
+export function CampaignForm({ data, onChange, errors = {}, isEditing = false, onChainSelect }: CampaignFormProps) {
   const [chains, setChains] = useState<SupportedChain[]>([]);
   const [isLoadingChains, setIsLoadingChains] = useState(true);
 
@@ -47,6 +48,22 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false }:
 
   const handleChange = (field: keyof CampaignFormData, value: string | number | boolean) => {
     onChange({ ...data, [field]: value });
+  };
+
+  const handleChainChange = (chainId: number) => {
+    const selectedChain = chains.find((c) => c.chain_id === chainId) || null;
+    
+    // Auto-fill contract address from chain's mint_contract_address
+    const contractAddress = selectedChain?.mint_contract_address || '';
+    
+    onChange({
+      ...data,
+      chain_id: chainId,
+      contract_address: contractAddress,
+    });
+
+    // Notify parent about chain selection
+    onChainSelect?.(selectedChain);
   };
 
   const generateSlug = (title: string) => {
@@ -90,12 +107,12 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false }:
           placeholder="Describe your campaign..."
           rows={3}
           className={cn(
-            'w-full rounded-lg border bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
+            'w-full rounded-lg border bg-foreground/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
             'placeholder:text-muted-foreground',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
             errors.description
               ? 'border-destructive focus:border-destructive focus:ring-destructive/50'
-              : 'border-white/10 hover:border-white/20 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
+              : 'border-border hover:border-border/80 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
           )}
         />
         {errors.description && <p className="mt-1.5 text-sm text-destructive">{errors.description}</p>}
@@ -110,7 +127,7 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false }:
       />
 
       {data.image_url && (
-        <div className="rounded-lg border border-white/10 bg-white/5 backdrop-blur-sm p-3 transition-all duration-300 hover:border-white/20">
+        <div className="rounded-lg border border-border bg-foreground/5 backdrop-blur-sm p-3 transition-all duration-300 hover:border-border/80">
           <p className="mb-2 text-xs text-muted-foreground">Preview</p>
           <img
             src={data.image_url}
@@ -129,32 +146,44 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false }:
         </label>
         <select
           value={data.chain_id}
-          onChange={(e) => handleChange('chain_id', parseInt(e.target.value))}
+          onChange={(e) => handleChainChange(parseInt(e.target.value))}
           disabled={isLoadingChains}
           className={cn(
-            'w-full rounded-lg border bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
+            'w-full rounded-lg border bg-foreground/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
             'disabled:cursor-not-allowed disabled:opacity-50',
-            'border-white/10 hover:border-white/20 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
+            'border-border hover:border-border/80 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
           )}
         >
-          <option value={0} className="bg-zinc-900">Select a chain</option>
+          <option value={0} className="bg-background text-foreground">Select a chain</option>
           {chains.map((chain) => (
-            <option key={chain.chain_id} value={chain.chain_id} className="bg-zinc-900">
-              {chain.name} {chain.is_testnet && '(Testnet)'}
+            <option key={chain.chain_id} value={chain.chain_id} className="bg-background text-foreground">
+              {chain.name} {chain.is_testnet && '(Testnet)'} {!chain.mint_contract_address && '(No contract)'}
             </option>
           ))}
         </select>
         {errors.chain_id && <p className="mt-1.5 text-sm text-destructive">{errors.chain_id}</p>}
+        {data.chain_id > 0 && !data.contract_address && (
+          <p className="mt-1.5 text-sm text-yellow-500">
+            ⚠️ No mint contract deployed on this chain. Deploy one in Settings → Chains.
+          </p>
+        )}
       </div>
 
-      <Input
-        label="Contract Address"
-        value={data.contract_address}
-        onChange={(e) => handleChange('contract_address', e.target.value)}
-        placeholder="0x..."
-        error={errors.contract_address}
-      />
+      {/* Contract address is now auto-filled from chain, show as read-only */}
+      {data.contract_address && (
+        <div className="w-full">
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
+            Mint Contract
+          </label>
+          <div className="rounded-lg border border-border bg-foreground/5 px-4 py-2.5 text-sm text-muted-foreground font-mono">
+            {data.contract_address}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Auto-filled from chain configuration
+          </p>
+        </div>
+      )}
 
       <div className="flex items-center gap-3">
         <label className="relative inline-flex cursor-pointer items-center">

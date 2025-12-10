@@ -74,7 +74,7 @@ export default function CampaignsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <span className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+        <span className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -82,7 +82,7 @@ export default function CampaignsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Campaigns</h1>
+        <h1 className="text-2xl font-bold text-foreground">Campaigns</h1>
         <div className="flex gap-3">
           <Link href="/admin/campaigns/mintfun/new">
             <Button>+ New MintFun</Button>
@@ -103,8 +103,8 @@ export default function CampaignsPage() {
                 onClick={() => setFilter(type)}
                 className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                   filter === type
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-foreground/5 text-muted-foreground hover:bg-foreground/10 hover:text-foreground'
                 }`}
               >
                 {type === 'all' ? 'All' : type === 'mintfun' ? 'MintFun' : 'Quests'}
@@ -124,50 +124,50 @@ export default function CampaignsPage() {
 
       {/* Campaign List */}
       <Card padding="none">
-        <CardHeader className="border-b border-white/10 px-5 py-4">
+        <CardHeader className="border-b border-border px-5 py-4">
           <CardTitle>
             {filteredCampaigns().length} Campaign{filteredCampaigns().length !== 1 ? 's' : ''}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {filteredCampaigns().length === 0 ? (
-            <div className="p-8 text-center text-gray-400">
+            <div className="p-8 text-center text-muted-foreground">
               {search ? 'No campaigns match your search' : 'No campaigns yet. Create your first one!'}
             </div>
           ) : (
-            <div className="divide-y divide-white/10">
+            <div className="divide-y divide-border">
               {filteredCampaigns().map((campaign) => (
                 <Link
                   key={`${campaign.type}-${campaign.id}`}
                   href={`/admin/campaigns/${campaign.type}/${campaign.id}`}
-                  className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-white/5"
+                  className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-foreground/5"
                 >
                   <div className="flex items-center gap-4">
                     <span
                       className={`rounded px-2 py-0.5 text-xs font-medium ${
                         campaign.type === 'mintfun'
-                          ? 'bg-purple-500/20 text-purple-400'
-                          : 'bg-blue-500/20 text-blue-400'
+                          ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400'
+                          : 'bg-blue-500/20 text-blue-600 dark:text-blue-400'
                       }`}
                     >
                       {campaign.type === 'mintfun' ? 'MintFun' : 'Quest'}
                     </span>
                     <div>
-                      <h3 className="font-medium text-white">{campaign.title}</h3>
-                      <p className="text-sm text-gray-400">/{campaign.slug}</p>
+                      <h3 className="font-medium text-foreground">{campaign.title}</h3>
+                      <p className="text-sm text-muted-foreground">/{campaign.slug}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <span
                       className={`flex items-center gap-1.5 text-sm ${
-                        campaign.is_active ? 'text-green-400' : 'text-gray-500'
+                        campaign.is_active ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'
                       }`}
                     >
-                      <span className={`h-2 w-2 rounded-full ${campaign.is_active ? 'bg-green-500' : 'bg-gray-500'}`} />
+                      <span className={`h-2 w-2 rounded-full ${campaign.is_active ? 'bg-green-500' : 'bg-muted-foreground'}`} />
                       {campaign.is_active ? 'Active' : 'Inactive'}
                     </span>
-                    <span className="text-sm text-gray-500">{formatDate(campaign.created_at)}</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+                    <span className="text-sm text-muted-foreground">{formatDate(campaign.created_at)}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
                       <polyline points="9 18 15 12 9 6" />
                     </svg>
                   </div>

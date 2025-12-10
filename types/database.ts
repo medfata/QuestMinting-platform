@@ -130,6 +130,7 @@ export interface MintfunCampaignRow {
   image_url: string;
   chain_id: number;
   contract_address: string;
+  token_id: string | null; // On-chain token ID
   theme: ThemeJson;
   is_active: boolean;
   created_at: string;
@@ -144,6 +145,7 @@ export interface MintfunCampaignInsert {
   image_url: string;
   chain_id: number;
   contract_address: string;
+  token_id?: string | null;
   theme?: ThemeJson;
   is_active?: boolean;
   created_at?: string;
@@ -158,6 +160,7 @@ export interface MintfunCampaignUpdate {
   image_url?: string;
   chain_id?: number;
   contract_address?: string;
+  token_id?: string | null;
   theme?: ThemeJson;
   is_active?: boolean;
   updated_at?: string;
@@ -206,6 +209,7 @@ export interface QuestCampaignRow {
   image_url: string;
   chain_id: number;
   contract_address: string;
+  token_id: string | null; // On-chain token ID
   theme: ThemeJson;
   is_active: boolean;
   created_at: string;
@@ -220,6 +224,7 @@ export interface QuestCampaignInsert {
   image_url: string;
   chain_id: number;
   contract_address: string;
+  token_id?: string | null;
   theme?: ThemeJson;
   is_active?: boolean;
   created_at?: string;
@@ -234,6 +239,7 @@ export interface QuestCampaignUpdate {
   image_url?: string;
   chain_id?: number;
   contract_address?: string;
+  token_id?: string | null;
   theme?: ThemeJson;
   is_active?: boolean;
   updated_at?: string;

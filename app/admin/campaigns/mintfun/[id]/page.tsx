@@ -210,7 +210,7 @@ export default function EditMintFunPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <span className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+        <span className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -219,13 +219,13 @@ export default function EditMintFunPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/admin/campaigns" className="text-gray-400 hover:text-white transition-colors">
+          <Link href="/admin/campaigns" className="text-muted-foreground hover:text-foreground transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" />
               <polyline points="12 19 5 12 12 5" />
             </svg>
           </Link>
-          <h1 className="text-2xl font-bold text-white">Edit MintFun Campaign</h1>
+          <h1 className="text-2xl font-bold text-foreground">Edit MintFun Campaign</h1>
         </div>
         <div className="flex items-center gap-3">
           <Link href={`/mint/${originalSlug}`} target="_blank">
@@ -292,7 +292,7 @@ export default function EditMintFunPage() {
       {/* Delete Confirmation Modal */}
       <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Campaign">
         <div className="space-y-4">
-          <p className="text-gray-300">
+          <p className="text-muted-foreground">
             Are you sure you want to delete this campaign? This action cannot be undone.
           </p>
           <div className="flex justify-end gap-3">

@@ -101,7 +101,7 @@ export default function GlobalThemeSettingsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <span className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+        <span className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -110,8 +110,8 @@ export default function GlobalThemeSettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Global Theme</h1>
-          <p className="mt-1 text-sm text-gray-400">
+          <h1 className="text-2xl font-bold text-foreground">Global Theme</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Configure the default colors and typography for your platform
           </p>
         </div>
@@ -145,51 +145,51 @@ export default function GlobalThemeSettingsPage() {
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="w-full">
-              <label className="mb-1.5 block text-sm font-medium text-[var(--color-text,#f8fafc)]">
+              <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Heading Font
               </label>
               <select
                 value={theme.heading_font}
                 onChange={(e) => handleFontChange('heading_font', e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-[var(--color-text,#f8fafc)] focus:border-[var(--color-primary,#3b82f6)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary,#3b82f6)] transition-colors"
+                className="w-full rounded-lg border border-border bg-foreground/5 px-4 py-2.5 text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
               >
-                <option value="Inter" className="bg-zinc-900">Inter</option>
-                <option value="Roboto" className="bg-zinc-900">Roboto</option>
-                <option value="Open Sans" className="bg-zinc-900">Open Sans</option>
-                <option value="Poppins" className="bg-zinc-900">Poppins</option>
-                <option value="Montserrat" className="bg-zinc-900">Montserrat</option>
-                <option value="Playfair Display" className="bg-zinc-900">Playfair Display</option>
+                <option value="Inter" className="bg-background text-foreground">Inter</option>
+                <option value="Roboto" className="bg-background text-foreground">Roboto</option>
+                <option value="Open Sans" className="bg-background text-foreground">Open Sans</option>
+                <option value="Poppins" className="bg-background text-foreground">Poppins</option>
+                <option value="Montserrat" className="bg-background text-foreground">Montserrat</option>
+                <option value="Playfair Display" className="bg-background text-foreground">Playfair Display</option>
               </select>
             </div>
             <div className="w-full">
-              <label className="mb-1.5 block text-sm font-medium text-[var(--color-text,#f8fafc)]">
+              <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Body Font
               </label>
               <select
                 value={theme.body_font}
                 onChange={(e) => handleFontChange('body_font', e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-[var(--color-text,#f8fafc)] focus:border-[var(--color-primary,#3b82f6)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary,#3b82f6)] transition-colors"
+                className="w-full rounded-lg border border-border bg-foreground/5 px-4 py-2.5 text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
               >
-                <option value="Inter" className="bg-zinc-900">Inter</option>
-                <option value="Roboto" className="bg-zinc-900">Roboto</option>
-                <option value="Open Sans" className="bg-zinc-900">Open Sans</option>
-                <option value="Lato" className="bg-zinc-900">Lato</option>
-                <option value="Source Sans Pro" className="bg-zinc-900">Source Sans Pro</option>
-                <option value="Nunito" className="bg-zinc-900">Nunito</option>
+                <option value="Inter" className="bg-background text-foreground">Inter</option>
+                <option value="Roboto" className="bg-background text-foreground">Roboto</option>
+                <option value="Open Sans" className="bg-background text-foreground">Open Sans</option>
+                <option value="Lato" className="bg-background text-foreground">Lato</option>
+                <option value="Source Sans Pro" className="bg-background text-foreground">Source Sans Pro</option>
+                <option value="Nunito" className="bg-background text-foreground">Nunito</option>
               </select>
             </div>
           </div>
           {/* Font Preview */}
-          <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-            <p className="text-xs text-gray-400 mb-3">Preview</p>
+          <div className="rounded-lg border border-border bg-foreground/5 p-4">
+            <p className="text-xs text-muted-foreground mb-3">Preview</p>
             <h3
-              className="text-xl font-bold text-white mb-2"
+              className="text-xl font-bold text-foreground mb-2"
               style={{ fontFamily: theme.heading_font }}
             >
               Heading Text Preview
             </h3>
             <p
-              className="text-gray-300"
+              className="text-muted-foreground"
               style={{ fontFamily: theme.body_font }}
             >
               This is how your body text will appear with the selected font family.
@@ -256,10 +256,10 @@ export default function GlobalThemeSettingsPage() {
       </Card>
 
       {/* Navigation hint */}
-      <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-        <p className="text-sm text-gray-400">
+      <div className="rounded-lg border border-border bg-foreground/5 p-4">
+        <p className="text-sm text-muted-foreground">
           Looking to customize hero content and featured campaigns?{' '}
-          <Link href="/admin/home" className="text-blue-400 hover:underline">
+          <Link href="/admin/home" className="text-primary hover:underline">
             Go to Home Page Settings →
           </Link>
         </p>

@@ -49,7 +49,7 @@ export function EligibilityEditor({ eligibility, onChange }: EligibilityEditorPr
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-medium text-white">Eligibility Conditions</h3>
+          <h3 className="text-lg font-medium text-foreground">Eligibility Conditions</h3>
           <p className="text-sm text-muted-foreground">Optional requirements users must meet to participate</p>
         </div>
         <label className="relative inline-flex cursor-pointer items-center">
@@ -84,10 +84,10 @@ export function EligibilityEditor({ eligibility, onChange }: EligibilityEditorPr
                     'rounded-lg border p-4 text-left transition-all duration-300',
                     eligibility.type === type.value
                       ? 'border-primary bg-primary/10 shadow-[0_0_15px_rgba(var(--primary-rgb),0.2)]'
-                      : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.07]'
+                      : 'border-border bg-foreground/5 hover:border-border/80 hover:bg-foreground/[0.07]'
                   )}
                 >
-                  <div className="font-medium text-white">{type.label}</div>
+                  <div className="font-medium text-foreground">{type.label}</div>
                   <div className="mt-1 text-sm text-muted-foreground">{type.description}</div>
                 </button>
               ))}
@@ -123,8 +123,8 @@ export function EligibilityEditor({ eligibility, onChange }: EligibilityEditorPr
             />
           </div>
 
-          <div className="rounded-lg bg-white/5 border border-white/10 p-3 text-sm text-muted-foreground">
-            <span className="font-medium text-white">Preview: </span>
+          <div className="rounded-lg bg-foreground/5 border border-border p-3 text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">Preview: </span>
             {eligibility.type === 'nft' ? (
               <>
                 Users must hold at least {eligibility.min_amount} NFT{parseInt(eligibility.min_amount) !== 1 ? 's' : ''}

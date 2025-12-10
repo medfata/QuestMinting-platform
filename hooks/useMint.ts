@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi';
 import { parseEther } from 'viem';
-import { MINT_ABI } from '@/lib/contracts/abi';
+import { QUEST_MINT_ABI } from '@/lib/contracts/QuestMint';
 
 export type MintStatus = 'idle' | 'pending' | 'confirming' | 'success' | 'error';
 
@@ -119,7 +119,7 @@ export function useMint({ contractAddress, chainId }: UseMintParams): UseMintRet
 
         writeContract({
           address: contractAddress,
-          abi: MINT_ABI,
+          abi: QUEST_MINT_ABI,
           functionName: 'mint',
           args: [BigInt(tierId), BigInt(quantity)],
           value: totalValue,

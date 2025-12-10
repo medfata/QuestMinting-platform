@@ -35,8 +35,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Settings</h1>
-        <p className="mt-1 text-sm text-gray-400">
+        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Configure platform settings and preferences
         </p>
       </div>
@@ -44,14 +44,14 @@ export default function SettingsPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         {settingsItems.map((item) => (
           <Link key={item.href} href={item.href}>
-            <Card className="h-full transition-colors hover:border-blue-500/50 hover:bg-white/10">
+            <Card className="h-full transition-colors hover:border-primary/50 hover:bg-foreground/5">
               <CardContent className="flex items-start gap-4 pt-5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/20 text-primary">
                   {item.icon}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white">{item.title}</h3>
-                  <p className="mt-1 text-sm text-gray-400">{item.description}</p>
+                  <h3 className="font-semibold text-foreground">{item.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
                 </div>
               </CardContent>
             </Card>

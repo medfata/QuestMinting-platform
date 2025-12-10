@@ -74,10 +74,10 @@ function AdminSidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 z-30 h-screen w-64 border-r border-white/10 bg-black/40 backdrop-blur-xl">
+    <aside className="fixed left-0 top-0 z-30 h-screen w-64 border-r border-border bg-background/80 backdrop-blur-xl">
       {/* Logo */}
-      <div className="flex h-16 items-center border-b border-white/10 px-6">
-        <Link href="/admin" className="flex items-center gap-2 text-lg font-bold text-white">
+      <div className="flex h-16 items-center border-b border-border px-6">
+        <Link href="/admin" className="flex items-center gap-2 text-lg font-bold text-foreground">
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
             width="24" 
@@ -110,7 +110,7 @@ function AdminSidebar() {
               'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-300',
               isActive(item.href)
                 ? 'bg-primary/20 text-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)] border border-primary/30'
-                : 'text-gray-400 hover:bg-white/5 hover:text-white hover:border-white/10 border border-transparent'
+                : 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground hover:border-border border border-transparent'
             )}
           >
             <span className={cn(
@@ -125,10 +125,10 @@ function AdminSidebar() {
       </nav>
 
       {/* Back to site link */}
-      <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 p-4 bg-black/20">
+      <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4 bg-background/50">
         <Link
           href="/"
-          className="flex items-center gap-2 text-sm text-gray-400 transition-all duration-300 hover:text-primary group"
+          className="flex items-center gap-2 text-sm text-muted-foreground transition-all duration-300 hover:text-primary group"
         >
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
@@ -154,7 +154,7 @@ function AdminSidebar() {
 
 function AdminHeader() {
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-white/10 bg-black/60 backdrop-blur-xl px-6">
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-background/80 backdrop-blur-xl px-6">
       {/* Subtle gradient accent line */}
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       <div />
@@ -167,13 +167,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <WalletGuard requireAdmin>
       {/* Background with subtle gradient */}
-      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-zinc-950 to-black">
+      <div className="min-h-screen bg-background">
         {/* Subtle grid pattern overlay */}
         <div 
-          className="fixed inset-0 opacity-[0.02] pointer-events-none"
+          className="fixed inset-0 opacity-[0.02] pointer-events-none dark:opacity-[0.02]"
           style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+            backgroundImage: `linear-gradient(var(--foreground) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--foreground) 1px, transparent 1px)`,
             backgroundSize: '50px 50px',
           }}
         />

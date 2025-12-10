@@ -22,6 +22,7 @@ export interface MintFunCampaign {
   image_url: string;
   chain_id: number;
   contract_address: string;
+  token_id: string | null;
   mint_tiers: MintTier[];
   theme: CampaignTheme;
   is_active: boolean;

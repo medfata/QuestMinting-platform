@@ -32,6 +32,7 @@ export interface QuestCampaign {
   image_url: string;
   chain_id: number;
   contract_address: string;
+  token_id: string | null;
   tasks: QuestTask[];
   eligibility: EligibilityCondition | null;
   theme: CampaignTheme;

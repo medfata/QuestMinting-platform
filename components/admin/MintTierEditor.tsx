@@ -60,7 +60,7 @@ export function MintTierEditor({ tiers, onChange }: MintTierEditorProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-white">Mint Tiers</h3>
+        <h3 className="text-lg font-medium text-foreground">Mint Tiers</h3>
         <Button type="button" variant="outline" size="sm" onClick={addTier}>
           + Add Tier
         </Button>
@@ -84,7 +84,7 @@ export function MintTierEditor({ tiers, onChange }: MintTierEditorProps) {
                   type="button"
                   onClick={() => moveTier(index, 'up')}
                   disabled={index === 0}
-                  className="rounded p-1.5 text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-30 transition-all duration-200"
+                  className="rounded p-1.5 text-muted-foreground hover:bg-foreground/10 hover:text-foreground disabled:opacity-30 transition-all duration-200"
                   title="Move up"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -95,7 +95,7 @@ export function MintTierEditor({ tiers, onChange }: MintTierEditorProps) {
                   type="button"
                   onClick={() => moveTier(index, 'down')}
                   disabled={index === tiers.length - 1}
-                  className="rounded p-1.5 text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-30 transition-all duration-200"
+                  className="rounded p-1.5 text-muted-foreground hover:bg-foreground/10 hover:text-foreground disabled:opacity-30 transition-all duration-200"
                   title="Move down"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -105,7 +105,7 @@ export function MintTierEditor({ tiers, onChange }: MintTierEditorProps) {
                 <button
                   type="button"
                   onClick={() => removeTier(index)}
-                  className="rounded p-1.5 text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200"
+                  className="rounded p-1.5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 transition-all duration-200"
                   title="Remove tier"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

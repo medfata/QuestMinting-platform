@@ -128,8 +128,9 @@ export default function MintFunCampaignPage({ params }: PageProps) {
       return;
     }
 
-    // Use tier order_index as tierId for the contract
-    await mint(selectedTier.order_index, quantity, selectedTier.price);
+    // Use the campaign's token_id for minting
+    const tokenIdToMint = campaign.token_id ? parseInt(campaign.token_id) : selectedTier.order_index;
+    await mint(tokenIdToMint, quantity, selectedTier.price);
   };
 
   const theme: CampaignTheme = campaign?.theme || DEFAULT_CAMPAIGN_THEME;
