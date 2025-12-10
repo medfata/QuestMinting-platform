@@ -221,6 +221,11 @@ html.light .grid-overlay,
   100% { transform: translateX(100%); }
 }
 
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 
 /* Reduced motion support - comprehensive accessibility */
 @media (prefers-reduced-motion: reduce) {
@@ -242,7 +247,8 @@ html.light .grid-overlay,
   .animate-fade-in,
   .animate-scale-in,
   .animate-glow-pulse,
-  .animate-carousel-progress {
+  .animate-carousel-progress,
+  .animate-marquee {
     animation: none !important;
   }
   
@@ -338,6 +344,14 @@ body {
 
 .animate-carousel-progress {
   animation: carousel-progress linear forwards;
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
 

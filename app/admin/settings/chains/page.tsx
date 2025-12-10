@@ -2,12 +2,10 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { useSwitchChain, useAccount } from 'wagmi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { searchChains, getPopularChains, transformToSupportedChain, isTestnet } from '@/lib/services/chainlist';
-import { useDeployContract } from '@/hooks/useDeployContract';
 import type { ChainlistNetwork } from '@/types/chain';
 import type { SupportedChainRow, SupportedChainInsert } from '@/types/database';
 import Image from 'next/image';
@@ -103,11 +101,9 @@ export default function ChainManagementPage() {
     loadInitialData();
   }, [fetchEnabledChains]);
 
-
   // Search chains
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) {
-      // Reset to popular chains
       const popularChains = await getPopularChains();
       const chainsWithStatus = popularChains.map((chain) => ({
         ...chain,
@@ -191,7 +187,6 @@ export default function ChainManagementPage() {
 
     setSavingChainId(null);
   };
-
 
   // Disable a chain
   const disableChain = async (chain: ChainWithStatus) => {
@@ -287,7 +282,6 @@ export default function ChainManagementPage() {
         </div>
       )}
 
-
       {/* Search Section */}
       <Card>
         <CardContent className="pt-5">
@@ -346,6 +340,15 @@ export default function ChainManagementPage() {
                               Testnet
                             </span>
                           )}
+                          {chain.mint_contract_address ? (
+                            <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-xs text-blue-600 dark:text-blue-400">
+                              Contract ✓
+                            </span>
+                          ) : (
+                            <span className="rounded bg-orange-500/20 px-1.5 py-0.5 text-xs text-orange-600 dark:text-orange-400">
+                              No Contract
+                            </span>
+                          )}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           Chain ID: {chain.chain_id} • {chain.native_currency.symbol}
@@ -368,7 +371,6 @@ export default function ChainManagementPage() {
                           if (chainWithStatus) {
                             disableChain(chainWithStatus);
                           } else {
-                            // Create a minimal ChainWithStatus for disabling
                             disableChain({
                               ...({} as ChainlistNetwork),
                               chainId: chain.chain_id,
@@ -389,7 +391,6 @@ export default function ChainManagementPage() {
           )}
         </CardContent>
       </Card>
-
 
       {/* Available Chains Section */}
       <Card>
@@ -432,10 +433,15 @@ export default function ChainManagementPage() {
                             Enabled
                           </span>
                         )}
+                        {chain.dbRecord?.mint_contract_address && (
+                          <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-xs text-blue-600 dark:text-blue-400">
+                            Contract ✓
+                          </span>
+                        )}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         Chain ID: {chain.chainId} • {chain.nativeCurrency.symbol}
-                        {chain.tvl && ` • TVL: $${(chain.tvl / 1e9).toFixed(2)}B`}
+                        {chain.tvl && ` • TVL: ${(chain.tvl / 1e9).toFixed(2)}B`}
                       </div>
                     </div>
                   </div>
@@ -477,7 +483,6 @@ export default function ChainManagementPage() {
         </CardContent>
       </Card>
 
-
       {/* Chain Configuration Modal */}
       {editingChain && (
         <ChainConfigModal
@@ -491,7 +496,7 @@ export default function ChainManagementPage() {
   );
 }
 
-// Chain Configuration Modal Component
+// Simplified Chain Configuration Modal
 interface ChainConfigModalProps {
   chain: SupportedChainRow;
   onClose: () => void;
@@ -502,86 +507,6 @@ interface ChainConfigModalProps {
 function ChainConfigModal({ chain, onClose, onSave, isSaving }: ChainConfigModalProps) {
   const [rpcUrls, setRpcUrls] = useState(chain.rpc_urls.join('\n'));
   const [mintContractAddress, setMintContractAddress] = useState(chain.mint_contract_address || '');
-  const [contractName, setContractName] = useState('QuestMint');
-  const [contractSymbol, setContractSymbol] = useState('QMINT');
-  const [isSwitching, setIsSwitching] = useState(false);
-
-  const { address, chainId: connectedChainId } = useAccount();
-  const { switchChain } = useSwitchChain();
-  const {
-    deploy,
-    error: deployError,
-    txHash,
-    contractAddress: deployedAddress,
-    reset: resetDeploy,
-    isPending,
-    isDeploying,
-    isSuccess: isDeploySuccess,
-  } = useDeployContract();
-
-  const isWrongChain = connectedChainId !== chain.chain_id;
-
-  // Add chain to wallet and switch
-  const handleSwitchChain = async () => {
-    if (!window.ethereum) {
-      alert('Please install a Web3 wallet');
-      return;
-    }
-
-    setIsSwitching(true);
-    try {
-      // First try to switch
-      try {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: `0x${chain.chain_id.toString(16)}` }],
-        });
-      } catch (switchError: unknown) {
-        // If chain doesn't exist, add it
-        if ((switchError as { code?: number })?.code === 4902) {
-          await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: `0x${chain.chain_id.toString(16)}`,
-              chainName: chain.name,
-              nativeCurrency: {
-                name: chain.native_currency.name,
-                symbol: chain.native_currency.symbol,
-                decimals: chain.native_currency.decimals,
-              },
-              rpcUrls: chain.rpc_urls,
-              blockExplorerUrls: chain.explorer_url ? [chain.explorer_url] : undefined,
-            }],
-          });
-        } else {
-          throw switchError;
-        }
-      }
-    } catch (error) {
-      console.error('Failed to switch chain:', error);
-      alert('Failed to switch chain. Please try manually in your wallet.');
-    } finally {
-      setIsSwitching(false);
-    }
-  };
-
-  const handleDeploy = async () => {
-    if (isWrongChain) {
-      await handleSwitchChain();
-      return;
-    }
-
-    const deployedAddr = await deploy({
-      name: contractName,
-      symbol: contractSymbol,
-      contractURI: '',
-      chainId: chain.chain_id,
-    });
-
-    if (deployedAddr) {
-      setMintContractAddress(deployedAddr);
-    }
-  };
 
   const handleSave = () => {
     const urls = rpcUrls
@@ -597,7 +522,7 @@ function ChainConfigModal({ chain, onClose, onSave, isSaving }: ChainConfigModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border border-border bg-background p-6 shadow-xl">
+      <div className="w-full max-w-lg rounded-xl border border-border bg-background p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-foreground">Configure {chain.name}</h2>
           <button
@@ -637,85 +562,25 @@ function ChainConfigModal({ chain, onClose, onSave, isSaving }: ChainConfigModal
             </p>
           </div>
 
-          {/* Deploy Contract Section */}
-          <div className="rounded-lg border border-border bg-foreground/5 p-4 space-y-3">
-            <h3 className="font-medium text-foreground">Deploy QuestMint Contract</h3>
-            <p className="text-xs text-muted-foreground">
-              Deploy a new ERC1155 contract for minting on this chain
-            </p>
-
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="Contract Name"
-                value={contractName}
-                onChange={(e) => setContractName(e.target.value)}
-                placeholder="QuestMint"
-              />
-              <Input
-                label="Symbol"
-                value={contractSymbol}
-                onChange={(e) => setContractSymbol(e.target.value)}
-                placeholder="QMINT"
-              />
-            </div>
-
-            {deployError && (
-              <div className="rounded-lg bg-red-500/10 p-3 text-sm text-red-600 dark:text-red-400">
-                {deployError.message}
-                <button
-                  onClick={resetDeploy}
-                  className="ml-2 underline hover:no-underline"
-                >
-                  Dismiss
-                </button>
-              </div>
-            )}
-
-            {isDeploySuccess && deployedAddress && (
-              <div className="rounded-lg bg-green-500/10 p-3 text-sm text-green-600 dark:text-green-400">
-                Contract deployed at: {deployedAddress.slice(0, 10)}...{deployedAddress.slice(-8)}
-                {txHash && (
-                  <a
-                    href={`${chain.explorer_url}/tx/${txHash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ml-2 underline hover:no-underline"
-                  >
-                    View tx ↗
-                  </a>
-                )}
-              </div>
-            )}
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDeploy}
-              isLoading={isPending || isDeploying || isSwitching}
-              disabled={!address || isPending || isDeploying || isSwitching}
-              className="w-full"
-            >
-              {!address
-                ? 'Connect Wallet to Deploy'
-                : isSwitching
-                  ? 'Switching Network...'
-                  : isWrongChain
-                    ? `Switch to ${chain.name}`
-                    : isPending
-                      ? 'Confirm in Wallet...'
-                      : isDeploying
-                        ? 'Deploying...'
-                        : 'Deploy Contract'}
-            </Button>
-          </div>
-
           <Input
             label="Mint Contract Address"
             value={mintContractAddress}
             onChange={(e) => setMintContractAddress(e.target.value)}
             placeholder="0x..."
-            helperText="The default mint contract address for this chain (auto-filled after deploy)"
+            helperText="Deploy the QuestMint contract and paste the address here"
           />
+
+          {mintContractAddress && (
+            <div className="rounded-lg bg-green-500/10 border border-green-500/20 p-3 text-sm text-green-600 dark:text-green-400">
+              ✓ Contract configured for this chain
+            </div>
+          )}
+
+          {!mintContractAddress && (
+            <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-3 text-sm text-yellow-600 dark:text-yellow-400">
+              ⚠ No contract address. Deploy the QuestMint contract to this chain and add the address.
+            </div>
+          )}
         </div>
 
         <div className="mt-6 flex justify-end gap-3">

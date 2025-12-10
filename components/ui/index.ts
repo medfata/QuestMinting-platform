@@ -40,3 +40,6 @@ export type { TransactionStatusProps, TransactionState } from './TransactionStat
 // Legacy Modal export for backward compatibility
 export { Modal } from './Modal';
 export type { ModalProps } from './Modal';
+
+export { SupportedChains } from './SupportedChains';
+export type { SupportedChainsProps } from './SupportedChains';

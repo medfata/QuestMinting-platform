@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { Header, Footer, ThemedContainer, usePublicLoading } from '@/components/layout';
-import { Button, Carousel } from '@/components/ui';
+import { Button, Carousel, SupportedChains } from '@/components/ui';
 import { GradientText } from '@/components/futuristic';
 import { MintFunCard } from '@/components/campaigns/MintFunCard';
 import { QuestCard } from '@/components/campaigns/QuestCard';
@@ -232,6 +232,9 @@ export default function HomePage() {
                   </div>
                 </div>
 
+                {/* Supported Chains - Inline in Hero */}
+                <SupportedChains showTitle={false} className="py-0 -mx-4 sm:mx-0" compact />
+
                 {/* CTA Buttons */}
                 <div className="flex flex-wrap gap-4 pt-4">
                   <Button size="xl" variant="glow" asChild>
@@ -305,7 +308,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
 
         {/* MintFun Section */}
         <section id="explore" className="py-20 lg:py-32">
