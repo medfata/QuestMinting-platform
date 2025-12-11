@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAccount, useSwitchChain } from 'wagmi';
@@ -54,6 +54,16 @@ export default function NewMintFunPage() {
   const [theme, setTheme] = useState<CampaignTheme>(DEFAULT_CAMPAIGN_THEME);
 
   const isWrongChain = selectedChain && connectedChainId !== selectedChain.chain_id;
+
+  // Track if we've already processed the success to prevent double saves
+  const hasProcessedSuccess = useRef(false);
+
+  // Reset the ref when starting a new token creation
+  useEffect(() => {
+    if (tokenCreationStep === 'form') {
+      hasProcessedSuccess.current = false;
+    }
+  }, [tokenCreationStep]);
 
   const generateTokenId = (): bigint => BigInt(Date.now());
 
@@ -172,16 +182,25 @@ export default function NewMintFunPage() {
     e.preventDefault();
     
     if (tokenCreationStep === 'done') {
+      // Token already created, just save to DB (manual retry)
       await handleSaveToDatabase();
     } else {
       await handleCreateToken();
     }
   };
 
-  // When token creation succeeds, mark as done
-  if (isTokenSuccess && tokenCreationStep === 'creating') {
-    setTokenCreationStep('done');
-  }
+  // Watch for token creation success and auto-save to database
+  useEffect(() => {
+    const saveAfterTokenCreation = async () => {
+      if (isTokenSuccess && tokenCreationStep === 'creating' && !hasProcessedSuccess.current) {
+        hasProcessedSuccess.current = true;
+        setTokenCreationStep('done');
+        // Auto-save to database after token is created on-chain
+        await handleSaveToDatabase();
+      }
+    };
+    saveAfterTokenCreation();
+  }, [isTokenSuccess, tokenCreationStep, tokenId]);
 
   return (
     <div className="space-y-6">
@@ -192,7 +211,7 @@ export default function NewMintFunPage() {
             <polyline points="12 19 5 12 12 5" />
           </svg>
         </Link>
-        <h1 className="text-2xl font-bold text-foreground">Create MintFun Campaign</h1>
+        <h1 className="text-2xl font-bold text-foreground">Create MintFun</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -204,7 +223,7 @@ export default function NewMintFunPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Campaign Details</CardTitle>
+            <CardTitle>Details</CardTitle>
           </CardHeader>
           <CardContent>
             <CampaignForm 
@@ -295,7 +314,7 @@ export default function NewMintFunPage() {
                 ? 'Connect Wallet' 
                 : isWrongChain 
                   ? `Switch to ${selectedChain?.name}` 
-                  : 'Create Token & Campaign'}
+                  : 'Create Token & MintFun'}
             </Button>
           )}
           {tokenCreationStep === 'creating' && (
@@ -305,7 +324,7 @@ export default function NewMintFunPage() {
           )}
           {tokenCreationStep === 'done' && (
             <Button type="submit" isLoading={isSubmitting}>
-              Save Campaign
+              Save MintFun
             </Button>
           )}
         </div>

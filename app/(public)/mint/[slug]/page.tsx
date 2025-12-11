@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAccount, useSwitchChain } from 'wagmi';
+import { parseEther } from 'viem';
 import { createClient } from '@/lib/supabase/client';
 import { useMint } from '@/hooks/useMint';
 import { ThemedContainer, usePublicLoading } from '@/components/layout';
@@ -130,7 +131,9 @@ export default function MintFunCampaignPage({ params }: PageProps) {
 
     // Use the campaign's token_id for minting
     const tokenIdToMint = campaign.token_id ? parseInt(campaign.token_id) : selectedTier.order_index;
-    await mint(tokenIdToMint, quantity, selectedTier.price);
+    // Convert price from ETH to wei string for the contract
+    const priceInWei = parseEther(selectedTier.price || '0').toString();
+    await mint(tokenIdToMint, quantity, priceInWei);
   };
 
   const theme: CampaignTheme = campaign?.theme || DEFAULT_CAMPAIGN_THEME;

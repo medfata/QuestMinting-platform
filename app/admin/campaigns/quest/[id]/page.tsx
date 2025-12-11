@@ -282,7 +282,7 @@ export default function EditQuestPage() {
               <polyline points="12 19 5 12 12 5" />
             </svg>
           </Link>
-          <h1 className="text-2xl font-bold text-foreground">Edit Quest Campaign</h1>
+          <h1 className="text-2xl font-bold text-foreground">Edit Quest</h1>
         </div>
         <div className="flex items-center gap-3">
           <Link href={`/quest/${originalSlug}`} target="_blank">
@@ -316,7 +316,7 @@ export default function EditQuestPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Campaign Details</CardTitle>
+            <CardTitle>Details</CardTitle>
           </CardHeader>
           <CardContent>
             <CampaignForm data={formData} onChange={setFormData} errors={errors} isEditing />

@@ -225,7 +225,7 @@ export default function EditMintFunPage() {
               <polyline points="12 19 5 12 12 5" />
             </svg>
           </Link>
-          <h1 className="text-2xl font-bold text-foreground">Edit MintFun Campaign</h1>
+          <h1 className="text-2xl font-bold text-foreground">Edit MintFun</h1>
         </div>
         <div className="flex items-center gap-3">
           <Link href={`/mint/${originalSlug}`} target="_blank">
@@ -259,7 +259,7 @@ export default function EditMintFunPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Campaign Details</CardTitle>
+            <CardTitle>Details</CardTitle>
           </CardHeader>
           <CardContent>
             <CampaignForm data={formData} onChange={setFormData} errors={errors} isEditing />
@@ -290,10 +290,10 @@ export default function EditMintFunPage() {
       </form>
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Campaign">
+      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete MintFun">
         <div className="space-y-4">
           <p className="text-muted-foreground">
-            Are you sure you want to delete this campaign? This action cannot be undone.
+            Are you sure you want to delete this MintFun? This action cannot be undone.
           </p>
           <div className="flex justify-end gap-3">
             <Button type="button" variant="ghost" onClick={() => setShowDeleteModal(false)}>
@@ -305,7 +305,7 @@ export default function EditMintFunPage() {
               isLoading={isDeleting}
               className="bg-red-600 hover:bg-red-700"
             >
-              Delete Campaign
+              Delete MintFun
             </Button>
           </div>
         </div>

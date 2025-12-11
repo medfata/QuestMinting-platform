@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -65,7 +65,6 @@ export function SupportedChains({
 }: SupportedChainsProps) {
   const [chains, setChains] = useState<{ name: string; chain_slug: string }[]>(FALLBACK_CHAINS);
   const [isLoading, setIsLoading] = useState(true);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [shouldAnimate, setShouldAnimate] = useState(false);
 
   useEffect(() => {
@@ -92,20 +91,16 @@ export function SupportedChains({
     fetchChains();
   }, []);
 
-  // Check if content overflows and needs animation
+  // Always animate the marquee when we have chains to display
+  // This creates a continuous scrolling effect regardless of screen width
   useEffect(() => {
-    const checkOverflow = () => {
-      if (containerRef.current) {
-        const container = containerRef.current;
-        const scrollWidth = container.scrollWidth / 2;
-        const clientWidth = container.clientWidth;
-        setShouldAnimate(scrollWidth > clientWidth);
-      }
-    };
-
-    checkOverflow();
-    window.addEventListener('resize', checkOverflow);
-    return () => window.removeEventListener('resize', checkOverflow);
+    if (!isLoading && chains.length > 0) {
+      // Small delay to ensure DOM is fully rendered before starting animation
+      const timeoutId = setTimeout(() => {
+        setShouldAnimate(true);
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
   }, [chains, isLoading]);
 
   // Duplicate chains for seamless infinite scroll
@@ -134,7 +129,6 @@ export function SupportedChains({
 
           {/* Scrolling container - always single row */}
           <div
-            ref={containerRef}
             className={cn(
               'flex items-center gap-2.5',
               shouldAnimate && 'animate-marquee'

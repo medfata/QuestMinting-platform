@@ -129,13 +129,13 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
               className="text-xl font-bold"
               style={{ color: theme.text_color }}
             >
-              Campaign Title
+              Title Preview
             </h4>
             <p
               className="text-sm"
               style={{ color: theme.text_color, opacity: 0.8 }}
             >
-              This is how your campaign description will look with the selected theme colors.
+              This is how your description will look with the selected theme colors.
             </p>
             <div className="flex gap-3">
               <button

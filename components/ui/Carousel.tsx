@@ -106,44 +106,44 @@ export const Carousel = forwardRef<HTMLDivElement, CarouselProps>(
           </div>
         )}
 
-        {/* Navigation Arrows - Futuristic Design */}
+        {/* Navigation Arrows - Clean Minimal Design */}
         {showArrows && itemCount > 1 && (
           <>
             <button
               onClick={goToPrev}
               disabled={isTransitioning}
               className={cn(
-                'absolute left-4 top-1/2 -translate-y-1/2 z-10',
-                'h-12 w-12 rounded-full',
-                'bg-white/5 backdrop-blur-xl border border-white/10',
-                'text-white/70 hover:text-white',
-                'transition-all duration-300',
-                'hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
-                'group'
+                'absolute left-3 top-1/2 -translate-y-1/2 z-10',
+                'h-10 w-10 rounded-full flex items-center justify-center',
+                'bg-black/40 backdrop-blur-sm',
+                'text-white/80 hover:text-white hover:bg-black/60',
+                'transition-all duration-200',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50',
+                'disabled:opacity-30 disabled:cursor-not-allowed'
               )}
               aria-label="Previous slide"
             >
-              <ChevronLeftIcon className="transition-transform group-hover:-translate-x-0.5" />
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
             </button>
             <button
               onClick={goToNext}
               disabled={isTransitioning}
               className={cn(
-                'absolute right-4 top-1/2 -translate-y-1/2 z-10',
-                'h-12 w-12 rounded-full',
-                'bg-white/5 backdrop-blur-xl border border-white/10',
-                'text-white/70 hover:text-white',
-                'transition-all duration-300',
-                'hover:bg-white/10 hover:border-white/20 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
-                'group'
+                'absolute right-3 top-1/2 -translate-y-1/2 z-10',
+                'h-10 w-10 rounded-full flex items-center justify-center',
+                'bg-black/40 backdrop-blur-sm',
+                'text-white/80 hover:text-white hover:bg-black/60',
+                'transition-all duration-200',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50',
+                'disabled:opacity-30 disabled:cursor-not-allowed'
               )}
               aria-label="Next slide"
             >
-              <ChevronRightIcon className="transition-transform group-hover:translate-x-0.5" />
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </>
         )}
@@ -194,42 +194,3 @@ export const Carousel = forwardRef<HTMLDivElement, CarouselProps>(
 );
 
 Carousel.displayName = 'Carousel';
-
-// Icon components with className support
-function ChevronLeftIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="m15 18-6-6 6-6" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="m9 18 6-6-6-6" />
-    </svg>
-  );
-}

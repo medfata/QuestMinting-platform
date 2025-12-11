@@ -75,27 +75,29 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false, o
 
   return (
     <div className="space-y-5">
-      <Input
-        label="Title"
-        value={data.title}
-        onChange={(e) => {
-          handleChange('title', e.target.value);
-          if (!isEditing && !data.slug) {
-            handleChange('slug', generateSlug(e.target.value));
-          }
-        }}
-        placeholder="My Awesome Campaign"
-        error={errors.title}
-      />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Input
+          label="Title"
+          value={data.title}
+          onChange={(e) => {
+            handleChange('title', e.target.value);
+            if (!isEditing && !data.slug) {
+              handleChange('slug', generateSlug(e.target.value));
+            }
+          }}
+          placeholder="My Awesome NFT"
+          error={errors.title}
+        />
 
-      <Input
-        label="Slug"
-        value={data.slug}
-        onChange={(e) => handleChange('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-        placeholder="my-awesome-campaign"
-        helperText="URL-friendly identifier (lowercase, no spaces)"
-        error={errors.slug}
-      />
+        <Input
+          label="Slug"
+          value={data.slug}
+          onChange={(e) => handleChange('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+          placeholder="my-awesome-nft"
+          helperText="URL-friendly identifier"
+          error={errors.slug}
+        />
+      </div>
 
       <div className="w-full">
         <label className="mb-1.5 block text-sm font-medium text-foreground">
@@ -104,7 +106,7 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false, o
         <textarea
           value={data.description}
           onChange={(e) => handleChange('description', e.target.value)}
-          placeholder="Describe your campaign..."
+          placeholder="Describe your NFT..."
           rows={3}
           className={cn(
             'w-full rounded-lg border bg-foreground/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
@@ -118,20 +120,52 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false, o
         {errors.description && <p className="mt-1.5 text-sm text-destructive">{errors.description}</p>}
       </div>
 
-      <Input
-        label="Image URL"
-        value={data.image_url}
-        onChange={(e) => handleChange('image_url', e.target.value)}
-        placeholder="https://example.com/image.png"
-        error={errors.image_url}
-      />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Input
+          label="Image URL"
+          value={data.image_url}
+          onChange={(e) => handleChange('image_url', e.target.value)}
+          placeholder="https://example.com/image.png"
+          error={errors.image_url}
+        />
+
+        <div className="w-full">
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
+            Chain
+          </label>
+          <select
+            value={data.chain_id}
+            onChange={(e) => handleChainChange(parseInt(e.target.value))}
+            disabled={isLoadingChains}
+            className={cn(
+              'w-full rounded-lg border bg-foreground/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
+              'focus:outline-none focus:ring-2 focus:ring-offset-0',
+              'disabled:cursor-not-allowed disabled:opacity-50',
+              'border-border hover:border-border/80 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
+            )}
+          >
+            <option value={0} className="bg-background text-foreground">Select a chain</option>
+            {chains.map((chain) => (
+              <option key={chain.chain_id} value={chain.chain_id} className="bg-background text-foreground">
+                {chain.name} {chain.is_testnet && '(Testnet)'} {!chain.mint_contract_address && '(No contract)'}
+              </option>
+            ))}
+          </select>
+          {errors.chain_id && <p className="mt-1.5 text-sm text-destructive">{errors.chain_id}</p>}
+          {data.chain_id > 0 && !data.contract_address && (
+            <p className="mt-1.5 text-sm text-yellow-500">
+              ⚠️ No mint contract deployed. Deploy one in Settings → Chains.
+            </p>
+          )}
+        </div>
+      </div>
 
       {data.image_url && (
         <div className="rounded-lg border border-border bg-foreground/5 backdrop-blur-sm p-3 transition-all duration-300 hover:border-border/80">
           <p className="mb-2 text-xs text-muted-foreground">Preview</p>
           <img
             src={data.image_url}
-            alt="Campaign preview"
+            alt="Preview"
             className="h-32 w-32 rounded-lg object-cover ring-1 ring-white/10"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
@@ -139,36 +173,6 @@ export function CampaignForm({ data, onChange, errors = {}, isEditing = false, o
           />
         </div>
       )}
-
-      <div className="w-full">
-        <label className="mb-1.5 block text-sm font-medium text-foreground">
-          Chain
-        </label>
-        <select
-          value={data.chain_id}
-          onChange={(e) => handleChainChange(parseInt(e.target.value))}
-          disabled={isLoadingChains}
-          className={cn(
-            'w-full rounded-lg border bg-foreground/5 backdrop-blur-sm px-4 py-2.5 text-sm text-foreground transition-all duration-300',
-            'focus:outline-none focus:ring-2 focus:ring-offset-0',
-            'disabled:cursor-not-allowed disabled:opacity-50',
-            'border-border hover:border-border/80 focus:border-primary focus:ring-primary/30 focus:shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)]'
-          )}
-        >
-          <option value={0} className="bg-background text-foreground">Select a chain</option>
-          {chains.map((chain) => (
-            <option key={chain.chain_id} value={chain.chain_id} className="bg-background text-foreground">
-              {chain.name} {chain.is_testnet && '(Testnet)'} {!chain.mint_contract_address && '(No contract)'}
-            </option>
-          ))}
-        </select>
-        {errors.chain_id && <p className="mt-1.5 text-sm text-destructive">{errors.chain_id}</p>}
-        {data.chain_id > 0 && !data.contract_address && (
-          <p className="mt-1.5 text-sm text-yellow-500">
-            ⚠️ No mint contract deployed on this chain. Deploy one in Settings → Chains.
-          </p>
-        )}
-      </div>
 
       {/* Contract address is now auto-filled from chain, show as read-only */}
       {data.contract_address && (

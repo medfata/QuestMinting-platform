@@ -12,6 +12,7 @@ import { useTaskVerification } from '@/hooks/useTaskVerification';
 import { ThemedContainer, usePublicLoading } from '@/components/layout';
 import { TaskList } from '@/components/campaigns/TaskList';
 import { EligibilityBadge } from '@/components/campaigns/EligibilityBadge';
+import { TransactionStatus } from '@/components/campaigns/TransactionStatus';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import type { QuestCampaign, QuestTask, EligibilityCondition } from '@/types/quest';
@@ -130,6 +131,7 @@ export default function QuestCampaignPage({ params }: PageProps) {
   // Minting hook
   const {
     mint,
+    status: mintStatus,
     error: mintError,
     txHash,
     reset: resetMint,
@@ -302,34 +304,14 @@ export default function QuestCampaignPage({ params }: PageProps) {
                   </Button>
                 )}
 
-                {/* Status Messages */}
-                {mintError && (
-                  <div className="rounded-lg bg-red-500/10 p-4 text-center">
-                    <p className="text-sm text-red-400">{mintError.message}</p>
-                    <button
-                      onClick={resetMint}
-                      className="mt-2 text-xs text-red-400 underline hover:no-underline"
-                    >
-                      Try again
-                    </button>
-                  </div>
-                )}
-
-                {isSuccess && txHash && (
-                  <div className="rounded-lg bg-green-500/10 p-4 text-center">
-                    <p className="mb-2 text-sm font-medium text-green-400">
-                      Mint successful!
-                    </p>
-                    <a
-                      href={`https://etherscan.io/tx/${txHash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-green-400 underline hover:no-underline"
-                    >
-                      View transaction
-                    </a>
-                  </div>
-                )}
+                {/* Transaction Status */}
+                <TransactionStatus
+                  status={mintStatus}
+                  error={mintError}
+                  txHash={txHash}
+                  onReset={resetMint}
+                  chainId={campaign.chain_id}
+                />
               </CardContent>
             </Card>
 

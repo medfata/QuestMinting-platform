@@ -3,7 +3,7 @@
 import type { MintTier } from '@/types/campaign';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
-import { formatEther } from 'viem';
+// Price is stored in ETH format (e.g., "0.01"), not wei
 
 export interface MintTierSelectorProps {
   tiers: MintTier[];
@@ -49,8 +49,9 @@ export function MintTierSelector({
         </label>
         <div className="grid gap-3">
           {sortedTiers.map((tier, index) => {
-            const price = BigInt(tier.price || '0');
-            const isFree = price === BigInt(0);
+            // Price is stored in ETH (e.g., "0.01"), display as-is
+            const priceNum = parseFloat(tier.price || '0');
+            const isFree = priceNum === 0;
             const isSelected = tier.id === selectedTierId;
 
             return (
@@ -113,7 +114,7 @@ export function MintTierSelector({
                           : 'text-foreground/80'
                     )}
                   >
-                    {isFree ? 'Free' : `${formatEther(price)} ETH`}
+                    {isFree ? 'Free' : `${tier.price} ETH`}
                   </span>
                 </div>
               </button>
@@ -173,9 +174,10 @@ interface TotalPriceProps {
 }
 
 function TotalPrice({ tier, quantity }: TotalPriceProps) {
-  const unitPrice = BigInt(tier.price || '0');
-  const totalPrice = unitPrice * BigInt(quantity);
-  const isFree = totalPrice === BigInt(0);
+  // Price is stored in ETH (e.g., "0.01")
+  const unitPrice = parseFloat(tier.price || '0');
+  const totalPrice = unitPrice * quantity;
+  const isFree = totalPrice === 0;
 
   return (
     <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 motion-safe:animate-fade-in">
@@ -187,12 +189,12 @@ function TotalPrice({ tier, quantity }: TotalPriceProps) {
             isFree ? 'text-green-400' : 'text-foreground'
           )}
         >
-          {isFree ? 'Free' : `${formatEther(totalPrice)} ETH`}
+          {isFree ? 'Free' : `${totalPrice} ETH`}
         </span>
       </div>
       {!isFree && quantity > 1 && (
         <div className="mt-1 text-right text-sm text-foreground/50">
-          {formatEther(unitPrice)} ETH × {quantity}
+          {unitPrice} ETH × {quantity}
         </div>
       )}
     </div>

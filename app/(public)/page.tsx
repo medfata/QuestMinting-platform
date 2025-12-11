@@ -17,6 +17,42 @@ import { DEFAULT_GLOBAL_THEME } from '@/types/theme';
 import type { MintfunCampaignRow, QuestCampaignRow, MintTierRow, QuestTaskRow, EligibilityConditionRow } from '@/types/database';
 import { toCampaignTheme } from '@/types/campaign';
 
+// Chain info helper for displaying chain icons and names
+const CHAIN_INFO: Record<number, { name: string; slug: string }> = {
+  1: { name: 'Ethereum', slug: 'ethereum' },
+  10: { name: 'Optimism', slug: 'optimism' },
+  56: { name: 'BNB Chain', slug: 'bsc' },
+  137: { name: 'Polygon', slug: 'polygon' },
+  250: { name: 'Fantom', slug: 'fantom' },
+  324: { name: 'zkSync', slug: 'zksync-era' },
+  8453: { name: 'Base', slug: 'base' },
+  42161: { name: 'Arbitrum', slug: 'arbitrum' },
+  43114: { name: 'Avalanche', slug: 'avalanche' },
+  59144: { name: 'Linea', slug: 'linea' },
+  534352: { name: 'Scroll', slug: 'scroll' },
+  81457: { name: 'Blast', slug: 'blast' },
+  5000: { name: 'Mantle', slug: 'mantle' },
+  34443: { name: 'Mode', slug: 'mode' },
+  7777777: { name: 'Zora', slug: 'zora' },
+  11155111: { name: 'Sepolia', slug: 'ethereum' },
+};
+
+function getChainInfo(chainId: number | null): { name: string; slug: string; iconUrl: string } {
+  const info = chainId ? CHAIN_INFO[chainId] : null;
+  const name = info?.name || 'Unknown';
+  const slug = info?.slug || 'ethereum';
+  return {
+    name,
+    slug,
+    iconUrl: `https://icons.llamao.fi/icons/chains/rsz_${slug}.jpg`,
+  };
+}
+
+// Combined campaign type for the carousel
+type FeaturedCampaign = 
+  | { type: 'mintfun'; data: MintFunCampaign }
+  | { type: 'quest'; data: QuestCampaign };
+
 // Default home config when none exists in database
 const DEFAULT_HOME_CONFIG: HomePageConfig = {
   id: 'default',
@@ -35,7 +71,6 @@ export default function HomePage() {
   const [mintFunCampaigns, setMintFunCampaigns] = useState<MintFunCampaign[]>([]);
   const [questCampaigns, setQuestCampaigns] = useState<QuestCampaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'mintfun' | 'quests'>('mintfun');
   const { resolvedTheme } = useTheme();
 
   // Update homeConfig when preloaded config becomes available
@@ -141,7 +176,17 @@ export default function HomePage() {
     fetchHomeData();
   }, []);
 
-  const currentCampaigns = activeTab === 'mintfun' ? mintFunCampaigns : questCampaigns;
+  // Combine and interleave campaigns for the featured carousel
+  const featuredCampaigns: FeaturedCampaign[] = [];
+  const maxLength = Math.max(mintFunCampaigns.length, questCampaigns.length);
+  for (let i = 0; i < maxLength && featuredCampaigns.length < 10; i++) {
+    if (i < mintFunCampaigns.length) {
+      featuredCampaigns.push({ type: 'mintfun', data: mintFunCampaigns[i] });
+    }
+    if (i < questCampaigns.length && featuredCampaigns.length < 10) {
+      featuredCampaigns.push({ type: 'quest', data: questCampaigns[i] });
+    }
+  }
 
   return (
     <ThemedContainer theme={homeConfig.theme} applyToDocument as="div">
@@ -252,34 +297,10 @@ export default function HomePage() {
                 <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 rounded-3xl blur-2xl opacity-50" />
                 
                 <div className="relative">
-                  {/* Tab Switcher */}
-                  <div className="flex gap-2 mb-6">
-                    <button
-                      onClick={() => setActiveTab('mintfun')}
-                      className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                        activeTab === 'mintfun'
-                          ? 'bg-primary text-white shadow-lg shadow-primary/25'
-                          : 'glass glass-hover text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      MintFun
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('quests')}
-                      className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                        activeTab === 'quests'
-                          ? 'bg-secondary text-white shadow-lg shadow-secondary/25'
-                          : 'glass glass-hover text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      Quests
-                    </button>
-                  </div>
-
                   {/* Carousel */}
                   {isLoading ? (
                     <div className="aspect-[4/5] rounded-2xl glass animate-pulse" />
-                  ) : currentCampaigns.length > 0 ? (
+                  ) : featuredCampaigns.length > 0 ? (
                     <Carousel 
                       autoPlay 
                       autoPlayInterval={5000} 
@@ -288,19 +309,15 @@ export default function HomePage() {
                       fadeTransition
                       className="rounded-2xl overflow-hidden"
                     >
-                      {currentCampaigns.map((campaign) => (
-                        <div key={campaign.id} className="px-1">
-                          {activeTab === 'mintfun' ? (
-                            <FeaturedMintCard campaign={campaign as MintFunCampaign} />
-                          ) : (
-                            <FeaturedQuestCard campaign={campaign as QuestCampaign} />
-                          )}
+                      {featuredCampaigns.map((campaign) => (
+                        <div key={`${campaign.type}-${campaign.data.id}`} className="px-1">
+                          <FeaturedCard campaign={campaign} />
                         </div>
                       ))}
                     </Carousel>
                   ) : (
                     <div className="aspect-[4/5] rounded-2xl glass flex items-center justify-center">
-                      <p className="text-muted-foreground">No {activeTab === 'mintfun' ? 'mints' : 'quests'} available</p>
+                      <p className="text-muted-foreground">No campaigns available</p>
                     </div>
                   )}
                 </div>
@@ -438,22 +455,32 @@ export default function HomePage() {
   );
 }
 
-// Featured MintFun Card for Carousel
-function FeaturedMintCard({ campaign }: { campaign: MintFunCampaign }) {
-  const lowestPriceTier = campaign.mint_tiers.reduce((lowest, tier) => {
-    const tierPrice = BigInt(tier.price || '0');
-    const lowestPrice = BigInt(lowest?.price || '0');
-    return !lowest || tierPrice < lowestPrice ? tier : lowest;
-  }, campaign.mint_tiers[0]);
-
-  const isFree = lowestPriceTier && BigInt(lowestPriceTier.price || '0') === BigInt(0);
+// Unified Featured Card for Carousel - shows chain info and type badge
+function FeaturedCard({ campaign }: { campaign: FeaturedCampaign }) {
+  const { type, data } = campaign;
+  const isMintFun = type === 'mintfun';
+  const mintData = isMintFun ? (data as MintFunCampaign) : null;
+  const questData = !isMintFun ? (data as QuestCampaign) : null;
+  
+  const chainInfo = getChainInfo(data.chain_id);
+  const [chainImgError, setChainImgError] = useState(false);
+  
+  // Check if mint is free
+  const isFree = mintData?.mint_tiers?.some(tier => BigInt(tier.price || '0') === BigInt(0));
+  
+  const href = isMintFun ? `/mint/${data.slug}` : `/quest/${data.slug}`;
+  const ctaText = isMintFun ? 'Mint Now' : 'Start Quest';
+  const ctaColor = isMintFun ? 'text-primary' : 'text-secondary';
+  const subInfo = isMintFun 
+    ? `${mintData?.mint_tiers.length || 0} tier${(mintData?.mint_tiers.length || 0) !== 1 ? 's' : ''}`
+    : `${questData?.tasks.length || 0} task${(questData?.tasks.length || 0) !== 1 ? 's' : ''}`;
 
   return (
-    <Link href={`/mint/${campaign.slug}`} className="block group">
+    <Link href={href} className="block group">
       <div className="relative aspect-[4/5] rounded-2xl overflow-hidden glass">
         <Image
-          src={campaign.image_url}
-          alt={campaign.title}
+          src={data.image_url}
+          alt={data.title}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, 50vw"
@@ -468,53 +495,48 @@ function FeaturedMintCard({ campaign }: { campaign: MintFunCampaign }) {
               Free Mint
             </span>
           )}
-          <h3 className="text-2xl font-bold text-white mb-2">{campaign.title}</h3>
-          {campaign.description && (
-            <p className="text-white/70 line-clamp-2 mb-4">{campaign.description}</p>
-          )}
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-white/60">{campaign.mint_tiers.length} tier{campaign.mint_tiers.length !== 1 ? 's' : ''}</span>
-            <span className="inline-flex items-center gap-1 text-primary font-medium group-hover:gap-2 transition-all">
-              Mint Now
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
+          <h3 className="text-2xl font-bold text-white mb-2">{data.title}</h3>
+          
+          {/* Chain + Type badges - under title */}
+          <div className="flex items-center gap-2 mb-3">
+            {/* Chain badge with icon */}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/10">
+              <div className="relative w-4 h-4 rounded-full overflow-hidden flex-shrink-0">
+                {!chainImgError ? (
+                  <Image
+                    src={chainInfo.iconUrl}
+                    alt={chainInfo.name}
+                    fill
+                    className="object-cover"
+                    sizes="16px"
+                    onError={() => setChainImgError(true)}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-white/20 text-white text-[8px] font-bold">
+                    {chainInfo.name.charAt(0)}
+                  </div>
+                )}
+              </div>
+              <span className="text-xs font-medium text-white/90">{chainInfo.name}</span>
+            </div>
+            
+            {/* Type badge */}
+            <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
+              isMintFun 
+                ? 'bg-primary/20 text-primary border border-primary/30' 
+                : 'bg-secondary/20 text-secondary border border-secondary/30'
+            }`}>
+              {isMintFun ? 'MintFun' : 'Quest'}
             </span>
           </div>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-// Featured Quest Card for Carousel
-function FeaturedQuestCard({ campaign }: { campaign: QuestCampaign }) {
-  return (
-    <Link href={`/quest/${campaign.slug}`} className="block group">
-      <div className="relative aspect-[4/5] rounded-2xl overflow-hidden glass">
-        <Image
-          src={campaign.image_url}
-          alt={campaign.title}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, 50vw"
-        />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        
-        {/* Content */}
-        <div className="absolute inset-x-0 bottom-0 p-6">
-          <span className="inline-block px-3 py-1 mb-3 text-xs font-semibold bg-secondary/20 text-secondary rounded-full border border-secondary/30">
-            Quest
-          </span>
-          <h3 className="text-2xl font-bold text-white mb-2">{campaign.title}</h3>
-          {campaign.description && (
-            <p className="text-white/70 line-clamp-2 mb-4">{campaign.description}</p>
+          
+          {data.description && (
+            <p className="text-white/70 line-clamp-2 mb-4">{data.description}</p>
           )}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-white/60">{campaign.tasks.length} task{campaign.tasks.length !== 1 ? 's' : ''}</span>
-            <span className="inline-flex items-center gap-1 text-secondary font-medium group-hover:gap-2 transition-all">
-              Start Quest
+            <span className="text-sm text-white/60">{subInfo}</span>
+            <span className={`inline-flex items-center gap-1 ${ctaColor} font-medium group-hover:gap-2 transition-all`}>
+              {ctaText}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>

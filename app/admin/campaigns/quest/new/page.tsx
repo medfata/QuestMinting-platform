@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAccount, useSwitchChain } from 'wagmi';
@@ -65,7 +65,16 @@ export default function NewQuestPage() {
   const [theme, setTheme] = useState<CampaignTheme>(DEFAULT_CAMPAIGN_THEME);
 
   const isWrongChain = selectedChain && connectedChainId !== selectedChain.chain_id;
+  
+  // Track if we've already processed the success to prevent double saves
+  const hasProcessedSuccess = useRef(false);
 
+  // Reset the ref when starting a new token creation
+  useEffect(() => {
+    if (tokenCreationStep === 'form') {
+      hasProcessedSuccess.current = false;
+    }
+  }, [tokenCreationStep]);
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -213,12 +222,11 @@ export default function NewQuestPage() {
     }
   };
 
-  // Watch for token creation success
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (tokenCreationStep === 'done') {
-      // Token already created, just save to DB
+      // Token already created, just save to DB (manual retry)
       await handleSaveToDatabase();
     } else {
       // Need to create token first
@@ -226,11 +234,18 @@ export default function NewQuestPage() {
     }
   };
 
-  // When token creation succeeds, mark as done
-  if (isTokenSuccess && tokenCreationStep === 'creating') {
-    setTokenCreationStep('done');
-  }
-
+  // Watch for token creation success and auto-save to database
+  useEffect(() => {
+    const saveAfterTokenCreation = async () => {
+      if (isTokenSuccess && tokenCreationStep === 'creating' && !hasProcessedSuccess.current) {
+        hasProcessedSuccess.current = true;
+        setTokenCreationStep('done');
+        // Auto-save to database after token is created on-chain
+        await handleSaveToDatabase();
+      }
+    };
+    saveAfterTokenCreation();
+  }, [isTokenSuccess, tokenCreationStep, tokenId]);
 
   return (
     <div className="space-y-6">
@@ -241,7 +256,7 @@ export default function NewQuestPage() {
             <polyline points="12 19 5 12 12 5" />
           </svg>
         </Link>
-        <h1 className="text-2xl font-bold text-foreground">Create Quest Campaign</h1>
+        <h1 className="text-2xl font-bold text-foreground">Create Quest</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -253,7 +268,7 @@ export default function NewQuestPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Campaign Details</CardTitle>
+            <CardTitle>Details</CardTitle>
           </CardHeader>
           <CardContent>
             <CampaignForm 
