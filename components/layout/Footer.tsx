@@ -77,8 +77,8 @@ export const Footer = forwardRef<HTMLElement, FooterProps>(
               <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Explore</h4>
               <ul className="space-y-3">
                 <li><FooterLink href="/">Home</FooterLink></li>
-                <li><FooterLink href="#explore">MintFun</FooterLink></li>
-                <li><FooterLink href="#quests">Quests</FooterLink></li>
+                <li><FooterLink href="/mintfun">MintFun</FooterLink></li>
+                <li><FooterLink href="/quests">Quests</FooterLink></li>
               </ul>
             </div>
 

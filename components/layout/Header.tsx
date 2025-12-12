@@ -85,8 +85,8 @@ export const Header = forwardRef<HTMLElement, HeaderProps>(
           {showNav && (
             <nav className="hidden md:flex items-center gap-1">
               <NavLink href="/">Home</NavLink>
-              <NavLink href="#explore">MintFun</NavLink>
-              <NavLink href="#quests">Quests</NavLink>
+              <NavLink href="/mintfun">MintFun</NavLink>
+              <NavLink href="/quests">Quests</NavLink>
             </nav>
           )}
 
@@ -158,8 +158,8 @@ export const Header = forwardRef<HTMLElement, HeaderProps>(
         )}>
           <nav className="px-4 py-4 space-y-1 bg-background/80 backdrop-blur-xl">
             <MobileNavLink href="/" onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
-            <MobileNavLink href="#explore" onClick={() => setMobileMenuOpen(false)}>MintFun</MobileNavLink>
-            <MobileNavLink href="#quests" onClick={() => setMobileMenuOpen(false)}>Quests</MobileNavLink>
+            <MobileNavLink href="/mintfun" onClick={() => setMobileMenuOpen(false)}>MintFun</MobileNavLink>
+            <MobileNavLink href="/quests" onClick={() => setMobileMenuOpen(false)}>Quests</MobileNavLink>
             {isAdmin && (
               <MobileNavLink href="/admin" onClick={() => setMobileMenuOpen(false)}>
                 Admin Panel

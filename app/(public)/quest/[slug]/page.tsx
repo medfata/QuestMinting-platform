@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useMint } from '@/hooks/useMint';
 import { useEligibility } from '@/hooks/useEligibility';
 import { useTaskVerification } from '@/hooks/useTaskVerification';
-import { ThemedContainer, usePublicLoading } from '@/components/layout';
+import { Header, Footer, ThemedContainer, usePublicLoading } from '@/components/layout';
 import { TaskList } from '@/components/campaigns/TaskList';
 import { EligibilityBadge } from '@/components/campaigns/EligibilityBadge';
 import { TransactionStatus } from '@/components/campaigns/TransactionStatus';
@@ -164,43 +164,60 @@ export default function QuestCampaignPage({ params }: PageProps) {
 
   if (loading) {
     return (
-      <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="main">
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-primary)] border-t-transparent" />
-        </div>
+      <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="div">
+        <Header />
+        <main className="flex min-h-screen items-center justify-center">
+          <div className="relative">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/30 border-t-primary" />
+            <div className="absolute inset-0 h-12 w-12 animate-pulse rounded-full bg-primary/20 blur-xl" />
+          </div>
+        </main>
+        <Footer />
       </ThemedContainer>
     );
   }
 
   if (error || !campaign) {
     return (
-      <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="main">
-        <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-          <h1 className="text-2xl font-bold">{error || 'Quest not found'}</h1>
-          <Link href="/">
-            <Button variant="outline">Back to Home</Button>
+      <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="div">
+        <Header />
+        <main className="flex min-h-screen flex-col items-center justify-center gap-6">
+          <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center">
+            <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">{error || 'Quest not found'}</h1>
+          <Link href="/quests">
+            <Button variant="glass">Back to Quests</Button>
           </Link>
-        </div>
+        </main>
+        <Footer />
       </ThemedContainer>
     );
   }
 
   return (
-    <ThemedContainer theme={theme} as="main" applyToDocument>
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        {/* Header */}
-        <header className="mb-8 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-[var(--color-text)]/70 transition-colors hover:text-[var(--color-text)]"
-          >
-            ← Back
-          </Link>
-          <ConnectButton />
-        </header>
+    <ThemedContainer theme={theme} as="div" applyToDocument>
+      <Header />
+      
+      <main className="min-h-screen pt-8 pb-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb */}
+          <nav className="mb-8">
+            <Link
+              href="/quests"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
+            >
+              <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Quests
+            </Link>
+          </nav>
 
-        {/* Campaign Content */}
-        <div className="grid gap-8 lg:grid-cols-2">
+          {/* Campaign Content */}
+          <div className="grid gap-8 lg:grid-cols-2">
           {/* Left: Image */}
           <div className="relative aspect-square overflow-hidden rounded-2xl">
             <Image
@@ -316,13 +333,22 @@ export default function QuestCampaignPage({ params }: PageProps) {
             </Card>
 
             {/* Campaign Info */}
-            <div className="text-sm text-[var(--color-text)]/50">
-              <p>Contract: {campaign.contract_address}</p>
-              <p>Chain ID: {campaign.chain_id}</p>
+            <div className="text-sm text-muted-foreground/70 space-y-1">
+              <p className="flex items-center justify-between">
+                <span>Contract</span>
+                <span className="font-mono text-foreground/70">{campaign.contract_address.slice(0, 6)}...{campaign.contract_address.slice(-4)}</span>
+              </p>
+              <p className="flex items-center justify-between">
+                <span>Chain ID</span>
+                <span className="text-foreground/70">{campaign.chain_id}</span>
+              </p>
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      </main>
+
+      <Footer />
     </ThemedContainer>
   );
 }

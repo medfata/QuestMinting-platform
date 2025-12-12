@@ -8,7 +8,7 @@ import { useAccount, useSwitchChain } from 'wagmi';
 import { parseEther } from 'viem';
 import { createClient } from '@/lib/supabase/client';
 import { useMint } from '@/hooks/useMint';
-import { ThemedContainer, usePublicLoading } from '@/components/layout';
+import { Header, Footer, ThemedContainer, usePublicLoading } from '@/components/layout';
 import { MintTierSelector } from '@/components/campaigns/MintTierSelector';
 import { Button } from '@/components/ui/Button';
 import { GlowCard } from '@/components/futuristic/glow-card';
@@ -140,52 +140,65 @@ export default function MintFunCampaignPage({ params }: PageProps) {
 
   if (loading) {
     return (
-      <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="main">
+      <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="div">
+        <Header />
         <AnimatedBackground variant="subtle" className="min-h-screen">
-          <div className="flex min-h-screen items-center justify-center">
+          <main className="flex min-h-screen items-center justify-center">
             <div className="relative">
               <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/30 border-t-primary" />
               <div className="absolute inset-0 h-12 w-12 animate-pulse rounded-full bg-primary/20 blur-xl" />
             </div>
-          </div>
+          </main>
         </AnimatedBackground>
+        <Footer />
       </ThemedContainer>
     );
   }
 
   if (error || !campaign) {
     return (
-      <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="main">
+      <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="div">
+        <Header />
         <AnimatedBackground variant="subtle" className="min-h-screen">
-          <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-            <h1 className="text-2xl font-bold">{error || 'Campaign not found'}</h1>
-            <Link href="/">
-              <Button variant="glass">Back to Home</Button>
+          <main className="flex min-h-screen flex-col items-center justify-center gap-6">
+            <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center">
+              <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-foreground">{error || 'Campaign not found'}</h1>
+            <Link href="/mintfun">
+              <Button variant="glass">Back to MintFun</Button>
             </Link>
-          </div>
+          </main>
         </AnimatedBackground>
+        <Footer />
       </ThemedContainer>
     );
   }
 
   return (
-    <ThemedContainer theme={theme} as="main" applyToDocument>
+    <ThemedContainer theme={theme} as="div" applyToDocument>
+      <Header />
+      
       <AnimatedBackground variant="subtle" className="min-h-screen">
-        <div className="mx-auto max-w-6xl px-4 py-8">
-          {/* Header */}
-          <header className="mb-8 flex items-center justify-between">
-            <Link
-              href="/"
-              className="group flex items-center gap-2 text-foreground/70 transition-colors hover:text-foreground"
-            >
-              <span className="transition-transform group-hover:-translate-x-1">←</span>
-              <span>Back</span>
-            </Link>
-            <ConnectButton />
-          </header>
+        <main className="pt-8 pb-16">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            {/* Breadcrumb */}
+            <nav className="mb-8">
+              <Link
+                href="/mintfun"
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
+              >
+                <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to MintFun
+              </Link>
+            </nav>
 
-          {/* Campaign Content */}
-          <div className="grid gap-8 lg:grid-cols-2">
+            {/* Campaign Content */}
+            <div className="grid gap-8 lg:grid-cols-2">
             {/* Left: Image */}
             <GlowCard
               glowColor="primary"
@@ -303,8 +316,11 @@ export default function MintFunCampaignPage({ params }: PageProps) {
               </GlowCard>
             </div>
           </div>
-        </div>
+          </div>
+        </main>
       </AnimatedBackground>
+
+      <Footer />
     </ThemedContainer>
   );
 }

@@ -284,10 +284,10 @@ export default function HomePage() {
 
                 {/* CTA Buttons */}
                 <div className="flex flex-wrap gap-4 pt-4">
-                  <Button size="xl" variant="glow" asChild>
+                  <Button size="lg" variant="glow" asChild>
                     <Link href="#explore">Explore Drops</Link>
                   </Button>
-                  <Button size="xl" variant="glass" asChild>
+                  <Button size="lg" variant="glass" asChild>
                     <Link href="#quests">View Quests</Link>
                   </Button>
                 </div>

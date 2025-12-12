@@ -63,7 +63,7 @@ export function ConnectButton({ className = '', requireAuth = true }: ConnectBut
           {error && (
             <button
               onClick={signIn}
-              className="rounded-full bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500"
+              className="rounded-full bg-[rgb(var(--primary))] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[rgb(var(--primary))]/90"
               title="Retry sign in"
             >
               Retry
@@ -117,7 +117,7 @@ export function ConnectButton({ className = '', requireAuth = true }: ConnectBut
   return (
     <button
       onClick={() => open()}
-      className={`rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500 ${className}`}
+      className={`rounded-full bg-[rgb(var(--primary))] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[rgb(var(--primary))]/90 ${className}`}
     >
       Connect Wallet
     </button>

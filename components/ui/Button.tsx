@@ -14,9 +14,9 @@ const buttonVariants = cva(
           'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25',
         primary:
           'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25',
-        glow: 'bg-primary text-primary-foreground shadow-[0_0_20px_rgba(var(--primary-rgb),0.5)] hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.7)] hover:scale-[1.02] active:scale-[0.98]',
+        glow: 'bg-[rgb(var(--primary))] text-white shadow-[0_0_20px_rgba(var(--primary-rgb),0.5)] hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.7)] hover:scale-[1.02] active:scale-[0.98]',
         glass:
-          'bg-white/10 backdrop-blur-md border border-white/20 text-foreground hover:bg-white/20 hover:border-white/30 hover:shadow-lg hover:shadow-white/5',
+          'bg-[rgb(var(--primary))]/10 backdrop-blur-md border border-[rgb(var(--primary))]/30 text-foreground hover:bg-[rgb(var(--primary))]/20 hover:border-[rgb(var(--primary))]/50 hover:shadow-lg hover:shadow-[rgb(var(--primary))]/10',
         outline:
           'border-2 border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25',
         secondary:

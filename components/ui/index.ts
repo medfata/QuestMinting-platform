@@ -43,3 +43,5 @@ export type { ModalProps } from './Modal';
 
 export { SupportedChains } from './SupportedChains';
 export type { SupportedChainsProps } from './SupportedChains';
+
+export { InfiniteScroll } from './InfiniteScroll';

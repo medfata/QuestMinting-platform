@@ -15,3 +15,7 @@ export type { CampaignPageSkeletonProps } from './CampaignPageSkeleton';
 
 export { TransactionStatus, GlowSpinner } from './TransactionStatus';
 export type { TransactionStatusProps, TransactionStatusType, TransactionError } from './TransactionStatus';
+
+
+export { CampaignFilters } from './CampaignFilters';
+export type { CampaignFiltersProps } from './CampaignFilters';
