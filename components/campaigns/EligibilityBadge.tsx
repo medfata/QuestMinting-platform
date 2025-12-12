@@ -2,6 +2,7 @@
 
 import type { EligibilityCondition, EligibilityCheckResult } from '@/types/quest';
 import { formatUnits } from 'viem';
+import { cn } from '@/lib/utils';
 
 export interface EligibilityBadgeProps {
   condition: EligibilityCondition | null;
@@ -21,12 +22,16 @@ export function EligibilityBadge({
   // No eligibility requirement
   if (!condition) {
     return (
-      <div className={`rounded-lg bg-green-500/10 p-4 ${className}`}>
+      <div className={cn('rounded-xl bg-muted/30 border border-border p-4', className)}>
         <div className="flex items-center gap-2">
-          <span className="text-green-400">✓</span>
-          <span className="font-medium text-green-400">Open to everyone</span>
+          <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+            <svg className="w-3 h-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <span className="font-medium text-foreground text-sm">Open to everyone</span>
         </div>
-        <p className="mt-1 text-sm text-[var(--color-text,#f8fafc)]/70">
+        <p className="mt-1.5 text-sm text-muted-foreground pl-7">
           No eligibility requirements for this quest.
         </p>
       </div>
@@ -36,12 +41,16 @@ export function EligibilityBadge({
   // Not connected
   if (!isConnected) {
     return (
-      <div className={`rounded-lg bg-amber-500/10 p-4 ${className}`}>
+      <div className={cn('rounded-xl bg-muted/30 border border-border p-4', className)}>
         <div className="flex items-center gap-2">
-          <span className="text-amber-400">⚠</span>
-          <span className="font-medium text-amber-400">Eligibility Required</span>
+          <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+            <svg className="w-3 h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <span className="font-medium text-foreground text-sm">Eligibility Required</span>
         </div>
-        <p className="mt-1 text-sm text-[var(--color-text,#f8fafc)]/70">
+        <p className="mt-1.5 text-sm text-muted-foreground pl-7">
           Connect your wallet to check eligibility.
         </p>
         <EligibilityRequirement condition={condition} />
@@ -52,10 +61,10 @@ export function EligibilityBadge({
   // Loading
   if (isLoading) {
     return (
-      <div className={`rounded-lg bg-white/5 p-4 ${className}`}>
+      <div className={cn('rounded-xl bg-muted/30 border border-border p-4', className)}>
         <div className="flex items-center gap-2">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--color-primary)] border-t-transparent" />
-          <span className="font-medium text-[var(--color-text,#f8fafc)]">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+          <span className="font-medium text-foreground text-sm">
             Checking eligibility...
           </span>
         </div>
@@ -67,10 +76,14 @@ export function EligibilityBadge({
   if (checkResult) {
     if (checkResult.is_eligible) {
       return (
-        <div className={`rounded-lg bg-green-500/10 p-4 ${className}`}>
+        <div className={cn('rounded-xl bg-primary/5 border border-primary/20 p-4', className)}>
           <div className="flex items-center gap-2">
-            <span className="text-green-400">✓</span>
-            <span className="font-medium text-green-400">You are eligible!</span>
+            <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+              <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <span className="font-medium text-foreground text-sm">Eligible</span>
           </div>
           <EligibilityDetails condition={condition} checkResult={checkResult} />
         </div>
@@ -78,10 +91,14 @@ export function EligibilityBadge({
     }
 
     return (
-      <div className={`rounded-lg bg-red-500/10 p-4 ${className}`}>
+      <div className={cn('rounded-xl bg-destructive/5 border border-destructive/20 p-4', className)}>
         <div className="flex items-center gap-2">
-          <span className="text-red-400">✗</span>
-          <span className="font-medium text-red-400">Not eligible</span>
+          <div className="w-5 h-5 rounded-full bg-destructive/10 flex items-center justify-center">
+            <svg className="w-3 h-3 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <span className="font-medium text-foreground text-sm">Not eligible</span>
         </div>
         <EligibilityDetails condition={condition} checkResult={checkResult} />
       </div>
@@ -90,10 +107,14 @@ export function EligibilityBadge({
 
   // Fallback - show requirement
   return (
-    <div className={`rounded-lg bg-amber-500/10 p-4 ${className}`}>
+    <div className={cn('rounded-xl bg-muted/30 border border-border p-4', className)}>
       <div className="flex items-center gap-2">
-        <span className="text-amber-400">⚠</span>
-        <span className="font-medium text-amber-400">Eligibility Required</span>
+        <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+          <svg className="w-3 h-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <span className="font-medium text-foreground text-sm">Eligibility Required</span>
       </div>
       <EligibilityRequirement condition={condition} />
     </div>
@@ -109,16 +130,16 @@ function EligibilityRequirement({ condition }: EligibilityRequirementProps) {
   const hasSpecificContract = condition.contract_address !== null;
 
   return (
-    <div className="mt-2 text-sm text-[var(--color-text,#f8fafc)]/70">
+    <div className="mt-2 text-sm text-muted-foreground pl-7">
       <p>
         {isNFT ? (
           <>
-            Hold at least <strong>{condition.min_amount}</strong> NFT
+            Hold at least <span className="font-medium text-foreground">{condition.min_amount}</span> NFT
             {Number(condition.min_amount) !== 1 ? 's' : ''}
             {hasSpecificContract && (
               <>
-                {' '}from collection{' '}
-                <code className="rounded bg-white/10 px-1 py-0.5 text-xs">
+                {' '}from{' '}
+                <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-foreground/80">
                   {truncateAddress(condition.contract_address!)}
                 </code>
               </>
@@ -127,11 +148,11 @@ function EligibilityRequirement({ condition }: EligibilityRequirementProps) {
         ) : (
           <>
             Hold at least{' '}
-            <strong>{formatTokenAmount(condition.min_amount)}</strong> tokens
+            <span className="font-medium text-foreground">{formatTokenAmount(condition.min_amount)}</span> tokens
             {hasSpecificContract && (
               <>
                 {' '}of{' '}
-                <code className="rounded bg-white/10 px-1 py-0.5 text-xs">
+                <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-foreground/80">
                   {truncateAddress(condition.contract_address!)}
                 </code>
               </>
@@ -152,25 +173,26 @@ function EligibilityDetails({ condition, checkResult }: EligibilityDetailsProps)
   const isNFT = condition.type === 'nft';
 
   return (
-    <div className="mt-2 space-y-1 text-sm text-[var(--color-text,#f8fafc)]/70">
-      <p>
-        Required:{' '}
-        <strong>
+    <div className="mt-3 pt-3 border-t border-border/50 space-y-1.5 text-sm pl-7">
+      <div className="flex items-center justify-between">
+        <span className="text-muted-foreground">Required</span>
+        <span className="font-medium text-foreground">
           {isNFT
             ? `${checkResult.required_amount} NFT${Number(checkResult.required_amount) !== 1 ? 's' : ''}`
             : `${formatTokenAmount(checkResult.required_amount)} tokens`}
-        </strong>
-      </p>
-      <p>
-        Your balance:{' '}
-        <strong
-          className={checkResult.is_eligible ? 'text-green-400' : 'text-red-400'}
-        >
+        </span>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-muted-foreground">Your balance</span>
+        <span className={cn(
+          'font-medium',
+          checkResult.is_eligible ? 'text-primary' : 'text-destructive'
+        )}>
           {isNFT
             ? `${checkResult.current_balance} NFT${Number(checkResult.current_balance) !== 1 ? 's' : ''}`
             : `${formatTokenAmount(checkResult.current_balance)} tokens`}
-        </strong>
-      </p>
+        </span>
+      </div>
     </div>
   );
 }

@@ -11,12 +11,40 @@ import { useMint } from '@/hooks/useMint';
 import { Header, Footer, ThemedContainer, usePublicLoading, DynamicHead } from '@/components/layout';
 import { MintTierSelector } from '@/components/campaigns/MintTierSelector';
 import { Button } from '@/components/ui/Button';
-import { GlowCard } from '@/components/futuristic/glow-card';
-import { AnimatedBackground } from '@/components/futuristic/animated-background';
 import { TransactionStatus } from '@/components/campaigns/TransactionStatus';
 import type { MintFunCampaign, MintTier, CampaignTheme } from '@/types/campaign';
 import { toCampaignTheme } from '@/types/campaign';
 import { DEFAULT_CAMPAIGN_THEME } from '@/types/theme';
+
+// Chain info helper
+const CHAIN_INFO: Record<number, { name: string; slug: string }> = {
+  1: { name: 'Ethereum', slug: 'ethereum' },
+  10: { name: 'Optimism', slug: 'optimism' },
+  56: { name: 'BNB Chain', slug: 'bsc' },
+  137: { name: 'Polygon', slug: 'polygon' },
+  250: { name: 'Fantom', slug: 'fantom' },
+  324: { name: 'zkSync', slug: 'zksync-era' },
+  8453: { name: 'Base', slug: 'base' },
+  42161: { name: 'Arbitrum', slug: 'arbitrum' },
+  43114: { name: 'Avalanche', slug: 'avalanche' },
+  59144: { name: 'Linea', slug: 'linea' },
+  534352: { name: 'Scroll', slug: 'scroll' },
+  81457: { name: 'Blast', slug: 'blast' },
+  5000: { name: 'Mantle', slug: 'mantle' },
+  34443: { name: 'Mode', slug: 'mode' },
+  7777777: { name: 'Zora', slug: 'zora' },
+  11155111: { name: 'Sepolia', slug: 'ethereum' },
+};
+
+function getChainInfo(chainId: number | null): { name: string; iconUrl: string } {
+  const info = chainId ? CHAIN_INFO[chainId] : null;
+  const name = info?.name || 'Unknown';
+  const slug = info?.slug || 'ethereum';
+  return {
+    name,
+    iconUrl: `https://icons.llamao.fi/icons/chains/rsz_${slug}.jpg`,
+  };
+}
 
 // Dynamically import ConnectButton to avoid SSR issues with Web3Modal
 const ConnectButton = dynamic(
@@ -35,6 +63,7 @@ export default function MintFunCampaignPage({ params }: PageProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<MintTier | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [chainImgError, setChainImgError] = useState(false);
   
   const { homeConfig } = usePublicLoading();
   const platformName = homeConfig?.platform_name || 'MintPlatform';
@@ -117,7 +146,6 @@ export default function MintFunCampaignPage({ params }: PageProps) {
     reset: resetMint,
     isPending,
     isConfirming,
-    isSuccess,
   } = useMint({
     contractAddress: (campaign?.contract_address || '0x') as `0x${string}`,
     chainId: campaign?.chain_id || 1,
@@ -147,14 +175,11 @@ export default function MintFunCampaignPage({ params }: PageProps) {
       <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="div">
         <DynamicHead title={platformName} favicon={platformIcon} />
         <Header logoText={platformName} logoIcon={platformIcon} />
-        <AnimatedBackground variant="subtle" className="min-h-screen">
-          <main className="flex min-h-screen items-center justify-center">
-            <div className="relative">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/30 border-t-primary" />
-              <div className="absolute inset-0 h-12 w-12 animate-pulse rounded-full bg-primary/20 blur-xl" />
-            </div>
-          </main>
-        </AnimatedBackground>
+        <main className="flex min-h-screen items-center justify-center bg-background">
+          <div className="relative">
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-primary" />
+          </div>
+        </main>
         <Footer platformName={platformName} platformIcon={platformIcon} />
       </ThemedContainer>
     );
@@ -165,19 +190,17 @@ export default function MintFunCampaignPage({ params }: PageProps) {
       <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="div">
         <DynamicHead title={platformName} favicon={platformIcon} />
         <Header logoText={platformName} logoIcon={platformIcon} />
-        <AnimatedBackground variant="subtle" className="min-h-screen">
-          <main className="flex min-h-screen flex-col items-center justify-center gap-6">
-            <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center">
-              <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h1 className="text-2xl font-bold text-foreground">{error || 'Campaign not found'}</h1>
-            <Link href="/mintfun">
-              <Button variant="glass">Back to MintFun</Button>
-            </Link>
-          </main>
-        </AnimatedBackground>
+        <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4">
+          <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
+            <svg className="w-7 h-7 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h1 className="text-xl font-semibold text-foreground">{error || 'Campaign not found'}</h1>
+          <Link href="/mintfun">
+            <Button variant="outline" size="sm">Back to MintFun</Button>
+          </Link>
+        </main>
         <Footer platformName={platformName} platformIcon={platformIcon} />
       </ThemedContainer>
     );
@@ -188,63 +211,93 @@ export default function MintFunCampaignPage({ params }: PageProps) {
       <DynamicHead title={`${campaign.title} | ${platformName}`} favicon={platformIcon} />
       <Header logoText={platformName} logoIcon={platformIcon} />
       
-      <AnimatedBackground variant="subtle" className="min-h-screen">
-        <main className="pt-8 pb-16">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            {/* Breadcrumb */}
-            <nav className="mb-8">
-              <Link
-                href="/mintfun"
-                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
-              >
-                <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back to MintFun
-              </Link>
-            </nav>
-
-            {/* Campaign Content */}
-            <div className="grid gap-8 lg:grid-cols-2">
-            {/* Left: Image */}
-            <GlowCard
-              glowColor="primary"
-              intensity="low"
-              hoverLift={false}
-              className="relative aspect-square overflow-hidden"
-              padding="none"
+      <main className="min-h-screen bg-background">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+          {/* Breadcrumb */}
+          <nav className="mb-6">
+            <Link
+              href="/mintfun"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              <Image
-                src={campaign.image_url}
-                alt={campaign.title}
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-            </GlowCard>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back
+            </Link>
+          </nav>
+
+          {/* Campaign Content */}
+          <div className="grid gap-8 lg:grid-cols-5">
+            {/* Left: Image */}
+            <div className="lg:col-span-2">
+              <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted/30 border border-border">
+                <Image
+                  src={campaign.image_url}
+                  alt={campaign.title}
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 40vw"
+                />
+              </div>
+              
+              {/* Contract Info - Desktop */}
+              <div className="hidden lg:block mt-4 p-4 rounded-xl bg-muted/30 border border-border">
+                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Contract Details</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Address</span>
+                    <span className="font-mono text-foreground/80">{campaign.contract_address.slice(0, 6)}...{campaign.contract_address.slice(-4)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Network</span>
+                    <span className="text-foreground/80">Chain {campaign.chain_id}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Right: Details & Minting */}
-            <div className="flex flex-col gap-6">
-              <div className="motion-safe:animate-fade-in">
-                <h1 className="mb-2 text-3xl font-bold text-foreground">
+            <div className="lg:col-span-3 flex flex-col gap-6">
+              {/* Header */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="px-2.5 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary border border-primary/20">
+                    MintFun
+                  </span>
+                  {/* Chain Badge */}
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-muted/50 border border-border">
+                    <div className="relative w-4 h-4 rounded-full overflow-hidden flex-shrink-0">
+                      {!chainImgError ? (
+                        <Image
+                          src={getChainInfo(campaign.chain_id).iconUrl}
+                          alt={getChainInfo(campaign.chain_id).name}
+                          fill
+                          className="object-cover"
+                          sizes="16px"
+                          onError={() => setChainImgError(true)}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-[8px] font-bold">
+                          {getChainInfo(campaign.chain_id).name.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-xs font-medium text-foreground/80">{getChainInfo(campaign.chain_id).name}</span>
+                  </div>
+                </div>
+                <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
                   {campaign.title}
                 </h1>
                 {campaign.description && (
-                  <p className="text-lg text-foreground/70">
+                  <p className="text-base text-muted-foreground leading-relaxed">
                     {campaign.description}
                   </p>
                 )}
               </div>
 
-              <GlowCard
-                glowColor="primary"
-                intensity="medium"
-                hoverLift={false}
-                padding="lg"
-                className="motion-safe:animate-fade-in"
-                style={{ animationDelay: '100ms' }}
-              >
+              {/* Mint Card */}
+              <div className="rounded-2xl bg-card border border-border p-6">
                 <div className="space-y-6">
                   {/* Tier Selection */}
                   <MintTierSelector
@@ -256,17 +309,20 @@ export default function MintFunCampaignPage({ params }: PageProps) {
                     disabled={isPending || isConfirming}
                   />
 
+                  {/* Divider */}
+                  <div className="h-px bg-border" />
+
                   {/* Mint Button */}
                   {!isConnected ? (
                     <div className="space-y-3">
-                      <p className="text-center text-sm text-foreground/70">
-                        Connect your wallet to mint
+                      <p className="text-center text-sm text-muted-foreground">
+                        Connect wallet to continue
                       </p>
                       <ConnectButton className="w-full" />
                     </div>
                   ) : isWrongChain ? (
                     <Button
-                      variant="glow"
+                      variant="default"
                       size="lg"
                       className="w-full"
                       onClick={() => switchChain({ chainId: campaign.chain_id })}
@@ -275,7 +331,7 @@ export default function MintFunCampaignPage({ params }: PageProps) {
                     </Button>
                   ) : (
                     <Button
-                      variant="glow"
+                      variant="default"
                       size="lg"
                       className="w-full"
                       onClick={handleMint}
@@ -285,7 +341,7 @@ export default function MintFunCampaignPage({ params }: PageProps) {
                       {isPending
                         ? 'Confirm in Wallet...'
                         : isConfirming
-                          ? 'Confirming...'
+                          ? 'Processing...'
                           : 'Mint Now'}
                     </Button>
                   )}
@@ -299,33 +355,26 @@ export default function MintFunCampaignPage({ params }: PageProps) {
                     chainId={campaign.chain_id}
                   />
                 </div>
-              </GlowCard>
+              </div>
 
-              {/* Campaign Info */}
-              <GlowCard
-                glowColor="secondary"
-                intensity="low"
-                hoverLift={false}
-                padding="md"
-                className="motion-safe:animate-fade-in"
-                style={{ animationDelay: '200ms' }}
-              >
-                <div className="text-sm text-foreground/50 space-y-1">
-                  <p className="flex items-center justify-between">
-                    <span>Contract</span>
-                    <span className="font-mono text-foreground/70">{campaign.contract_address.slice(0, 6)}...{campaign.contract_address.slice(-4)}</span>
-                  </p>
-                  <p className="flex items-center justify-between">
-                    <span>Chain ID</span>
-                    <span className="text-foreground/70">{campaign.chain_id}</span>
-                  </p>
+              {/* Contract Info - Mobile */}
+              <div className="lg:hidden p-4 rounded-xl bg-muted/30 border border-border">
+                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Contract Details</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Address</span>
+                    <span className="font-mono text-foreground/80">{campaign.contract_address.slice(0, 6)}...{campaign.contract_address.slice(-4)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Network</span>
+                    <span className="text-foreground/80">Chain {campaign.chain_id}</span>
+                  </div>
                 </div>
-              </GlowCard>
+              </div>
             </div>
           </div>
-          </div>
-        </main>
-      </AnimatedBackground>
+        </div>
+      </main>
 
       <Footer platformName={platformName} platformIcon={platformIcon} />
     </ThemedContainer>

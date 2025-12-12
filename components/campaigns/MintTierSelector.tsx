@@ -107,11 +107,7 @@ export function MintTierSelector({
                   <span
                     className={cn(
                       'text-lg font-semibold transition-all duration-300',
-                      isFree
-                        ? 'text-green-400'
-                        : isSelected
-                          ? 'text-primary'
-                          : 'text-foreground/80'
+                      isSelected ? 'text-primary' : 'text-foreground/80'
                     )}
                   >
                     {isFree ? 'Free' : `${tier.price} ETH`}
@@ -180,20 +176,15 @@ function TotalPrice({ tier, quantity }: TotalPriceProps) {
   const isFree = totalPrice === 0;
 
   return (
-    <div className="rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 motion-safe:animate-fade-in">
+    <div className="rounded-xl bg-muted/30 border border-border p-4">
       <div className="flex items-center justify-between">
-        <span className="text-foreground/70">Total</span>
-        <span
-          className={cn(
-            'text-2xl font-bold transition-colors duration-300',
-            isFree ? 'text-green-400' : 'text-foreground'
-          )}
-        >
+        <span className="text-sm text-muted-foreground">Total</span>
+        <span className="text-xl font-semibold text-foreground">
           {isFree ? 'Free' : `${totalPrice} ETH`}
         </span>
       </div>
       {!isFree && quantity > 1 && (
-        <div className="mt-1 text-right text-sm text-foreground/50">
+        <div className="mt-1 text-right text-xs text-muted-foreground">
           {unitPrice} ETH × {quantity}
         </div>
       )}

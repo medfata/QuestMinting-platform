@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import type { CampaignTheme } from '@/types/campaign';
 import { DEFAULT_CAMPAIGN_THEME } from '@/types/theme';
+import { generateSecondaryColor } from '@/lib/utils/theme';
 
 interface ThemeEditorProps {
   theme: CampaignTheme;
   onChange: (theme: CampaignTheme) => void;
+  autoSecondary?: boolean; // Enable auto-generation of secondary color
 }
 
 interface ColorInputProps {
@@ -69,13 +71,36 @@ function ColorInput({ label, value, onChange }: ColorInputProps) {
   );
 }
 
-export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
+export function ThemeEditor({ theme, onChange, autoSecondary = true }: ThemeEditorProps) {
+  const [manualSecondary, setManualSecondary] = useState(false);
+
+  // Auto-generate secondary color when primary changes (unless manual override is enabled)
   const handleColorChange = (field: keyof CampaignTheme, value: string) => {
-    onChange({ ...theme, [field]: value });
+    if (field === 'primary_color' && autoSecondary && !manualSecondary) {
+      // Auto-generate secondary color from primary
+      const newSecondary = generateSecondaryColor(value);
+      onChange({ ...theme, primary_color: value, secondary_color: newSecondary });
+    } else if (field === 'secondary_color') {
+      // If user manually changes secondary, enable manual mode
+      setManualSecondary(true);
+      onChange({ ...theme, [field]: value });
+    } else {
+      onChange({ ...theme, [field]: value });
+    }
   };
 
   const resetToDefaults = () => {
+    setManualSecondary(false);
     onChange(DEFAULT_CAMPAIGN_THEME);
+  };
+
+  const toggleAutoSecondary = () => {
+    if (manualSecondary) {
+      // Switching back to auto - regenerate secondary from current primary
+      const newSecondary = generateSecondaryColor(theme.primary_color);
+      onChange({ ...theme, secondary_color: newSecondary });
+    }
+    setManualSecondary(!manualSecondary);
   };
 
   return (
@@ -98,11 +123,27 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
           value={theme.primary_color}
           onChange={(v) => handleColorChange('primary_color', v)}
         />
-        <ColorInput
-          label="Secondary Color"
-          value={theme.secondary_color}
-          onChange={(v) => handleColorChange('secondary_color', v)}
-        />
+        <div className="space-y-2">
+          <ColorInput
+            label="Secondary Color"
+            value={theme.secondary_color}
+            onChange={(v) => handleColorChange('secondary_color', v)}
+          />
+          {autoSecondary && (
+            <button
+              type="button"
+              onClick={toggleAutoSecondary}
+              className={cn(
+                'text-xs transition-colors',
+                manualSecondary 
+                  ? 'text-muted-foreground hover:text-foreground' 
+                  : 'text-primary hover:text-primary/80'
+              )}
+            >
+              {manualSecondary ? '↻ Use auto color' : '✓ Auto-generated'}
+            </button>
+          )}
+        </div>
         <ColorInput
           label="Background Color"
           value={theme.background_color}

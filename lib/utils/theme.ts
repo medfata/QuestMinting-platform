@@ -167,3 +167,106 @@ export function hasGoodContrast(textColor: string, bgColor: string): boolean {
     (Math.max(textLum, bgLum) + 0.05) / (Math.min(textLum, bgLum) + 0.05);
   return ratio >= 4.5; // WCAG AA standard
 }
+
+/**
+ * Converts RGB to HSL
+ */
+export function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: number } {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0;
+  let s = 0;
+  const l = (max + min) / 2;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+    switch (max) {
+      case r:
+        h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+        break;
+      case g:
+        h = ((b - r) / d + 2) / 6;
+        break;
+      case b:
+        h = ((r - g) / d + 4) / 6;
+        break;
+    }
+  }
+
+  return { h: h * 360, s: s * 100, l: l * 100 };
+}
+
+/**
+ * Converts HSL to RGB
+ */
+export function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
+  h /= 360;
+  s /= 100;
+  l /= 100;
+
+  let r, g, b;
+
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const hue2rgb = (p: number, q: number, t: number) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
+  }
+
+  return {
+    r: Math.round(r * 255),
+    g: Math.round(g * 255),
+    b: Math.round(b * 255),
+  };
+}
+
+/**
+ * Converts RGB to hex color string
+ */
+export function rgbToHex(r: number, g: number, b: number): string {
+  return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Generates a harmonious secondary color from a primary color
+ * Uses analogous color harmony with a hue shift of ~40-60 degrees
+ */
+export function generateSecondaryColor(primaryHex: string): string {
+  const rgb = hexToRgb(primaryHex);
+  if (!rgb) return '#8b5cf6'; // fallback purple
+
+  const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+  
+  // Shift hue by 45 degrees for analogous harmony
+  // Also slightly adjust saturation and lightness for visual appeal
+  let newHue = (hsl.h + 45) % 360;
+  
+  // Boost saturation slightly if it's low
+  let newSaturation = hsl.s < 50 ? Math.min(hsl.s + 15, 100) : hsl.s;
+  
+  // Keep lightness similar but ensure it's visible
+  let newLightness = hsl.l;
+  if (newLightness < 30) newLightness = 40;
+  if (newLightness > 70) newLightness = 60;
+
+  const newRgb = hslToRgb(newHue, newSaturation, newLightness);
+  return rgbToHex(newRgb.r, newRgb.g, newRgb.b);
+}

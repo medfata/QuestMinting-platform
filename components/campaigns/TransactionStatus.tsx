@@ -83,17 +83,15 @@ export function TransactionStatus({
 
       {/* Success State */}
       {status === 'success' && txHash && (
-        <div className="rounded-xl bg-green-500/10 border border-green-500/20 p-4 motion-safe:animate-scale-in">
+        <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 motion-safe:animate-scale-in">
           <div className="flex items-center gap-3">
             <div className="relative">
-              {/* Success glow */}
-              <div className="absolute inset-0 rounded-full bg-green-500/30 blur-md motion-safe:animate-pulse" />
-              <CheckCircle className="h-6 w-6 text-green-400 relative z-10" />
+              <CheckCircle className="h-5 w-5 text-primary relative z-10" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-green-400">Mint successful!</p>
-              <p className="text-sm text-foreground/60">
-                Your NFT has been minted successfully
+              <p className="font-medium text-foreground text-sm">Transaction successful</p>
+              <p className="text-xs text-muted-foreground">
+                Your NFT has been minted
               </p>
             </div>
           </div>
@@ -102,7 +100,7 @@ export function TransactionStatus({
             href={getExplorerUrl(chainId, txHash)}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-green-500/10 px-4 py-2 text-sm font-medium text-green-400 transition-all duration-300 hover:bg-green-500/20 hover:shadow-[0_0_15px_rgba(34,197,94,0.3)]"
+            className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-muted/50 border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
           >
             <span>View transaction</span>
             <ExternalLink className="h-4 w-4" />
@@ -112,16 +110,14 @@ export function TransactionStatus({
 
       {/* Error State */}
       {status === 'error' && error && (
-        <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 motion-safe:animate-scale-in">
+        <div className="rounded-xl bg-destructive/5 border border-destructive/20 p-4 motion-safe:animate-scale-in">
           <div className="flex items-center gap-3">
             <div className="relative">
-              {/* Error glow */}
-              <div className="absolute inset-0 rounded-full bg-red-500/30 blur-md motion-safe:animate-pulse" />
-              <XCircle className="h-6 w-6 text-red-400 relative z-10" />
+              <XCircle className="h-5 w-5 text-destructive relative z-10" />
             </div>
             <div className="flex-1">
-              <p className="font-medium text-red-400">Transaction failed</p>
-              <p className="text-sm text-foreground/60 line-clamp-2">
+              <p className="font-medium text-foreground text-sm">Transaction failed</p>
+              <p className="text-xs text-muted-foreground line-clamp-2">
                 {error.message || 'An error occurred during the transaction'}
               </p>
             </div>
@@ -130,7 +126,7 @@ export function TransactionStatus({
           {onReset && (
             <button
               onClick={onReset}
-              className="mt-3 w-full rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 transition-all duration-300 hover:bg-red-500/20 hover:shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+              className="mt-3 w-full rounded-lg bg-muted/50 border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
             >
               Try again
             </button>
