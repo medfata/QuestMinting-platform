@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
-import { CampaignForm, CampaignFormData } from '@/components/admin/CampaignForm';
+import { CampaignForm, CampaignFormData, ImageUploadMode, CampaignImages } from '@/components/admin/CampaignForm';
 import { TaskEditor } from '@/components/admin/TaskEditor';
 import { EligibilityEditor } from '@/components/admin/EligibilityEditor';
 import { ThemeEditor } from '@/components/admin/ThemeEditor';
@@ -31,6 +31,8 @@ export default function EditQuestPage() {
     title: '',
     description: '',
     image_url: '',
+    image_ipfs_url: '',
+    metadata_ipfs_url: '',
     chain_id: 0,
     contract_address: '',
     is_active: true,
@@ -40,6 +42,10 @@ export default function EditQuestPage() {
   const [eligibility, setEligibility] = useState<EligibilityConditionInput | null>(null);
   const [theme, setTheme] = useState<CampaignTheme>(DEFAULT_CAMPAIGN_THEME);
   const [originalSlug, setOriginalSlug] = useState('');
+  
+  // Image upload state
+  const [imageUploadMode, setImageUploadMode] = useState<ImageUploadMode>('single');
+  const [campaignImages, setCampaignImages] = useState<CampaignImages>({});
 
 
   useEffect(() => {
@@ -77,12 +83,32 @@ export default function EditQuestPage() {
         title: quest.title,
         description: quest.description || '',
         image_url: quest.image_url,
+        image_ipfs_url: quest.image_ipfs_url || '',
+        metadata_ipfs_url: quest.metadata_ipfs_url || '',
         chain_id: quest.chain_id,
         contract_address: quest.contract_address,
         is_active: quest.is_active,
       });
 
       setOriginalSlug(quest.slug);
+      
+      // If quest has IPFS data, populate the image uploader state
+      if (quest.image_ipfs_url) {
+        const gateway = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'gateway.pinata.cloud';
+        const imageCid = quest.image_ipfs_url.replace('ipfs://', '');
+        const metadataCid = quest.metadata_ipfs_url?.replace('ipfs://', '') || '';
+        
+        setCampaignImages({
+          single: {
+            imageCid,
+            imageIpfsUrl: quest.image_ipfs_url,
+            imageGatewayUrl: quest.image_url || `https://${gateway}/ipfs/${imageCid}`,
+            metadataCid,
+            metadataIpfsUrl: quest.metadata_ipfs_url || '',
+            metadataGatewayUrl: metadataCid ? `https://${gateway}/ipfs/${metadataCid}` : '',
+          }
+        });
+      }
 
       if (quest.theme) {
         setTheme({
@@ -168,6 +194,8 @@ export default function EditQuestPage() {
           title: formData.title,
           description: formData.description || null,
           image_url: formData.image_url,
+          image_ipfs_url: formData.image_ipfs_url || null,
+          metadata_ipfs_url: formData.metadata_ipfs_url || null,
           chain_id: formData.chain_id,
           contract_address: formData.contract_address,
           theme: theme,
@@ -319,7 +347,16 @@ export default function EditQuestPage() {
             <CardTitle>Details</CardTitle>
           </CardHeader>
           <CardContent>
-            <CampaignForm data={formData} onChange={setFormData} errors={errors} isEditing />
+            <CampaignForm 
+              data={formData} 
+              onChange={setFormData} 
+              errors={errors} 
+              isEditing
+              imageUploadMode={imageUploadMode}
+              onImageUploadModeChange={setImageUploadMode}
+              images={campaignImages}
+              onImagesChange={setCampaignImages}
+            />
           </CardContent>
         </Card>
 

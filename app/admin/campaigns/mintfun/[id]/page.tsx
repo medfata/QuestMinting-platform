@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
-import { CampaignForm, CampaignFormData } from '@/components/admin/CampaignForm';
+import { CampaignForm, CampaignFormData, ImageUploadMode, CampaignImages } from '@/components/admin/CampaignForm';
 import { MintTierEditor } from '@/components/admin/MintTierEditor';
 import { ThemeEditor } from '@/components/admin/ThemeEditor';
 import type { MintTierInput, CampaignTheme, MintFunCampaign } from '@/types/campaign';
@@ -29,6 +29,8 @@ export default function EditMintFunPage() {
     title: '',
     description: '',
     image_url: '',
+    image_ipfs_url: '',
+    metadata_ipfs_url: '',
     chain_id: 0,
     contract_address: '',
     is_active: true,
@@ -37,6 +39,10 @@ export default function EditMintFunPage() {
   const [tiers, setTiers] = useState<MintTierInput[]>([]);
   const [theme, setTheme] = useState<CampaignTheme>(DEFAULT_CAMPAIGN_THEME);
   const [originalSlug, setOriginalSlug] = useState('');
+  
+  // Image upload state
+  const [imageUploadMode, setImageUploadMode] = useState<ImageUploadMode>('single');
+  const [campaignImages, setCampaignImages] = useState<CampaignImages>({});
 
   useEffect(() => {
     const fetchCampaign = async () => {
@@ -66,12 +72,32 @@ export default function EditMintFunPage() {
         title: campaign.title,
         description: campaign.description || '',
         image_url: campaign.image_url,
+        image_ipfs_url: campaign.image_ipfs_url || '',
+        metadata_ipfs_url: campaign.metadata_ipfs_url || '',
         chain_id: campaign.chain_id,
         contract_address: campaign.contract_address,
         is_active: campaign.is_active,
       });
 
       setOriginalSlug(campaign.slug);
+      
+      // If campaign has IPFS data, populate the image uploader state
+      if (campaign.image_ipfs_url) {
+        const gateway = process.env.NEXT_PUBLIC_PINATA_GATEWAY || 'gateway.pinata.cloud';
+        const imageCid = campaign.image_ipfs_url.replace('ipfs://', '');
+        const metadataCid = campaign.metadata_ipfs_url?.replace('ipfs://', '') || '';
+        
+        setCampaignImages({
+          single: {
+            imageCid,
+            imageIpfsUrl: campaign.image_ipfs_url,
+            imageGatewayUrl: campaign.image_url || `https://${gateway}/ipfs/${imageCid}`,
+            metadataCid,
+            metadataIpfsUrl: campaign.metadata_ipfs_url || '',
+            metadataGatewayUrl: metadataCid ? `https://${gateway}/ipfs/${metadataCid}` : '',
+          }
+        });
+      }
 
       if (campaign.theme) {
         setTheme({
@@ -133,6 +159,8 @@ export default function EditMintFunPage() {
           title: formData.title,
           description: formData.description || null,
           image_url: formData.image_url,
+          image_ipfs_url: formData.image_ipfs_url || null,
+          metadata_ipfs_url: formData.metadata_ipfs_url || null,
           chain_id: formData.chain_id,
           contract_address: formData.contract_address,
           theme: theme,
@@ -262,7 +290,16 @@ export default function EditMintFunPage() {
             <CardTitle>Details</CardTitle>
           </CardHeader>
           <CardContent>
-            <CampaignForm data={formData} onChange={setFormData} errors={errors} isEditing />
+            <CampaignForm 
+              data={formData} 
+              onChange={setFormData} 
+              errors={errors} 
+              isEditing
+              imageUploadMode={imageUploadMode}
+              onImageUploadModeChange={setImageUploadMode}
+              images={campaignImages}
+              onImagesChange={setCampaignImages}
+            />
           </CardContent>
         </Card>
 

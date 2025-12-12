@@ -128,6 +128,8 @@ export interface MintfunCampaignRow {
   title: string;
   description: string | null;
   image_url: string;
+  image_ipfs_url: string | null;
+  metadata_ipfs_url: string | null;
   chain_id: number;
   contract_address: string;
   token_id: string | null; // On-chain token ID
@@ -143,6 +145,8 @@ export interface MintfunCampaignInsert {
   title: string;
   description?: string | null;
   image_url: string;
+  image_ipfs_url?: string | null;
+  metadata_ipfs_url?: string | null;
   chain_id: number;
   contract_address: string;
   token_id?: string | null;
@@ -158,6 +162,8 @@ export interface MintfunCampaignUpdate {
   title?: string;
   description?: string | null;
   image_url?: string;
+  image_ipfs_url?: string | null;
+  metadata_ipfs_url?: string | null;
   chain_id?: number;
   contract_address?: string;
   token_id?: string | null;
@@ -207,6 +213,8 @@ export interface QuestCampaignRow {
   title: string;
   description: string | null;
   image_url: string;
+  image_ipfs_url: string | null;
+  metadata_ipfs_url: string | null;
   chain_id: number;
   contract_address: string;
   token_id: string | null; // On-chain token ID
@@ -222,6 +230,8 @@ export interface QuestCampaignInsert {
   title: string;
   description?: string | null;
   image_url: string;
+  image_ipfs_url?: string | null;
+  metadata_ipfs_url?: string | null;
   chain_id: number;
   contract_address: string;
   token_id?: string | null;
@@ -237,6 +247,8 @@ export interface QuestCampaignUpdate {
   title?: string;
   description?: string | null;
   image_url?: string;
+  image_ipfs_url?: string | null;
+  metadata_ipfs_url?: string | null;
   chain_id?: number;
   contract_address?: string;
   token_id?: string | null;

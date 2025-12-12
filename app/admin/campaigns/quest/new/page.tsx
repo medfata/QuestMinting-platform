@@ -7,7 +7,7 @@ import { useAccount, useSwitchChain } from 'wagmi';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { CampaignForm, CampaignFormData } from '@/components/admin/CampaignForm';
+import { CampaignForm, CampaignFormData, ImageUploadMode, CampaignImages } from '@/components/admin/CampaignForm';
 import { TaskEditor } from '@/components/admin/TaskEditor';
 import { EligibilityEditor } from '@/components/admin/EligibilityEditor';
 import { ThemeEditor } from '@/components/admin/ThemeEditor';
@@ -42,6 +42,8 @@ export default function NewQuestPage() {
     title: '',
     description: '',
     image_url: '',
+    image_ipfs_url: '',
+    metadata_ipfs_url: '',
     chain_id: 0,
     contract_address: '',
     is_active: true,
@@ -49,6 +51,10 @@ export default function NewQuestPage() {
 
   // Token ID will be generated based on timestamp for uniqueness
   const [tokenId, setTokenId] = useState<bigint>(BigInt(0));
+  
+  // Image upload state
+  const [imageUploadMode, setImageUploadMode] = useState<ImageUploadMode>('single');
+  const [campaignImages, setCampaignImages] = useState<CampaignImages>({});
 
   const [tasks, setTasks] = useState<QuestTaskInput[]>([
     {
@@ -130,13 +136,16 @@ export default function NewQuestPage() {
     setTokenId(newTokenId);
     setTokenCreationStep('creating');
 
+    // Use metadata IPFS URL if available, otherwise fall back to image URL
+    const tokenURI = formData.metadata_ipfs_url || formData.image_ipfs_url || formData.image_url;
+    
     await createToken({
       contractAddress: formData.contract_address as `0x${string}`,
       tokenId: newTokenId,
       price: '0', // Quest rewards are free
       maxSupply: BigInt(0), // Unlimited supply (0 = unlimited in our contract)
       maxPerWallet: BigInt(1), // 1 per wallet for quest rewards
-      tokenURI: formData.image_url, // Use campaign image as token URI for now
+      tokenURI,
       active: true,
     });
   };
@@ -155,6 +164,8 @@ export default function NewQuestPage() {
           title: formData.title,
           description: formData.description || null,
           image_url: formData.image_url,
+          image_ipfs_url: formData.image_ipfs_url || null,
+          metadata_ipfs_url: formData.metadata_ipfs_url || null,
           chain_id: formData.chain_id,
           contract_address: formData.contract_address,
           token_id: tokenId.toString(), // Store the token ID
@@ -276,6 +287,10 @@ export default function NewQuestPage() {
               onChange={setFormData} 
               errors={errors}
               onChainSelect={setSelectedChain}
+              imageUploadMode={imageUploadMode}
+              onImageUploadModeChange={setImageUploadMode}
+              images={campaignImages}
+              onImagesChange={setCampaignImages}
             />
           </CardContent>
         </Card>

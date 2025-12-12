@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAccount } from 'wagmi';
 import { createClient } from '@/lib/supabase/client';
 import type { QuestTask, TaskCompletionStatus } from '@/types/quest';
@@ -29,17 +29,22 @@ export function useTaskVerification({
   const [isLoading, setIsLoading] = useState(false);
   const [verifyingTaskId, setVerifyingTaskId] = useState<string | null>(null);
 
+  // Stabilize tasks reference using task IDs
+  const taskIds = useMemo(() => tasks.map((t) => t.id), [tasks]);
+  const taskIdsKey = taskIds.join(',');
+  const tasksRef = useRef(tasks);
+  tasksRef.current = tasks;
+
   // Fetch existing completions from database
   const fetchCompletions = useCallback(async () => {
-    if (!address || !isConnected || tasks.length === 0) {
-      setCompletions([]);
+    if (!address || !isConnected || taskIds.length === 0) {
+      setCompletions((prev) => (prev.length === 0 ? prev : []));
       return;
     }
 
     setIsLoading(true);
     try {
       const supabase = createClient();
-      const taskIds = tasks.map((t) => t.id);
 
       const { data, error } = await supabase
         .from('mint_platform_user_task_completions')
@@ -57,7 +62,7 @@ export function useTaskVerification({
         (data || []).map((c) => [c.task_id, c.completed_at])
       );
 
-      const statuses: TaskCompletionStatus[] = tasks.map((task) => ({
+      const statuses: TaskCompletionStatus[] = tasksRef.current.map((task) => ({
         task_id: task.id,
         is_completed: completionMap.has(task.id),
         completed_at: completionMap.get(task.id) || null,
@@ -69,7 +74,8 @@ export function useTaskVerification({
     } finally {
       setIsLoading(false);
     }
-  }, [address, isConnected, tasks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, isConnected, taskIdsKey]);
 
   // Fetch completions on mount and when dependencies change
   useEffect(() => {
@@ -83,7 +89,7 @@ export function useTaskVerification({
         return false;
       }
 
-      const task = tasks.find((t) => t.id === taskId);
+      const task = tasksRef.current.find((t) => t.id === taskId);
       if (!task) {
         return false;
       }
@@ -134,7 +140,7 @@ export function useTaskVerification({
         setVerifyingTaskId(null);
       }
     },
-    [address, isConnected, tasks, questId]
+    [address, isConnected, questId]
   );
 
   const completedCount = completions.filter((c) => c.is_completed).length;

@@ -8,7 +8,7 @@ import { parseEther } from 'viem';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { CampaignForm, CampaignFormData } from '@/components/admin/CampaignForm';
+import { CampaignForm, CampaignFormData, ImageUploadMode, CampaignImages } from '@/components/admin/CampaignForm';
 import { MintTierEditor } from '@/components/admin/MintTierEditor';
 import { ThemeEditor } from '@/components/admin/ThemeEditor';
 import { useCreateToken } from '@/hooks/useCreateToken';
@@ -42,6 +42,8 @@ export default function NewMintFunPage() {
     title: '',
     description: '',
     image_url: '',
+    image_ipfs_url: '',
+    metadata_ipfs_url: '',
     chain_id: 0,
     contract_address: '',
     is_active: true,
@@ -52,6 +54,10 @@ export default function NewMintFunPage() {
   ]);
 
   const [theme, setTheme] = useState<CampaignTheme>(DEFAULT_CAMPAIGN_THEME);
+  
+  // Image upload state
+  const [imageUploadMode, setImageUploadMode] = useState<ImageUploadMode>('single');
+  const [campaignImages, setCampaignImages] = useState<CampaignImages>({});
 
   const isWrongChain = selectedChain && connectedChainId !== selectedChain.chain_id;
 
@@ -105,13 +111,16 @@ export default function NewMintFunPage() {
 
     const firstTier = getFirstTier();
 
+    // Use metadata IPFS URL if available, otherwise fall back to image URL
+    const tokenURI = formData.metadata_ipfs_url || formData.image_ipfs_url || formData.image_url;
+    
     await createToken({
       contractAddress: formData.contract_address as `0x${string}`,
       tokenId: newTokenId,
       price: firstTier.price || '0',
       maxSupply: BigInt(firstTier.quantity || 0),
       maxPerWallet: BigInt(firstTier.max_per_wallet || 0),
-      tokenURI: formData.image_url,
+      tokenURI,
       active: true,
     });
   };
@@ -130,6 +139,8 @@ export default function NewMintFunPage() {
           title: formData.title,
           description: formData.description || null,
           image_url: formData.image_url,
+          image_ipfs_url: formData.image_ipfs_url || null,
+          metadata_ipfs_url: formData.metadata_ipfs_url || null,
           chain_id: formData.chain_id,
           contract_address: formData.contract_address,
           token_id: tokenId.toString(),
@@ -231,6 +242,10 @@ export default function NewMintFunPage() {
               onChange={setFormData} 
               errors={errors}
               onChainSelect={setSelectedChain}
+              imageUploadMode={imageUploadMode}
+              onImageUploadModeChange={setImageUploadMode}
+              images={campaignImages}
+              onImagesChange={setCampaignImages}
             />
           </CardContent>
         </Card>
