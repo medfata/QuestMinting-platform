@@ -343,6 +343,8 @@ export interface HomeConfigRow {
   hero_description: string | null;
   theme: ThemeJson;
   featured_campaigns: string[];
+  platform_name: string;
+  platform_icon: string | null;
   updated_at: string;
 }
 
@@ -353,6 +355,8 @@ export interface HomeConfigInsert {
   hero_description?: string | null;
   theme?: ThemeJson;
   featured_campaigns?: string[];
+  platform_name?: string;
+  platform_icon?: string | null;
   updated_at?: string;
 }
 
@@ -363,6 +367,8 @@ export interface HomeConfigUpdate {
   hero_description?: string | null;
   theme?: ThemeJson;
   featured_campaigns?: string[];
+  platform_name?: string;
+  platform_icon?: string | null;
   updated_at?: string;
 }
 

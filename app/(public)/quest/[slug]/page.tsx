@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useMint } from '@/hooks/useMint';
 import { useEligibility } from '@/hooks/useEligibility';
 import { useTaskVerification } from '@/hooks/useTaskVerification';
-import { Header, Footer, ThemedContainer, usePublicLoading } from '@/components/layout';
+import { Header, Footer, ThemedContainer, usePublicLoading, DynamicHead } from '@/components/layout';
 import { TaskList } from '@/components/campaigns/TaskList';
 import { EligibilityBadge } from '@/components/campaigns/EligibilityBadge';
 import { TransactionStatus } from '@/components/campaigns/TransactionStatus';
@@ -35,6 +35,10 @@ export default function QuestCampaignPage({ params }: PageProps) {
   const [campaign, setCampaign] = useState<QuestCampaign | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const { homeConfig } = usePublicLoading();
+  const platformName = homeConfig?.platform_name || 'MintPlatform';
+  const platformIcon = homeConfig?.platform_icon || null;
 
   const { isConnected, chainId: connectedChainId } = useAccount();
   const { switchChain } = useSwitchChain();
@@ -165,14 +169,15 @@ export default function QuestCampaignPage({ params }: PageProps) {
   if (loading) {
     return (
       <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="div">
-        <Header />
+        <DynamicHead title={platformName} favicon={platformIcon} />
+        <Header logoText={platformName} logoIcon={platformIcon} />
         <main className="flex min-h-screen items-center justify-center">
           <div className="relative">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/30 border-t-primary" />
             <div className="absolute inset-0 h-12 w-12 animate-pulse rounded-full bg-primary/20 blur-xl" />
           </div>
         </main>
-        <Footer />
+        <Footer platformName={platformName} platformIcon={platformIcon} />
       </ThemedContainer>
     );
   }
@@ -180,7 +185,8 @@ export default function QuestCampaignPage({ params }: PageProps) {
   if (error || !campaign) {
     return (
       <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="div">
-        <Header />
+        <DynamicHead title={platformName} favicon={platformIcon} />
+        <Header logoText={platformName} logoIcon={platformIcon} />
         <main className="flex min-h-screen flex-col items-center justify-center gap-6">
           <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center">
             <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -192,14 +198,15 @@ export default function QuestCampaignPage({ params }: PageProps) {
             <Button variant="glass">Back to Quests</Button>
           </Link>
         </main>
-        <Footer />
+        <Footer platformName={platformName} platformIcon={platformIcon} />
       </ThemedContainer>
     );
   }
 
   return (
     <ThemedContainer theme={theme} as="div" applyToDocument>
-      <Header />
+      <DynamicHead title={`${campaign.title} | ${platformName}`} favicon={platformIcon} />
+      <Header logoText={platformName} logoIcon={platformIcon} />
       
       <main className="min-h-screen pt-8 pb-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -348,7 +355,7 @@ export default function QuestCampaignPage({ params }: PageProps) {
         </div>
       </main>
 
-      <Footer />
+      <Footer platformName={platformName} platformIcon={platformIcon} />
     </ThemedContainer>
   );
 }

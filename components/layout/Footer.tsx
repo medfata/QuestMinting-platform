@@ -6,10 +6,12 @@ import { cn } from '@/lib/utils';
 
 export interface FooterProps extends HTMLAttributes<HTMLElement> {
   showSocials?: boolean;
+  platformName?: string;
+  platformIcon?: string | null;
 }
 
 export const Footer = forwardRef<HTMLElement, FooterProps>(
-  ({ className = '', showSocials = true, ...props }, ref) => {
+  ({ className = '', showSocials = true, platformName = 'MintPlatform', platformIcon = null, ...props }, ref) => {
     const currentYear = new Date().getFullYear();
 
     return (
@@ -30,26 +32,36 @@ export const Footer = forwardRef<HTMLElement, FooterProps>(
             <div className="md:col-span-2">
               <Link href="/" className="inline-flex items-center gap-3 mb-4">
                 <div className="relative w-10 h-10 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent rounded-xl opacity-80" />
-                  <div className="absolute inset-[2px] bg-background rounded-[10px]" />
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="relative z-10 text-foreground"
-                  >
-                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                    <path d="M2 17l10 5 10-5" />
-                    <path d="M2 12l10 5 10-5" />
-                  </svg>
+                  {platformIcon ? (
+                    <img
+                      src={platformIcon}
+                      alt={platformName}
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent rounded-xl opacity-80" />
+                      <div className="absolute inset-[2px] bg-background rounded-[10px]" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="relative z-10 text-foreground"
+                      >
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                      </svg>
+                    </>
+                  )}
                 </div>
-                <span className="text-xl font-semibold text-foreground">MintPlatform</span>
+                <span className="text-xl font-semibold text-foreground">{platformName}</span>
               </Link>
               <p className="text-muted-foreground max-w-sm mb-6">
                 Discover, collect, and mint unique digital art across multiple blockchains. Complete quests to earn exclusive free mints.
@@ -97,7 +109,7 @@ export const Footer = forwardRef<HTMLElement, FooterProps>(
             <p className="text-sm text-muted-foreground text-center">
               © {currentYear}{' '}
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-medium">
-                MintPlatform
+                {platformName}
               </span>
               . All rights reserved.
             </p>

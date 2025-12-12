@@ -8,7 +8,7 @@ import { useAccount, useSwitchChain } from 'wagmi';
 import { parseEther } from 'viem';
 import { createClient } from '@/lib/supabase/client';
 import { useMint } from '@/hooks/useMint';
-import { Header, Footer, ThemedContainer, usePublicLoading } from '@/components/layout';
+import { Header, Footer, ThemedContainer, usePublicLoading, DynamicHead } from '@/components/layout';
 import { MintTierSelector } from '@/components/campaigns/MintTierSelector';
 import { Button } from '@/components/ui/Button';
 import { GlowCard } from '@/components/futuristic/glow-card';
@@ -35,6 +35,10 @@ export default function MintFunCampaignPage({ params }: PageProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<MintTier | null>(null);
   const [quantity, setQuantity] = useState(1);
+  
+  const { homeConfig } = usePublicLoading();
+  const platformName = homeConfig?.platform_name || 'MintPlatform';
+  const platformIcon = homeConfig?.platform_icon || null;
 
   const { isConnected, chainId: connectedChainId } = useAccount();
   const { switchChain } = useSwitchChain();
@@ -141,7 +145,8 @@ export default function MintFunCampaignPage({ params }: PageProps) {
   if (loading) {
     return (
       <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="div">
-        <Header />
+        <DynamicHead title={platformName} favicon={platformIcon} />
+        <Header logoText={platformName} logoIcon={platformIcon} />
         <AnimatedBackground variant="subtle" className="min-h-screen">
           <main className="flex min-h-screen items-center justify-center">
             <div className="relative">
@@ -150,7 +155,7 @@ export default function MintFunCampaignPage({ params }: PageProps) {
             </div>
           </main>
         </AnimatedBackground>
-        <Footer />
+        <Footer platformName={platformName} platformIcon={platformIcon} />
       </ThemedContainer>
     );
   }
@@ -158,7 +163,8 @@ export default function MintFunCampaignPage({ params }: PageProps) {
   if (error || !campaign) {
     return (
       <ThemedContainer theme={DEFAULT_CAMPAIGN_THEME} as="div">
-        <Header />
+        <DynamicHead title={platformName} favicon={platformIcon} />
+        <Header logoText={platformName} logoIcon={platformIcon} />
         <AnimatedBackground variant="subtle" className="min-h-screen">
           <main className="flex min-h-screen flex-col items-center justify-center gap-6">
             <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center">
@@ -172,14 +178,15 @@ export default function MintFunCampaignPage({ params }: PageProps) {
             </Link>
           </main>
         </AnimatedBackground>
-        <Footer />
+        <Footer platformName={platformName} platformIcon={platformIcon} />
       </ThemedContainer>
     );
   }
 
   return (
     <ThemedContainer theme={theme} as="div" applyToDocument>
-      <Header />
+      <DynamicHead title={`${campaign.title} | ${platformName}`} favicon={platformIcon} />
+      <Header logoText={platformName} logoIcon={platformIcon} />
       
       <AnimatedBackground variant="subtle" className="min-h-screen">
         <main className="pt-8 pb-16">
@@ -320,7 +327,7 @@ export default function MintFunCampaignPage({ params }: PageProps) {
         </main>
       </AnimatedBackground>
 
-      <Footer />
+      <Footer platformName={platformName} platformIcon={platformIcon} />
     </ThemedContainer>
   );
 }

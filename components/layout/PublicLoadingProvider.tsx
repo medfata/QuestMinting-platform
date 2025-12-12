@@ -59,6 +59,8 @@ export function PublicLoadingProvider({ children }: PublicLoadingProviderProps) 
             hero_description: config.hero_description,
             theme: loadedTheme,
             featured_campaigns: config.featured_campaigns || [],
+            platform_name: config.platform_name || 'MintPlatform',
+            platform_icon: config.platform_icon || null,
             updated_at: config.updated_at,
           });
         }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useWalletAuth } from './useWalletAuth';
 
 interface AdminStatus {
@@ -11,7 +11,7 @@ interface AdminStatus {
 
 /**
  * Hook to check if the connected wallet has admin privileges.
- * Only triggers on wallet connect and init - no duplicate requests.
+ * Triggers when authentication state changes.
  */
 export function useAdminStatus() {
   const { isAuthenticated, connectedAddress } = useWalletAuth();
@@ -21,8 +21,29 @@ export function useAdminStatus() {
     error: null,
   });
   
-  // Track the last checked address to prevent duplicate requests
+  // Track the last checked combination of address + auth state to prevent duplicate requests
   const lastCheckedRef = useRef<string | null>(null);
+
+  const checkAdmin = useCallback(async (address: string) => {
+    setStatus(prev => ({ ...prev, isChecking: true, error: null }));
+    
+    try {
+      const response = await fetch('/api/auth/admin');
+      const data = await response.json();
+      
+      setStatus({
+        isAdmin: data.isAdmin === true,
+        isChecking: false,
+        error: null,
+      });
+    } catch {
+      setStatus({
+        isAdmin: false,
+        isChecking: false,
+        error: 'Failed to check admin status',
+      });
+    }
+  }, []);
 
   useEffect(() => {
     // Reset if not authenticated or no address
@@ -32,38 +53,18 @@ export function useAdminStatus() {
       return;
     }
 
-    // Skip if we already checked this address
-    if (lastCheckedRef.current === connectedAddress.toLowerCase()) {
+    // Create a unique key combining auth state and address
+    const checkKey = `${isAuthenticated}-${connectedAddress.toLowerCase()}`;
+
+    // Skip if we already checked this exact combination
+    if (lastCheckedRef.current === checkKey) {
       return;
     }
 
-    const checkAdmin = async () => {
-      setStatus(prev => ({ ...prev, isChecking: true, error: null }));
-      
-      try {
-        const response = await fetch('/api/auth/admin');
-        const data = await response.json();
-        
-        // Mark this address as checked
-        lastCheckedRef.current = connectedAddress.toLowerCase();
-        
-        setStatus({
-          isAdmin: data.isAdmin === true,
-          isChecking: false,
-          error: null,
-        });
-      } catch {
-        lastCheckedRef.current = connectedAddress.toLowerCase();
-        setStatus({
-          isAdmin: false,
-          isChecking: false,
-          error: 'Failed to check admin status',
-        });
-      }
-    };
-
-    checkAdmin();
-  }, [isAuthenticated, connectedAddress]);
+    // Mark as checked before making the request to prevent race conditions
+    lastCheckedRef.current = checkKey;
+    checkAdmin(connectedAddress);
+  }, [isAuthenticated, connectedAddress, checkAdmin]);
 
   return status;
 }

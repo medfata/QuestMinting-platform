@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
-import { Header, Footer, ThemedContainer, usePublicLoading } from '@/components/layout';
+import { Header, Footer, ThemedContainer, usePublicLoading, DynamicHead } from '@/components/layout';
 import { Button, Carousel, SupportedChains } from '@/components/ui';
 import { GradientText } from '@/components/futuristic';
 import { MintFunCard } from '@/components/campaigns/MintFunCard';
@@ -61,6 +61,8 @@ const DEFAULT_HOME_CONFIG: HomePageConfig = {
   hero_description: 'Explore exclusive collections, complete quests, and mint unique digital assets across multiple blockchains.',
   theme: DEFAULT_GLOBAL_THEME,
   featured_campaigns: [],
+  platform_name: 'MintPlatform',
+  platform_icon: null,
   updated_at: new Date().toISOString(),
 };
 
@@ -192,6 +194,12 @@ export default function HomePage() {
 
   return (
     <ThemedContainer theme={homeConfig.theme} applyToDocument as="div">
+      {/* Dynamic page title and favicon */}
+      <DynamicHead 
+        title={homeConfig.platform_name} 
+        favicon={homeConfig.platform_icon} 
+      />
+      
       {/* Premium Background - Using resolvedTheme directly */}
       <div className="fixed inset-0 -z-10 overflow-hidden transition-colors duration-500">
         {/* Base gradient - controlled by React state */}
@@ -227,22 +235,22 @@ export default function HomePage() {
         />
       </div>
 
-      <Header />
+      <Header logoText={homeConfig.platform_name} logoIcon={homeConfig.platform_icon} />
       
-      <main id="main-content" className="min-h-screen">
+      <main id="main-content" className="min-h-screen overflow-x-hidden">
         {/* Hero Section - Split Layout */}
-        <section className="relative min-h-[calc(100vh-4rem)] flex items-center">
-          <div className="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <section className="relative lg:min-h-[calc(100vh-4rem)] flex items-center overflow-hidden">
+          <div className="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-12 lg:py-20">
+            <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-16 items-center">
               {/* Left Side - Text Content */}
-              <div className="space-y-8">
+              <div className="space-y-4 sm:space-y-6 lg:space-y-8">
                 {/* Badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass backdrop-blur-sm">
+                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass backdrop-blur-sm">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                   </span>
-                  <span className="text-sm font-medium text-muted-foreground">
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground">
                     {homeConfig.hero_subtitle}
                   </span>
                 </div>
@@ -250,7 +258,7 @@ export default function HomePage() {
                 {/* Main Heading */}
                 <GradientText
                   as="h1"
-                  className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight leading-[1.1]"
+                  className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight leading-[1.1]"
                   style={{ fontFamily: homeConfig.theme.heading_font }}
                   animate={true}
                   animationDuration={8}
@@ -259,44 +267,46 @@ export default function HomePage() {
                 </GradientText>
 
                 {/* Description */}
-                <p className="text-lg sm:text-xl text-muted-foreground max-w-xl leading-relaxed">
+                <p className="text-sm sm:text-base lg:text-xl text-muted-foreground max-w-xl leading-relaxed">
                   {homeConfig.hero_description}
                 </p>
 
                 {/* Stats */}
-                <div className="flex flex-wrap gap-8 pt-4">
+                <div className="flex flex-wrap gap-4 sm:gap-6 lg:gap-8">
                   <div>
-                    <div className="text-3xl font-bold text-foreground">{mintFunCampaigns.length + questCampaigns.length}+</div>
-                    <div className="text-sm text-muted-foreground">Active Drops</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">{mintFunCampaigns.length + questCampaigns.length}+</div>
+                    <div className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground">Active Drops</div>
                   </div>
                   <div>
-                    <div className="text-3xl font-bold text-foreground">Multi</div>
-                    <div className="text-sm text-muted-foreground">Chain Support</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">Multi</div>
+                    <div className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground">Chain Support</div>
                   </div>
                   <div>
-                    <div className="text-3xl font-bold text-foreground">Free</div>
-                    <div className="text-sm text-muted-foreground">Quest Mints</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">Free</div>
+                    <div className="text-[10px] sm:text-xs lg:text-sm text-muted-foreground">Quest Mints</div>
                   </div>
                 </div>
 
                 {/* Supported Chains - Inline in Hero */}
-                <SupportedChains showTitle={false} className="py-0 -mx-4 sm:mx-0" compact />
+                <div className="overflow-hidden -mx-4 px-4 sm:mx-0 sm:px-0">
+                  <SupportedChains showTitle={false} className="py-0" compact />
+                </div>
 
                 {/* CTA Buttons */}
-                <div className="flex flex-wrap gap-4 pt-4">
-                  <Button size="lg" variant="glow" asChild>
+                <div className="flex flex-wrap gap-3 sm:gap-4">
+                  <Button size="sm" className="sm:h-10 sm:px-6 lg:h-11 lg:px-8" variant="glow" asChild>
                     <Link href="#explore">Explore Drops</Link>
                   </Button>
-                  <Button size="lg" variant="glass" asChild>
+                  <Button size="sm" className="sm:h-10 sm:px-6 lg:h-11 lg:px-8" variant="glass" asChild>
                     <Link href="#quests">View Quests</Link>
                   </Button>
                 </div>
               </div>
 
-              {/* Right Side - Featured Carousel */}
-              <div className="relative">
+              {/* Right Side - Featured Carousel - Hidden on mobile */}
+              <div className="relative hidden lg:block">
                 {/* Glow effect behind carousel */}
-                <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 rounded-3xl blur-2xl opacity-50" />
+                <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 rounded-3xl blur-2xl opacity-50 pointer-events-none" />
                 
                 <div className="relative">
                   {/* Carousel */}
@@ -312,7 +322,7 @@ export default function HomePage() {
                       className="rounded-2xl overflow-hidden"
                     >
                       {featuredCampaigns.map((campaign) => (
-                        <div key={`${campaign.type}-${campaign.data.id}`} className="px-1">
+                        <div key={`${campaign.type}-${campaign.data.id}`}>
                           <FeaturedCard campaign={campaign} />
                         </div>
                       ))}
@@ -452,7 +462,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <Footer />
+      <Footer platformName={homeConfig.platform_name} platformIcon={homeConfig.platform_icon} />
     </ThemedContainer>
   );
 }
@@ -479,31 +489,32 @@ function FeaturedCard({ campaign }: { campaign: FeaturedCampaign }) {
 
   return (
     <Link href={href} className="block group">
-      <div className="relative aspect-[4/5] rounded-2xl overflow-hidden glass">
+      <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden glass">
         <Image
           src={data.image_url}
           alt={data.title}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, 50vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
+          priority
         />
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         
         {/* Content */}
-        <div className="absolute inset-x-0 bottom-0 p-6">
+        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
           {isFree && (
-            <span className="inline-block px-3 py-1 mb-3 text-xs font-semibold bg-green-500/20 text-green-400 rounded-full border border-green-500/30">
+            <span className="inline-block px-2 sm:px-3 py-1 mb-2 sm:mb-3 text-[10px] sm:text-xs font-semibold bg-green-500/20 text-green-400 rounded-full border border-green-500/30">
               Free Mint
             </span>
           )}
-          <h3 className="text-2xl font-bold text-white mb-2">{data.title}</h3>
+          <h3 className="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2 line-clamp-2">{data.title}</h3>
           
           {/* Chain + Type badges - under title */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
             {/* Chain badge with icon */}
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/10">
-              <div className="relative w-4 h-4 rounded-full overflow-hidden flex-shrink-0">
+            <div className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/10">
+              <div className="relative w-3 h-3 sm:w-4 sm:h-4 rounded-full overflow-hidden flex-shrink-0">
                 {!chainImgError ? (
                   <Image
                     src={chainInfo.iconUrl}
@@ -519,11 +530,11 @@ function FeaturedCard({ campaign }: { campaign: FeaturedCampaign }) {
                   </div>
                 )}
               </div>
-              <span className="text-xs font-medium text-white/90">{chainInfo.name}</span>
+              <span className="text-[10px] sm:text-xs font-medium text-white/90">{chainInfo.name}</span>
             </div>
             
             {/* Type badge */}
-            <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
+            <span className={`px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold rounded-full ${
               isMintFun 
                 ? 'bg-primary/20 text-primary border border-primary/30' 
                 : 'bg-secondary/20 text-secondary border border-secondary/30'
@@ -533,13 +544,13 @@ function FeaturedCard({ campaign }: { campaign: FeaturedCampaign }) {
           </div>
           
           {data.description && (
-            <p className="text-white/70 line-clamp-2 mb-4">{data.description}</p>
+            <p className="text-white/70 text-sm sm:text-base line-clamp-2 mb-3 sm:mb-4 hidden sm:block">{data.description}</p>
           )}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-white/60">{subInfo}</span>
-            <span className={`inline-flex items-center gap-1 ${ctaColor} font-medium group-hover:gap-2 transition-all`}>
+            <span className="text-xs sm:text-sm text-white/60">{subInfo}</span>
+            <span className={`inline-flex items-center gap-1 text-sm sm:text-base ${ctaColor} font-medium group-hover:gap-2 transition-all`}>
               {ctaText}
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </span>

@@ -17,10 +17,11 @@ const ConnectButton = dynamic(
 export interface HeaderProps extends HTMLAttributes<HTMLElement> {
   showNav?: boolean;
   logoText?: string;
+  logoIcon?: string | null;
 }
 
 export const Header = forwardRef<HTMLElement, HeaderProps>(
-  ({ className = '', showNav = true, logoText = 'MintPlatform', ...props }, ref) => {
+  ({ className = '', showNav = true, logoText = 'MintPlatform', logoIcon = null, ...props }, ref) => {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { isAdmin } = useAdminStatus();
@@ -55,26 +56,36 @@ export const Header = forwardRef<HTMLElement, HeaderProps>(
             href="/"
             className="group flex items-center gap-3 text-xl font-bold text-foreground transition-all duration-300"
           >
-            {/* Animated Logo Icon */}
+            {/* Logo Icon - Custom or Default */}
             <div className="relative w-10 h-10 flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent rounded-xl opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="absolute inset-[2px] bg-background rounded-[10px]" />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="relative z-10 text-foreground group-hover:text-primary transition-colors duration-300"
-              >
-                <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                <path d="M2 17l10 5 10-5" />
-                <path d="M2 12l10 5 10-5" />
-              </svg>
+              {logoIcon ? (
+                <img
+                  src={logoIcon}
+                  alt={logoText}
+                  className="w-full h-full object-cover rounded-xl"
+                />
+              ) : (
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent rounded-xl opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-[2px] bg-background rounded-[10px]" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="relative z-10 text-foreground group-hover:text-primary transition-colors duration-300"
+                  >
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                    <path d="M2 17l10 5 10-5" />
+                    <path d="M2 12l10 5 10-5" />
+                  </svg>
+                </>
+              )}
             </div>
             <span className="hidden sm:block font-semibold tracking-tight">
               {logoText}

@@ -9,6 +9,11 @@ export interface GlobalTheme extends CampaignTheme {
   body_font: string;
 }
 
+export interface PlatformBranding {
+  platform_name: string;
+  platform_icon: string | null; // URL to the platform icon/logo
+}
+
 export interface HomePageConfig {
   id: string;
   hero_title: string;
@@ -16,6 +21,8 @@ export interface HomePageConfig {
   hero_description: string | null;
   theme: GlobalTheme;
   featured_campaigns: string[]; // Campaign IDs (can be MintFun or Quest)
+  platform_name: string;
+  platform_icon: string | null;
   updated_at: string;
 }
 
@@ -26,6 +33,8 @@ export interface HomePageConfigInput {
   hero_description: string | null;
   theme: GlobalTheme;
   featured_campaigns: string[];
+  platform_name: string;
+  platform_icon: string | null;
 }
 
 // Default theme values
@@ -40,6 +49,11 @@ export const DEFAULT_GLOBAL_THEME: GlobalTheme = {
   ...DEFAULT_CAMPAIGN_THEME,
   heading_font: 'Inter',
   body_font: 'Inter',
+};
+
+export const DEFAULT_PLATFORM_BRANDING: PlatformBranding = {
+  platform_name: 'MintPlatform',
+  platform_icon: null,
 };
 
 // CSS variable mapping for themes

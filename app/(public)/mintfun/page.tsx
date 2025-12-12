@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { Header, Footer, ThemedContainer, usePublicLoading } from '@/components/layout';
+import { Header, Footer, ThemedContainer, usePublicLoading, DynamicHead } from '@/components/layout';
 import { MintFunCard } from '@/components/campaigns/MintFunCard';
 import { CampaignFilters } from '@/components/campaigns/CampaignFilters';
 import { InfiniteScroll } from '@/components/ui/InfiniteScroll';
@@ -18,6 +18,8 @@ const DEFAULT_HOME_CONFIG: HomePageConfig = {
   hero_description: 'Explore exclusive collections, complete quests, and mint unique digital assets across multiple blockchains.',
   theme: DEFAULT_GLOBAL_THEME,
   featured_campaigns: [],
+  platform_name: 'MintPlatform',
+  platform_icon: null,
   updated_at: new Date().toISOString(),
 };
 
@@ -76,7 +78,12 @@ export default function MintFunPage() {
         </div>
       </div>
 
-      <Header />
+      <DynamicHead 
+        title={`MintFun | ${homeConfig.platform_name}`} 
+        favicon={homeConfig.platform_icon} 
+      />
+      
+      <Header logoText={homeConfig.platform_name} logoIcon={homeConfig.platform_icon} />
       
       <main className="min-h-screen">
         {/* Hero Section */}
@@ -204,7 +211,7 @@ export default function MintFunPage() {
         </section>
       </main>
 
-      <Footer />
+      <Footer platformName={homeConfig.platform_name} platformIcon={homeConfig.platform_icon} />
     </ThemedContainer>
   );
 }

@@ -18,6 +18,8 @@ interface HomePageFormData {
   hero_description: string;
   theme: GlobalTheme;
   featured_campaigns: string[];
+  platform_name: string;
+  platform_icon: string;
 }
 
 const DEFAULT_FORM_DATA: HomePageFormData = {
@@ -26,6 +28,8 @@ const DEFAULT_FORM_DATA: HomePageFormData = {
   hero_description: 'Explore MintFun campaigns and complete Quests to earn exclusive NFTs.',
   theme: DEFAULT_GLOBAL_THEME,
   featured_campaigns: [],
+  platform_name: 'MintPlatform',
+  platform_icon: '',
 };
 
 export default function HomePageSettingsPage() {
@@ -55,6 +59,8 @@ export default function HomePageSettingsPage() {
             ...(data.theme as Partial<GlobalTheme>),
           },
           featured_campaigns: data.featured_campaigns || [],
+          platform_name: data.platform_name || DEFAULT_FORM_DATA.platform_name,
+          platform_icon: data.platform_icon || '',
         });
       }
       setIsLoading(false);
@@ -74,6 +80,8 @@ export default function HomePageSettingsPage() {
       hero_description: formData.hero_description || null,
       theme: formData.theme,
       featured_campaigns: formData.featured_campaigns,
+      platform_name: formData.platform_name,
+      platform_icon: formData.platform_icon || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -153,6 +161,62 @@ export default function HomePageSettingsPage() {
           {saveMessage.text}
         </div>
       )}
+
+      {/* Platform Branding Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Platform Branding</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground mb-4">
+            Configure the platform name and icon that appears in the header, footer, browser tab, and favicon.
+          </p>
+          <Input
+            label="Platform Name"
+            value={formData.platform_name}
+            onChange={(e) => setFormData((prev) => ({ ...prev, platform_name: e.target.value }))}
+            placeholder="MintPlatform"
+          />
+          <Input
+            label="Platform Icon URL"
+            value={formData.platform_icon}
+            onChange={(e) => setFormData((prev) => ({ ...prev, platform_icon: e.target.value }))}
+            placeholder="https://example.com/icon.png"
+          />
+          {formData.platform_icon && (
+            <div className="rounded-lg border border-border bg-foreground/5 p-4">
+              <p className="text-xs text-muted-foreground mb-3">Icon Preview</p>
+              <div className="flex items-center gap-4">
+                {/* Header preview */}
+                <div className="flex items-center gap-2">
+                  <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-border">
+                    <img
+                      src={formData.platform_icon}
+                      alt="Platform icon"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  </div>
+                  <span className="font-semibold text-foreground">{formData.platform_name}</span>
+                </div>
+                {/* Favicon preview */}
+                <div className="flex items-center gap-2 ml-4 pl-4 border-l border-border">
+                  <div className="relative w-4 h-4 rounded overflow-hidden">
+                    <img
+                      src={formData.platform_icon}
+                      alt="Favicon preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <span className="text-xs text-muted-foreground">Favicon</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Hero Content Section */}
       <Card>
