@@ -104,6 +104,7 @@ export default function HomePage() {
               image_url: row.image_url,
               chain_id: row.chain_id,
               contract_address: row.contract_address,
+              token_id: row.token_id,
               mint_tiers: row.mint_platform_mint_tiers.map(tier => ({
                 id: tier.id,
                 campaign_id: tier.campaign_id,
@@ -141,6 +142,7 @@ export default function HomePage() {
               image_url: row.image_url,
               chain_id: row.chain_id,
               contract_address: row.contract_address,
+              token_id: row.token_id,
               tasks: row.mint_platform_quest_tasks.map(task => ({
                 id: task.id,
                 quest_id: task.quest_id,

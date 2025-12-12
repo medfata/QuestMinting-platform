@@ -181,6 +181,7 @@ export function useWalletAuth() {
       setAuthState({
         isAuthenticated: true,
         isAuthenticating: false,
+        isCheckingSession: false,
         address: data.address,
         error: null,
       });

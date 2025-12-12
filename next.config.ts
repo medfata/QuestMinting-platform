@@ -2,10 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Exclude problematic packages from server-side bundling
-  serverExternalPackages: ['pino', 'thread-stream', 'pino-pretty'],
+  serverExternalPackages: ['pino', 'thread-stream', 'pino-pretty', '@walletconnect/logger'],
   
-  // Empty turbopack config to silence the warning
-  turbopack: {},
+  // Turbopack config to exclude problematic paths
+  turbopack: {
+    resolveAlias: {
+      // Stub out pino for browser builds
+      'pino': { browser: 'pino/browser.js' },
+    },
+  },
 
   // Allow images from any domain
   images: {
