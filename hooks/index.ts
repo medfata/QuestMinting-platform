@@ -8,3 +8,5 @@ export { useTaskVerification } from './useTaskVerification';
 export type { UseTaskVerificationParams, UseTaskVerificationReturn } from './useTaskVerification';
 export { useCreateToken } from './useCreateToken';
 export type { UseCreateTokenReturn, CreateTokenStatus, CreateTokenError, CreateTokenParams } from './useCreateToken';
+export { useUserXp } from './useUserXp';
+export type { UserXp, XpTransaction, UseUserXpReturn } from './useUserXp';

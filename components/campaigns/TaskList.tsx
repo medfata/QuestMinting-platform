@@ -43,6 +43,11 @@ const TaskIcons = {
       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
     </svg>
   ),
+  xp: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+    </svg>
+  ),
 };
 
 const getTaskIcon = (type: QuestTask['type']) => {
@@ -57,6 +62,8 @@ const getTaskIcon = (type: QuestTask['type']) => {
       return TaskIcons.discord;
     case 'custom_url':
       return TaskIcons.link;
+    case 'xp_quest':
+      return TaskIcons.xp;
     default:
       return TaskIcons.link;
   }
@@ -68,6 +75,7 @@ const TASK_TYPE_LABELS: Record<QuestTask['type'], string> = {
   telegram_join: 'Join Telegram',
   discord_join: 'Join Discord',
   custom_url: 'Visit Link',
+  xp_quest: 'Complete & Verify',
 };
 
 export function TaskList({
@@ -150,10 +158,40 @@ interface TaskItemProps {
 function TaskItem({ task, completed, isVerifying, onVerify, disabled }: TaskItemProps) {
   const [isWaiting, setIsWaiting] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [hasVisited, setHasVisited] = useState(false);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
 
-  // Handle the click-to-complete flow
+  const isXpQuest = task.type === 'xp_quest';
+  const xpReward = isXpQuest ? parseInt(task.verification_data.xp_reward || '0', 10) : 0;
+
+  // Handle opening external URL
+  const handleOpenLink = useCallback(() => {
+    window.open(task.external_url, '_blank', 'noopener,noreferrer');
+    if (isXpQuest) {
+      setHasVisited(true);
+    }
+  }, [task.external_url, isXpQuest]);
+
+  // Handle XP quest verification (manual verify button)
+  const handleXpVerify = useCallback(async () => {
+    if (disabled || completed || isVerifying) return;
+    setVerifyError(null);
+    
+    const success = await onVerify();
+    if (!success) {
+      setVerifyError('Verification failed. Complete the task and try again.');
+    }
+  }, [disabled, completed, isVerifying, onVerify]);
+
+  // Handle the click-to-complete flow for non-XP tasks
   const handleTaskClick = useCallback(async () => {
     if (disabled || completed || isWaiting || isVerifying) return;
+
+    // For XP quests, just open the link
+    if (isXpQuest) {
+      handleOpenLink();
+      return;
+    }
 
     // Open the external URL
     window.open(task.external_url, '_blank', 'noopener,noreferrer');
@@ -182,9 +220,111 @@ function TaskItem({ task, completed, isVerifying, onVerify, disabled }: TaskItem
     await onVerify();
     setIsWaiting(false);
     setProgress(0);
-  }, [disabled, completed, isWaiting, isVerifying, task.external_url, onVerify]);
+  }, [disabled, completed, isWaiting, isVerifying, task.external_url, onVerify, isXpQuest, handleOpenLink]);
 
   const showLoading = isWaiting || isVerifying;
+
+  // XP Quest has a different UI with separate Go and Verify buttons
+  if (isXpQuest) {
+    return (
+      <div
+        className={cn(
+          'w-full rounded-xl border p-3 transition-all duration-200',
+          completed
+            ? 'border-primary/30 bg-primary/5'
+            : 'border-border bg-muted/30'
+        )}
+      >
+        <div className="flex items-center gap-3">
+          {/* Status indicator */}
+          <div
+            className={cn(
+              'relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm transition-colors',
+              completed
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-amber-500/20 text-amber-500'
+            )}
+          >
+            {completed ? (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              TaskIcons.xp
+            )}
+          </div>
+
+          {/* Task info */}
+          <div className="flex-1 min-w-0">
+            <h4 className="font-medium text-sm text-foreground">
+              {task.title}
+            </h4>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">
+                {completed ? 'Completed' : 'XP Quest'}
+              </span>
+              {xpReward > 0 && (
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">
+                  +{xpReward} XP
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          {!completed && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleOpenLink}
+                disabled={disabled}
+                className="px-3 py-1.5 text-xs font-medium rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors disabled:opacity-50"
+              >
+                Go
+              </button>
+              <button
+                type="button"
+                onClick={handleXpVerify}
+                disabled={disabled || isVerifying}
+                className={cn(
+                  'px-3 py-1.5 text-xs font-medium rounded-lg transition-colors disabled:opacity-50',
+                  hasVisited
+                    ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                    : 'bg-primary/20 text-primary hover:bg-primary/30'
+                )}
+              >
+                {isVerifying ? (
+                  <span className="flex items-center gap-1">
+                    <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
+                      <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                    </svg>
+                    Verifying
+                  </span>
+                ) : (
+                  'Verify'
+                )}
+              </button>
+            </div>
+          )}
+
+          {completed && (
+            <span className="text-xs font-medium text-primary px-2">Done</span>
+          )}
+        </div>
+
+        {/* Error message */}
+        {verifyError && !completed && (
+          <p className="mt-2 text-xs text-red-400 pl-11">{verifyError}</p>
+        )}
+
+        {/* Description for XP quests */}
+        {task.description && !completed && (
+          <p className="mt-2 text-xs text-muted-foreground pl-11">{task.description}</p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <button

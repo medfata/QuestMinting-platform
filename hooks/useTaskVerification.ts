@@ -97,7 +97,12 @@ export function useTaskVerification({
       setVerifyingTaskId(taskId);
 
       try {
-        const response = await fetch('/api/tasks/verify', {
+        // Use different endpoint for XP quests
+        const endpoint = task.type === 'xp_quest' 
+          ? '/api/tasks/verify-xp' 
+          : '/api/tasks/verify';
+
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

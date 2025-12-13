@@ -258,7 +258,7 @@ export interface QuestCampaignUpdate {
 }
 
 // Quest Tasks Table
-export type QuestTaskType = 'twitter_follow' | 'twitter_retweet' | 'telegram_join' | 'discord_join' | 'custom_url';
+export type QuestTaskType = 'twitter_follow' | 'twitter_retweet' | 'telegram_join' | 'discord_join' | 'custom_url' | 'xp_quest';
 
 export interface QuestTaskRow {
   id: string;
@@ -403,4 +403,57 @@ export interface AdminUserUpdate {
   id?: string;
   wallet_address?: string;
   role?: string;
+}
+
+// User XP Table
+export interface UserXpRow {
+  id: string;
+  wallet_address: string;
+  total_xp: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserXpInsert {
+  id?: string;
+  wallet_address: string;
+  total_xp?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface UserXpUpdate {
+  id?: string;
+  wallet_address?: string;
+  total_xp?: number;
+  updated_at?: string;
+}
+
+// XP Transactions Table
+export interface XpTransactionRow {
+  id: string;
+  wallet_address: string;
+  task_id: string;
+  xp_amount: number;
+  verification_timestamp: number | null;
+  created_at: string;
+}
+
+export interface XpTransactionInsert {
+  id?: string;
+  wallet_address: string;
+  task_id: string;
+  xp_amount: number;
+  verification_timestamp?: number | null;
+  created_at?: string;
+}
+
+// XP Quest Verification Data structure
+export interface XpQuestVerificationData {
+  xp_reward: string;
+  duration_seconds: string;
+  verification_contract: string;
+  verification_function: string;
+  verification_chain_id: string;
+  function_args?: string; // JSON string of additional args if needed
 }

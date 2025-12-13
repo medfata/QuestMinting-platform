@@ -41,6 +41,11 @@ const TaskIcons: Record<string, ReactNode> = {
       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
     </svg>
   ),
+  xp: (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+    </svg>
+  ),
 };
 
 const getTaskIcon = (type: QuestTaskType): ReactNode => {
@@ -55,6 +60,8 @@ const getTaskIcon = (type: QuestTaskType): ReactNode => {
       return TaskIcons.discord;
     case 'custom_url':
       return TaskIcons.link;
+    case 'xp_quest':
+      return TaskIcons.xp;
     default:
       return TaskIcons.link;
   }
@@ -66,6 +73,7 @@ const TASK_TYPES: { value: QuestTaskType; label: string }[] = [
   { value: 'telegram_join', label: 'Join Telegram' },
   { value: 'discord_join', label: 'Join Discord' },
   { value: 'custom_url', label: 'Custom URL' },
+  { value: 'xp_quest', label: 'XP Quest (On-chain Verify)' },
 ];
 
 export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
@@ -210,9 +218,86 @@ export function TaskEditor({ tasks, onChange }: TaskEditorProps) {
                   label="External URL"
                   value={task.external_url}
                   onChange={(e) => updateTask(index, 'external_url', e.target.value)}
-                  placeholder="https://twitter.com/yourproject"
-                  helperText="URL users will visit to complete this task"
+                  placeholder={task.type === 'xp_quest' ? "https://gm.inkonchain.com/" : "https://twitter.com/yourproject"}
+                  helperText={task.type === 'xp_quest' ? "Third-party platform URL where users complete the task" : "URL users will visit to complete this task"}
                 />
+
+                {/* XP Quest specific fields */}
+                {task.type === 'xp_quest' && (
+                  <div className="space-y-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
+                    <h4 className="text-sm font-medium text-primary flex items-center gap-2">
+                      {TaskIcons.xp}
+                      XP Quest Configuration
+                    </h4>
+                    
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Input
+                        label="XP Reward"
+                        type="number"
+                        value={task.verification_data.xp_reward || ''}
+                        onChange={(e) => updateTask(index, 'verification_data', {
+                          ...task.verification_data,
+                          xp_reward: e.target.value
+                        })}
+                        placeholder="100"
+                        helperText="Amount of XP awarded on completion"
+                      />
+                      
+                      <Input
+                        label="Duration (minutes)"
+                        type="number"
+                        value={task.verification_data.duration_minutes || ''}
+                        onChange={(e) => updateTask(index, 'verification_data', {
+                          ...task.verification_data,
+                          duration_minutes: e.target.value
+                        })}
+                        placeholder="60"
+                        helperText="Time window for task completion"
+                      />
+                    </div>
+
+                    <Input
+                      label="Verification Contract Address"
+                      value={task.verification_data.verification_contract || ''}
+                      onChange={(e) => updateTask(index, 'verification_data', {
+                        ...task.verification_data,
+                        verification_contract: e.target.value
+                      })}
+                      placeholder="0x..."
+                      helperText="Contract address to call for verification"
+                    />
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Input
+                        label="Function Name"
+                        value={task.verification_data.verification_function || ''}
+                        onChange={(e) => updateTask(index, 'verification_data', {
+                          ...task.verification_data,
+                          verification_function: e.target.value
+                        })}
+                        placeholder="lastGM"
+                        helperText="Read function that returns timestamp"
+                      />
+                      
+                      <Input
+                        label="Chain ID"
+                        type="number"
+                        value={task.verification_data.verification_chain_id || ''}
+                        onChange={(e) => updateTask(index, 'verification_data', {
+                          ...task.verification_data,
+                          verification_chain_id: e.target.value
+                        })}
+                        placeholder="57073"
+                        helperText="Chain where the contract is deployed"
+                      />
+                    </div>
+
+                    <p className="text-xs text-muted-foreground">
+                      The verification function will be called with the user&apos;s wallet address as the argument. 
+                      It should return a timestamp that will be compared against the duration window.
+                    </p>
+                  </div>
+                )}
 
                 <div className="w-full">
                   <label className="mb-1.5 block text-sm font-medium text-foreground">
