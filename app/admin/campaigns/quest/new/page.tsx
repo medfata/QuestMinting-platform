@@ -139,6 +139,13 @@ export default function NewQuestPage() {
     // Use metadata IPFS URL if available, otherwise fall back to image URL
     const tokenURI = formData.metadata_ipfs_url || formData.image_ipfs_url || formData.image_url;
     
+    console.log('Creating token with:', {
+      metadata_ipfs_url: formData.metadata_ipfs_url,
+      image_ipfs_url: formData.image_ipfs_url,
+      image_url: formData.image_url,
+      tokenURI,
+    });
+    
     await createToken({
       contractAddress: formData.contract_address as `0x${string}`,
       tokenId: newTokenId,

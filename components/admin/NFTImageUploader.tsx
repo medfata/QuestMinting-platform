@@ -73,67 +73,129 @@ export function NFTImageUploader({
     setIsDragging(false);
   }, []);
 
+  // Store the uploaded file for later metadata generation
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  
   const uploadSingleNFT = async (file: File) => {
     setIsUploading(true);
     setUploadError('');
     setUploadProgress('Uploading to IPFS...');
 
     try {
-      if (autoGenerateMetadata && nftName) {
-        // Upload image + generate metadata
-        const formData = new FormData();
-        formData.append('action', 'upload-nft');
-        formData.append('file', file);
-        formData.append('name', nftName);
-        formData.append('description', nftDescription);
+      // Always upload image first
+      const formData = new FormData();
+      formData.append('action', 'upload-image');
+      formData.append('file', file);
 
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Upload failed');
-        }
-
-        const result = await response.json();
-        onChange?.({
-          imageCid: result.image.cid,
-          imageIpfsUrl: result.image.ipfsUrl,
-          imageGatewayUrl: result.image.gatewayUrl,
-          metadataCid: result.metadata.cid,
-          metadataIpfsUrl: result.metadata.ipfsUrl,
-          metadataGatewayUrl: result.metadata.gatewayUrl,
-        });
-      } else {
-        // Just upload image
-        const formData = new FormData();
-        formData.append('action', 'upload-image');
-        formData.append('file', file);
-
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Upload failed');
-        }
-
-        const result = await response.json();
-        onChange?.({
-          imageCid: result.cid,
-          imageIpfsUrl: result.ipfsUrl,
-          imageGatewayUrl: result.gatewayUrl,
-          metadataCid: '',
-          metadataIpfsUrl: '',
-          metadataGatewayUrl: '',
-        });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Upload failed');
       }
+
+      const imageResult = await response.json();
+      
+      // If we have name, generate metadata immediately
+      if (autoGenerateMetadata && nftName) {
+        setUploadProgress('Generating metadata...');
+        
+        const metadataForm = new FormData();
+        metadataForm.append('action', 'upload-metadata');
+        metadataForm.append('name', nftName);
+        metadataForm.append('description', nftDescription);
+        metadataForm.append('imageCid', imageResult.cid);
+
+        const metaResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: metadataForm,
+        });
+
+        if (metaResponse.ok) {
+          const metaResult = await metaResponse.json();
+          onChange?.({
+            imageCid: imageResult.cid,
+            imageIpfsUrl: imageResult.ipfsUrl,
+            imageGatewayUrl: imageResult.gatewayUrl,
+            metadataCid: metaResult.cid,
+            metadataIpfsUrl: metaResult.ipfsUrl,
+            metadataGatewayUrl: metaResult.gatewayUrl,
+          });
+          setPendingFile(null);
+          return;
+        }
+      }
+      
+      // No name yet - save image and mark as pending metadata
+      setPendingFile(file);
+      onChange?.({
+        imageCid: imageResult.cid,
+        imageIpfsUrl: imageResult.ipfsUrl,
+        imageGatewayUrl: imageResult.gatewayUrl,
+        metadataCid: '',
+        metadataIpfsUrl: '',
+        metadataGatewayUrl: '',
+      });
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setIsUploading(false);
+      setUploadProgress('');
+    }
+  };
+  
+  // Generate metadata when name becomes available
+  const generateMetadata = async () => {
+    if (!value?.imageCid || !nftName) {
+      setUploadError('Missing image CID or NFT name');
+      return;
+    }
+    
+    setIsUploading(true);
+    setUploadError('');
+    setUploadProgress('Generating metadata...');
+
+    try {
+      console.log('Generating metadata for:', { name: nftName, description: nftDescription, imageCid: value.imageCid });
+      
+      const formData = new FormData();
+      formData.append('action', 'upload-metadata');
+      formData.append('name', nftName);
+      formData.append('description', nftDescription);
+      formData.append('imageCid', value.imageCid);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      console.log('Metadata upload response:', result);
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to generate metadata');
+      }
+
+      // Verify the result has the expected fields
+      if (!result.cid || !result.ipfsUrl) {
+        throw new Error('Invalid response from metadata upload');
+      }
+
+      onChange?.({
+        ...value,
+        metadataCid: result.cid,
+        metadataIpfsUrl: result.ipfsUrl,
+        metadataGatewayUrl: result.gatewayUrl,
+      });
+      setPendingFile(null);
+      
+      console.log('Metadata generated successfully:', result.ipfsUrl);
+    } catch (err) {
+      console.error('Metadata generation error:', err);
+      setUploadError(err instanceof Error ? err.message : 'Failed to generate metadata');
     } finally {
       setIsUploading(false);
       setUploadProgress('');
@@ -360,10 +422,36 @@ export function NFTImageUploader({
               <p className="text-muted-foreground">Image IPFS:</p>
               <code className="text-foreground break-all">{value.imageIpfsUrl}</code>
             </div>
-            {value.metadataIpfsUrl && (
+            {value.metadataIpfsUrl ? (
               <div>
                 <p className="text-muted-foreground">Metadata IPFS (tokenURI):</p>
                 <code className="text-primary break-all">{value.metadataIpfsUrl}</code>
+                <a 
+                  href={value.metadataGatewayUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="block mt-1 text-xs text-blue-400 hover:underline"
+                >
+                  View metadata JSON ↗
+                </a>
+              </div>
+            ) : (
+              <div className="pt-2 border-t border-border">
+                <p className="text-yellow-500 mb-2">⚠️ Metadata not generated yet</p>
+                {nftName ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={generateMetadata}
+                    disabled={isUploading}
+                    className="w-full"
+                  >
+                    {isUploading ? 'Generating...' : 'Generate Metadata'}
+                  </Button>
+                ) : (
+                  <p className="text-muted-foreground">Fill in the Title first, then generate metadata</p>
+                )}
               </div>
             )}
           </div>

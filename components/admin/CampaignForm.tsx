@@ -230,9 +230,11 @@ export function CampaignForm({
               mode={imageUploadMode}
               value={images?.single}
               onChange={(val) => {
+                console.log('NFTImageUploader onChange:', val);
                 onImagesChange?.({ ...images, single: val });
                 // Update form data with IPFS URLs
                 if (val) {
+                  console.log('Updating form data with metadata_ipfs_url:', val.metadataIpfsUrl);
                   onChange({
                     ...data,
                     image_url: val.imageGatewayUrl,
