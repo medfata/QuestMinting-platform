@@ -63,9 +63,10 @@ function getChain(chainId: number): Chain | undefined {
   }
   
   // Check viem chains
-  return Object.values(viemChains).find(
-    (c): c is Chain => typeof c === 'object' && c !== null && 'id' in c && c.id === chainId
+  const chain = Object.values(viemChains).find(
+    (c) => typeof c === 'object' && c !== null && 'id' in c && (c as Chain).id === chainId
   );
+  return chain as Chain | undefined;
 }
 
 /**
@@ -210,8 +211,8 @@ function getAvgBlockTime(chainId: number): number {
  */
 export function getSupportedChainIds(): number[] {
   const viemChainIds = Object.values(viemChains)
-    .filter((c): c is Chain => typeof c === 'object' && c !== null && 'id' in c)
-    .map(c => c.id);
+    .filter((c) => typeof c === 'object' && c !== null && 'id' in c)
+    .map(c => (c as Chain).id);
   
   const customChainIds = Object.keys(customChains).map(Number);
   

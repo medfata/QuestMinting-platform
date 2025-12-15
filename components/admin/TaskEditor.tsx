@@ -60,8 +60,6 @@ const getTaskIcon = (type: QuestTaskType): ReactNode => {
       return TaskIcons.discord;
     case 'custom_url':
       return TaskIcons.link;
-    case 'xp_quest':
-      return TaskIcons.xp;
     default:
       return TaskIcons.link;
   }

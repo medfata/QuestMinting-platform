@@ -9,4 +9,4 @@ export type { UseTaskVerificationParams, UseTaskVerificationReturn } from './use
 export { useCreateToken } from './useCreateToken';
 export type { UseCreateTokenReturn, CreateTokenStatus, CreateTokenError, CreateTokenParams } from './useCreateToken';
 export { useUserXp } from './useUserXp';
-export type { UserXp, XpTransaction, UseUserXpReturn } from './useUserXp';
+export type { XpTransaction, UseUserXpReturn } from './useUserXp';
