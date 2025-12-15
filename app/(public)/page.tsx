@@ -9,9 +9,11 @@ import { Button, Carousel, SupportedChains } from '@/components/ui';
 import { GradientText } from '@/components/futuristic';
 import { MintFunCard } from '@/components/campaigns/MintFunCard';
 import { QuestCard } from '@/components/campaigns/QuestCard';
+import { XpQuestCard } from '@/components/campaigns/XpQuestCard';
 import { useTheme } from '@/components/theme';
 import type { MintFunCampaign } from '@/types/campaign';
 import type { QuestCampaign } from '@/types/quest';
+import type { XpQuestCampaign } from '@/types/xpQuest';
 import type { HomePageConfig } from '@/types/theme';
 import { DEFAULT_GLOBAL_THEME } from '@/types/theme';
 import type { MintfunCampaignRow, QuestCampaignRow, MintTierRow, QuestTaskRow, EligibilityConditionRow } from '@/types/database';
@@ -72,6 +74,7 @@ export default function HomePage() {
   const [homeConfig, setHomeConfig] = useState<HomePageConfig>(preloadedConfig || DEFAULT_HOME_CONFIG);
   const [mintFunCampaigns, setMintFunCampaigns] = useState<MintFunCampaign[]>([]);
   const [questCampaigns, setQuestCampaigns] = useState<QuestCampaign[]>([]);
+  const [xpQuestCampaigns, setXpQuestCampaigns] = useState<XpQuestCampaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { resolvedTheme } = useTheme();
 
@@ -169,6 +172,36 @@ export default function HomePage() {
             });
           }
           setQuestCampaigns(campaigns);
+        }
+
+        // Fetch XP Quest campaigns
+        const { data: xpQuestData } = await supabase
+          .from('mint_platform_xp_quest_campaigns')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        if (xpQuestData) {
+          const campaigns: XpQuestCampaign[] = xpQuestData.map((row: Record<string, unknown>) => ({
+            id: row.id as string,
+            slug: row.slug as string,
+            title: row.title as string,
+            description: row.description as string | null,
+            image_url: row.image_url as string,
+            xp_reward: row.xp_reward as number,
+            verification_chain_id: row.verification_chain_id as number,
+            verification_contract: row.verification_contract as string,
+            verification_functions: (row.verification_functions as XpQuestCampaign['verification_functions']) || [],
+            verification_logic: (row.verification_logic as XpQuestCampaign['verification_logic']) || 'OR',
+            duration_seconds: row.duration_seconds as number,
+            external_url: row.external_url as string,
+            theme: toCampaignTheme(row.theme as Record<string, unknown> || {}),
+            is_active: row.is_active as boolean,
+            created_at: row.created_at as string,
+            updated_at: row.updated_at as string,
+          }));
+          setXpQuestCampaigns(campaigns);
         }
       } catch (error) {
         console.error('Error fetching home data:', error);
@@ -299,6 +332,9 @@ export default function HomePage() {
                   </Button>
                   <Button size="sm" className="sm:h-10 sm:px-6 lg:h-11 lg:px-8" variant="glass" asChild>
                     <Link href="#quests">View Quests</Link>
+                  </Button>
+                  <Button size="sm" className="sm:h-10 sm:px-6 lg:h-11 lg:px-8" variant="outline" asChild>
+                    <Link href="#xp-quests">Earn XP</Link>
                   </Button>
                 </div>
               </div>
@@ -453,6 +489,65 @@ export default function HomePage() {
                 className="inline-flex items-center gap-2 text-secondary hover:text-secondary/80 transition-colors font-medium"
               >
                 View All Quests
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* XP Quests Section */}
+        <section id="xp-quests" className="py-20 lg:py-32 relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/5 to-transparent pointer-events-none" />
+          
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex items-end justify-between mb-12">
+              <div>
+                <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2" style={{ fontFamily: homeConfig.theme.heading_font }}>
+                  XP Quests
+                </h2>
+                <p className="text-muted-foreground text-lg">Complete on-chain tasks and earn XP rewards</p>
+              </div>
+              <Link 
+                href="/xp-quests" 
+                className="hidden sm:flex items-center gap-2 text-amber-500 hover:text-amber-400 transition-colors font-medium"
+              >
+                View All
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </div>
+
+            {isLoading ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {[...Array(4)].map((_, i) => (
+                  <CampaignSkeleton key={i} />
+                ))}
+              </div>
+            ) : xpQuestCampaigns.length > 0 ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {xpQuestCampaigns.slice(0, 8).map((campaign, index) => (
+                  <XpQuestCard 
+                    key={campaign.id} 
+                    campaign={campaign}
+                    animationDelay={index * 100}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl glass p-12 text-center">
+                <p className="text-lg text-muted-foreground">No XP quests available yet. Check back soon!</p>
+              </div>
+            )}
+
+            <div className="mt-8 sm:hidden text-center">
+              <Link 
+                href="/xp-quests" 
+                className="inline-flex items-center gap-2 text-amber-500 hover:text-amber-400 transition-colors font-medium"
+              >
+                View All XP Quests
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>

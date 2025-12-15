@@ -345,3 +345,154 @@ export function usePaginatedQuests(
     refresh,
   };
 }
+
+
+import type { XpQuestCampaign } from '@/types/xpQuest';
+
+export function usePaginatedXpQuests(
+  searchQuery: string,
+  selectedChain: number | null
+): UsePaginatedCampaignsResult<XpQuestCampaign> {
+  const [campaigns, setCampaigns] = useState<XpQuestCampaign[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [availableChains, setAvailableChains] = useState<number[]>([]);
+  const [page, setPage] = useState(0);
+  
+  const filtersRef = useRef({ searchQuery, selectedChain });
+
+  // Fetch available chains
+  useEffect(() => {
+    async function fetchChains() {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('mint_platform_xp_quest_campaigns')
+        .select('verification_chain_id')
+        .eq('is_active', true);
+      
+      if (data) {
+        const chains = new Set<number>();
+        data.forEach((row: { verification_chain_id: number | null }) => {
+          if (row.verification_chain_id) chains.add(row.verification_chain_id);
+        });
+        setAvailableChains(Array.from(chains).sort((a, b) => a - b));
+      }
+    }
+    fetchChains();
+  }, []);
+
+  const fetchCampaigns = useCallback(async (pageNum: number, append: boolean = false) => {
+    const supabase = createClient();
+    
+    if (append) {
+      setIsLoadingMore(true);
+    } else {
+      setIsLoading(true);
+    }
+
+    try {
+      let query = supabase
+        .from('mint_platform_xp_quest_campaigns')
+        .select('*', { count: 'exact' })
+        .eq('is_active', true);
+
+      if (selectedChain) {
+        query = query.eq('verification_chain_id', selectedChain);
+      }
+
+      if (searchQuery) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
+
+      const from = pageNum * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      
+      query = query
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      const { data, count, error } = await query;
+
+      if (error) throw error;
+
+      if (data) {
+        const mapped: XpQuestCampaign[] = data.map((row: Record<string, unknown>) => ({
+          id: row.id as string,
+          slug: row.slug as string,
+          title: row.title as string,
+          description: row.description as string | null,
+          image_url: row.image_url as string,
+          xp_reward: row.xp_reward as number,
+          verification_chain_id: row.verification_chain_id as number,
+          verification_contract: row.verification_contract as string,
+          verification_functions: (row.verification_functions as XpQuestCampaign['verification_functions']) || [],
+          verification_logic: (row.verification_logic as XpQuestCampaign['verification_logic']) || 'OR',
+          duration_seconds: row.duration_seconds as number,
+          external_url: row.external_url as string,
+          theme: toCampaignTheme(row.theme as Record<string, unknown> || {}),
+          is_active: row.is_active as boolean,
+          created_at: row.created_at as string,
+          updated_at: row.updated_at as string,
+        }));
+
+        if (append) {
+          setCampaigns(prev => [...prev, ...mapped]);
+        } else {
+          setCampaigns(mapped);
+        }
+
+        setTotalCount(count || 0);
+        setHasMore(mapped.length === PAGE_SIZE && (count || 0) > (pageNum + 1) * PAGE_SIZE);
+      }
+    } catch (error) {
+      console.error('Error fetching XP quest campaigns:', error);
+    } finally {
+      setIsLoading(false);
+      setIsLoadingMore(false);
+    }
+  }, [searchQuery, selectedChain]);
+
+  useEffect(() => {
+    const filtersChanged = 
+      filtersRef.current.searchQuery !== searchQuery || 
+      filtersRef.current.selectedChain !== selectedChain;
+    
+    if (filtersChanged) {
+      filtersRef.current = { searchQuery, selectedChain };
+      setPage(0);
+      setCampaigns([]);
+      fetchCampaigns(0, false);
+    }
+  }, [searchQuery, selectedChain, fetchCampaigns]);
+
+  useEffect(() => {
+    fetchCampaigns(0, false);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadMore = useCallback(() => {
+    if (!isLoadingMore && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchCampaigns(nextPage, true);
+    }
+  }, [page, isLoadingMore, hasMore, fetchCampaigns]);
+
+  const refresh = useCallback(() => {
+    setPage(0);
+    setCampaigns([]);
+    fetchCampaigns(0, false);
+  }, [fetchCampaigns]);
+
+  return {
+    campaigns,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    totalCount,
+    availableChains,
+    loadMore,
+    refresh,
+  };
+}

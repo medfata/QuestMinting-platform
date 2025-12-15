@@ -3,11 +3,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Header, Footer, ThemedContainer, usePublicLoading, DynamicHead } from '@/components/layout';
-import { MintFunCard } from '@/components/campaigns/MintFunCard';
+import { XpQuestCard } from '@/components/campaigns/XpQuestCard';
 import { CampaignFilters } from '@/components/campaigns/CampaignFilters';
 import { InfiniteScroll } from '@/components/ui/InfiniteScroll';
 import { useTheme } from '@/components/theme';
-import { usePaginatedMintFun } from '@/hooks/usePaginatedCampaigns';
+import { usePaginatedXpQuests } from '@/hooks/usePaginatedCampaigns';
 import type { HomePageConfig } from '@/types/theme';
 import { DEFAULT_GLOBAL_THEME } from '@/types/theme';
 
@@ -23,7 +23,7 @@ const DEFAULT_HOME_CONFIG: HomePageConfig = {
   updated_at: new Date().toISOString(),
 };
 
-export default function MintFunPage() {
+export default function XpQuestsPage() {
   const { homeConfig: preloadedConfig } = usePublicLoading();
   const [homeConfig, setHomeConfig] = useState<HomePageConfig>(preloadedConfig || DEFAULT_HOME_CONFIG);
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,7 +31,6 @@ export default function MintFunPage() {
   const [selectedChain, setSelectedChain] = useState<number | null>(null);
   const { resolvedTheme } = useTheme();
 
-  // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
@@ -47,7 +46,7 @@ export default function MintFunPage() {
     totalCount,
     availableChains,
     loadMore,
-  } = usePaginatedMintFun(debouncedSearch, selectedChain);
+  } = usePaginatedXpQuests(debouncedSearch, selectedChain);
 
   useEffect(() => {
     if (preloadedConfig) {
@@ -68,29 +67,27 @@ export default function MintFunPage() {
           className="absolute inset-0 transition-all duration-500"
           style={{
             background: resolvedTheme === 'light' 
-              ? 'radial-gradient(ellipse at top, #f8f9ff, #f0f2ff, #e8eaff)'
+              ? 'radial-gradient(ellipse at top, #fffbf0, #fff8e6, #fff5db)'
               : 'radial-gradient(ellipse at top, #1a1a2e, #0f0f1a, #050510)'
           }}
         />
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 -left-1/4 w-1/2 h-1/2 bg-gradient-to-br from-primary/40 to-transparent rounded-full blur-[120px] animate-float" />
-          <div className="absolute bottom-0 -right-1/4 w-1/2 h-1/2 bg-gradient-to-tl from-secondary/30 to-transparent rounded-full blur-[120px] animate-float" style={{ animationDelay: '-3s' }} />
+          <div className="absolute top-0 -left-1/4 w-1/2 h-1/2 bg-gradient-to-br from-amber-500/40 to-transparent rounded-full blur-[120px] animate-float" />
+          <div className="absolute bottom-0 -right-1/4 w-1/2 h-1/2 bg-gradient-to-tl from-orange-500/30 to-transparent rounded-full blur-[120px] animate-float" style={{ animationDelay: '-3s' }} />
         </div>
       </div>
 
       <DynamicHead 
-        title={`MintFun | ${homeConfig.platform_name}`} 
+        title={`XP Quests | ${homeConfig.platform_name}`} 
         favicon={homeConfig.platform_icon} 
       />
       
       <Header logoText={homeConfig.platform_name} logoIcon={homeConfig.platform_icon} />
       
       <main className="min-h-screen">
-        {/* Hero Section */}
         <section className="relative pt-24 pb-12 z-10">
-          {/* Decorative gradient orbs */}
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[128px] -translate-y-1/2 pointer-events-none" />
-          <div className="absolute top-0 right-1/4 w-64 h-64 bg-secondary/20 rounded-full blur-[100px] -translate-y-1/3 pointer-events-none" />
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/20 rounded-full blur-[128px] -translate-y-1/2 pointer-events-none" />
+          <div className="absolute top-0 right-1/4 w-64 h-64 bg-orange-500/20 rounded-full blur-[100px] -translate-y-1/3 pointer-events-none" />
           
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 group">
@@ -102,24 +99,23 @@ export default function MintFunPage() {
             
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
               <div className="space-y-4">
-                {/* Badge */}
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass backdrop-blur-sm">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                   </span>
                   <span className="text-sm font-medium text-muted-foreground">
-                    Explore Collections
+                    Earn XP Rewards
                   </span>
                 </div>
                 
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground" style={{ fontFamily: homeConfig.theme.heading_font }}>
-                  <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">
-                    MintFun
+                  <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">
+                    XP Quests
                   </span>
                 </h1>
                 <p className="text-muted-foreground text-lg sm:text-xl max-w-xl">
-                  Discover and collect unique digital art from creators around the world
+                  Complete on-chain tasks and earn XP rewards
                 </p>
               </div>
               
@@ -135,21 +131,18 @@ export default function MintFunPage() {
           </div>
         </section>
 
-        {/* Content Section */}
         <section className="pb-20 relative z-0">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
-            {/* Results count */}
             {!isLoading && (
               <div className="flex items-center justify-between mb-8">
                 <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">{totalCount}</span> {totalCount === 1 ? 'collection' : 'collections'}
+                  <span className="font-semibold text-foreground">{totalCount}</span> {totalCount === 1 ? 'quest' : 'quests'}
                   {(debouncedSearch || selectedChain) && ' found'}
                 </p>
                 {(debouncedSearch || selectedChain) && (
                   <button 
                     onClick={handleClearFilters}
-                    className="text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+                    className="text-sm text-amber-500 hover:text-amber-400 transition-colors flex items-center gap-1"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -160,7 +153,6 @@ export default function MintFunPage() {
               </div>
             )}
 
-            {/* Grid */}
             {isLoading ? (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {[...Array(8)].map((_, i) => (
@@ -171,7 +163,7 @@ export default function MintFunPage() {
               <>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {campaigns.map((campaign, index) => (
-                    <MintFunCard key={campaign.id} campaign={campaign} animationDelay={index < 10 ? index * 50 : 0} />
+                    <XpQuestCard key={campaign.id} campaign={campaign} animationDelay={index < 10 ? index * 50 : 0} />
                   ))}
                 </div>
                 <InfiniteScroll
@@ -191,7 +183,7 @@ export default function MintFunPage() {
                 <p className="text-sm text-muted-foreground/70 mb-6">Try adjusting your search or filter criteria</p>
                 <button 
                   onClick={handleClearFilters}
-                  className="px-6 py-2.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium"
+                  className="px-6 py-2.5 rounded-xl bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 transition-colors font-medium"
                 >
                   Clear all filters
                 </button>
@@ -199,12 +191,12 @@ export default function MintFunPage() {
             ) : (
               <div className="rounded-2xl glass p-16 text-center">
                 <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-muted/50 flex items-center justify-center">
-                  <svg className="w-8 h-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-muted-foreground">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                   </svg>
                 </div>
-                <p className="text-lg text-foreground font-medium mb-2">No collections yet</p>
-                <p className="text-muted-foreground">Check back soon for new drops!</p>
+                <p className="text-lg text-foreground font-medium mb-2">No XP quests available yet</p>
+                <p className="text-muted-foreground">Check back soon for new opportunities!</p>
               </div>
             )}
           </div>

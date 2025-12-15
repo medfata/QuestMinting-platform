@@ -87,10 +87,10 @@ export default function QuestsPage() {
       
       <main className="min-h-screen">
         {/* Hero Section */}
-        <section className="relative pt-24 pb-12 overflow-hidden">
+        <section className="relative pt-24 pb-12 z-10">
           {/* Decorative gradient orbs */}
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-[128px] -translate-y-1/2" />
-          <div className="absolute top-0 right-1/4 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -translate-y-1/3" />
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-[128px] -translate-y-1/2 pointer-events-none" />
+          <div className="absolute top-0 right-1/4 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -translate-y-1/3 pointer-events-none" />
           
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 group">
@@ -136,7 +136,7 @@ export default function QuestsPage() {
         </section>
 
         {/* Content Section */}
-        <section className="pb-20">
+        <section className="pb-20 relative z-0">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
             {/* Results count */}

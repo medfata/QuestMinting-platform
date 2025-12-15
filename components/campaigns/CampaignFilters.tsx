@@ -96,7 +96,7 @@ export function CampaignFilters({
       </div>
 
       {/* Chain Dropdown */}
-      <div className="relative" ref={dropdownRef}>
+      <div className="relative z-20" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className={cn(
@@ -133,7 +133,7 @@ export function CampaignFilters({
         {/* Dropdown Menu */}
         {isDropdownOpen && (
           <div className={cn(
-            'absolute top-full left-0 right-0 mt-2 py-2 rounded-xl z-50',
+            'absolute top-full left-0 right-0 mt-2 py-2 rounded-xl z-[100]',
             'bg-background/95 backdrop-blur-xl border border-border shadow-xl',
             'animate-fade-in max-h-[300px] overflow-y-auto'
           )}>

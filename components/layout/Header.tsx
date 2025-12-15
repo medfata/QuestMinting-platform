@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { HTMLAttributes, forwardRef, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 import { ThemeToggle } from '@/components/theme';
@@ -98,6 +99,7 @@ export const Header = forwardRef<HTMLElement, HeaderProps>(
               <NavLink href="/">Home</NavLink>
               <NavLink href="/mintfun">MintFun</NavLink>
               <NavLink href="/quests">Quests</NavLink>
+              <NavLink href="/xp-quests">XP Quests</NavLink>
             </nav>
           )}
 
@@ -171,6 +173,7 @@ export const Header = forwardRef<HTMLElement, HeaderProps>(
             <MobileNavLink href="/" onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
             <MobileNavLink href="/mintfun" onClick={() => setMobileMenuOpen(false)}>MintFun</MobileNavLink>
             <MobileNavLink href="/quests" onClick={() => setMobileMenuOpen(false)}>Quests</MobileNavLink>
+            <MobileNavLink href="/xp-quests" onClick={() => setMobileMenuOpen(false)}>XP Quests</MobileNavLink>
             {isAdmin && (
               <MobileNavLink href="/admin" onClick={() => setMobileMenuOpen(false)}>
                 Admin Panel
@@ -192,24 +195,29 @@ interface NavLinkProps {
 }
 
 function NavLink({ href, children }: NavLinkProps) {
+  const pathname = usePathname();
+  const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
+
   return (
     <Link
       href={href}
       className={cn(
-        'relative px-5 py-2.5 text-sm font-medium text-muted-foreground rounded-xl',
+        'relative px-5 py-2.5 text-sm font-medium rounded-xl',
         'transition-all duration-300 ease-out',
-        'hover:text-foreground hover:bg-foreground/5',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-        'group'
+        'group',
+        isActive
+          ? 'text-foreground bg-foreground/5'
+          : 'text-muted-foreground hover:text-foreground hover:bg-foreground/5'
       )}
     >
       {children}
       {/* Animated underline */}
       <span className={cn(
-        'absolute bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-0 rounded-full',
+        'absolute bottom-1 left-1/2 -translate-x-1/2 h-0.5 rounded-full',
         'bg-gradient-to-r from-primary to-secondary',
         'transition-all duration-300 ease-out',
-        'group-hover:w-1/2'
+        isActive ? 'w-1/2' : 'w-0 group-hover:w-1/2'
       )} />
     </Link>
   );
@@ -223,14 +231,19 @@ interface MobileNavLinkProps {
 }
 
 function MobileNavLink({ href, children, onClick }: MobileNavLinkProps) {
+  const pathname = usePathname();
+  const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
+
   return (
     <Link
       href={href}
       onClick={onClick}
       className={cn(
-        'block px-4 py-3 text-base font-medium text-muted-foreground rounded-xl',
+        'block px-4 py-3 text-base font-medium rounded-xl',
         'transition-all duration-200',
-        'hover:text-foreground hover:bg-foreground/5',
+        isActive
+          ? 'text-foreground bg-foreground/5'
+          : 'text-muted-foreground hover:text-foreground hover:bg-foreground/5',
         'active:bg-foreground/10'
       )}
     >

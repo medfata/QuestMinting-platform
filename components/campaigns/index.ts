@@ -7,6 +7,9 @@ export type { MintTierSelectorProps } from './MintTierSelector';
 export { QuestCard } from './QuestCard';
 export type { QuestCardProps } from './QuestCard';
 
+export { XpQuestCard } from './XpQuestCard';
+export type { XpQuestCardProps } from './XpQuestCard';
+
 export { CampaignCardSkeleton } from './CampaignCardSkeleton';
 export type { CampaignCardSkeletonProps } from './CampaignCardSkeleton';
 
