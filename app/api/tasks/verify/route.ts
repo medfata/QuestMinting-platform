@@ -53,14 +53,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Perform verification based on task type
-    // For now, we'll use a simplified verification that marks tasks as complete
-    // In production, you'd integrate with Twitter API, Discord API, etc.
-    const verified = await verifyTaskCompletion(task);
+    const verificationResult = await verifyTaskCompletion(task);
 
-    if (!verified) {
+    if (!verificationResult.verified) {
       return NextResponse.json({
         verified: false,
-        message: 'Task verification failed. Please complete the task and try again.',
+        message: verificationResult.error || 'Task verification failed. Please complete the task and try again.',
       });
     }
 
@@ -94,37 +92,43 @@ export async function POST(request: NextRequest) {
   }
 }
 
+interface VerificationResult {
+  verified: boolean;
+  txHash?: string;
+  error?: string;
+}
+
 // Task verification logic
-// In production, implement actual API integrations for each platform
-async function verifyTaskCompletion(task: {
-  type: string;
-  external_url: string;
-  verification_data: Record<string, string>;
-}): Promise<boolean> {
+async function verifyTaskCompletion(
+  task: {
+    type: string;
+    external_url: string;
+    verification_data: Record<string, string>;
+  },
+): Promise<VerificationResult> {
   switch (task.type) {
     case 'twitter_follow':
       // In production: Use Twitter API to verify follow status
-      // For now, mark as verified (user clicked verify after visiting)
-      return true;
+      return { verified: true };
 
     case 'twitter_retweet':
       // In production: Use Twitter API to verify retweet
-      return true;
+      return { verified: true };
 
     case 'telegram_join':
       // In production: Use Telegram Bot API to verify membership
-      return true;
+      return { verified: true };
 
     case 'discord_join':
       // In production: Use Discord API to verify server membership
-      return true;
+      return { verified: true };
 
     case 'custom_url':
-      // Custom URLs are verified by user attestation (they clicked verify)
-      return true;
+      // Custom URLs are verified by user attestation
+      return { verified: true };
 
     default:
-      return false;
+      return { verified: false, error: 'Unknown task type' };
   }
 }
 

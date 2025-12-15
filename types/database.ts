@@ -258,7 +258,7 @@ export interface QuestCampaignUpdate {
 }
 
 // Quest Tasks Table
-export type QuestTaskType = 'twitter_follow' | 'twitter_retweet' | 'telegram_join' | 'discord_join' | 'custom_url' | 'xp_quest';
+export type QuestTaskType = 'twitter_follow' | 'twitter_retweet' | 'telegram_join' | 'discord_join' | 'custom_url';
 
 export interface QuestTaskRow {
   id: string;
@@ -435,7 +435,8 @@ export interface XpTransactionRow {
   wallet_address: string;
   task_id: string;
   xp_amount: number;
-  verification_timestamp: number | null;
+  tx_hash: string | null;
+  verified_at: string;
   created_at: string;
 }
 
@@ -444,16 +445,81 @@ export interface XpTransactionInsert {
   wallet_address: string;
   task_id: string;
   xp_amount: number;
-  verification_timestamp?: number | null;
+  tx_hash?: string | null;
+  verified_at?: string;
   created_at?: string;
 }
 
-// XP Quest Verification Data structure
-export interface XpQuestVerificationData {
-  xp_reward: string;
-  duration_seconds: string;
+
+// XP Quest Campaigns Table
+export interface XpQuestCampaignRow {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  image_url: string;
+  xp_reward: number;
+  verification_chain_id: number;
   verification_contract: string;
-  verification_function: string;
-  verification_chain_id: string;
-  function_args?: string; // JSON string of additional args if needed
+  function_signature: string;
+  duration_seconds: number;
+  external_url: string;
+  theme: ThemeJson;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface XpQuestCampaignInsert {
+  id?: string;
+  slug: string;
+  title: string;
+  description?: string | null;
+  image_url: string;
+  xp_reward: number;
+  verification_chain_id: number;
+  verification_contract: string;
+  function_signature: string;
+  duration_seconds?: number;
+  external_url: string;
+  theme?: ThemeJson;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface XpQuestCampaignUpdate {
+  id?: string;
+  slug?: string;
+  title?: string;
+  description?: string | null;
+  image_url?: string;
+  xp_reward?: number;
+  verification_chain_id?: number;
+  verification_contract?: string;
+  function_signature?: string;
+  duration_seconds?: number;
+  external_url?: string;
+  theme?: ThemeJson;
+  is_active?: boolean;
+  updated_at?: string;
+}
+
+// XP Quest Completions Table
+export interface XpQuestCompletionRow {
+  id: string;
+  quest_id: string;
+  wallet_address: string;
+  tx_hash: string | null;
+  xp_awarded: number;
+  completed_at: string;
+}
+
+export interface XpQuestCompletionInsert {
+  id?: string;
+  quest_id: string;
+  wallet_address: string;
+  tx_hash?: string | null;
+  xp_awarded: number;
+  completed_at?: string;
 }

@@ -37,7 +37,6 @@ export interface QuestCampaign {
   eligibility: EligibilityCondition | null;
   theme: CampaignTheme;
   is_active: boolean;
-  xp_reward: number;
   created_at: string;
   updated_at: string;
 }

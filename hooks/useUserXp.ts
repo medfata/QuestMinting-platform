@@ -1,84 +1,69 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAccount } from 'wagmi';
-import { createClient } from '@/lib/supabase/client';
-
-export interface UserXp {
-  total_xp: number;
-  wallet_address: string;
-}
 
 export interface XpTransaction {
   id: string;
-  task_id: string;
   xp_amount: number;
-  verification_timestamp: number | null;
+  tx_hash: string | null;
+  verified_at: string;
   created_at: string;
+  task_id: string;
 }
 
 export interface UseUserXpReturn {
-  userXp: UserXp | null;
+  totalXp: number;
   transactions: XpTransaction[];
   isLoading: boolean;
+  error: string | null;
   refetch: () => Promise<void>;
 }
 
 export function useUserXp(): UseUserXpReturn {
   const { address, isConnected } = useAccount();
-  const [userXp, setUserXp] = useState<UserXp | null>(null);
+  const [totalXp, setTotalXp] = useState(0);
   const [transactions, setTransactions] = useState<XpTransaction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchUserXp = useCallback(async () => {
+  const fetchXp = useCallback(async () => {
     if (!address || !isConnected) {
-      setUserXp(null);
+      setTotalXp(0);
       setTransactions([]);
       return;
     }
 
     setIsLoading(true);
+    setError(null);
+
     try {
-      const supabase = createClient();
-      const normalizedAddress = address.toLowerCase();
+      const response = await fetch(`/api/xp?walletAddress=${address}`);
+      const data = await response.json();
 
-      // Fetch user XP
-      const { data: xpData } = await supabase
-        .from('mint_platform_user_xp')
-        .select('total_xp, wallet_address')
-        .eq('wallet_address', normalizedAddress)
-        .single();
-
-      if (xpData) {
-        setUserXp(xpData);
-      } else {
-        setUserXp({ total_xp: 0, wallet_address: normalizedAddress });
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch XP');
       }
 
-      // Fetch XP transactions
-      const { data: txData } = await supabase
-        .from('mint_platform_xp_transactions')
-        .select('id, task_id, xp_amount, verification_timestamp, created_at')
-        .eq('wallet_address', normalizedAddress)
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      setTransactions(txData || []);
+      setTotalXp(data.totalXp);
+      setTransactions(data.transactions);
     } catch (err) {
-      console.error('Error fetching user XP:', err);
+      console.error('Error fetching XP:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch XP');
     } finally {
       setIsLoading(false);
     }
   }, [address, isConnected]);
 
   useEffect(() => {
-    fetchUserXp();
-  }, [fetchUserXp]);
+    fetchXp();
+  }, [fetchXp]);
 
   return {
-    userXp,
+    totalXp,
     transactions,
     isLoading,
-    refetch: fetchUserXp,
+    error,
+    refetch: fetchXp,
   };
 }

@@ -16,11 +16,21 @@ interface Campaign {
   chain_id: number;
 }
 
-type CampaignType = 'all' | 'mintfun' | 'quest';
+interface XpQuestCampaign {
+  id: string;
+  slug: string;
+  title: string;
+  is_active: boolean;
+  created_at: string;
+  xp_reward: number;
+}
+
+type CampaignType = 'all' | 'mintfun' | 'quest' | 'xp-quest';
 
 export default function CampaignsPage() {
   const [mintfunCampaigns, setMintfunCampaigns] = useState<Campaign[]>([]);
   const [questCampaigns, setQuestCampaigns] = useState<Campaign[]>([]);
+  const [xpQuestCampaigns, setXpQuestCampaigns] = useState<XpQuestCampaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<CampaignType>('all');
   const [search, setSearch] = useState('');
@@ -29,13 +39,15 @@ export default function CampaignsPage() {
     const fetchCampaigns = async () => {
       const supabase = createClient();
 
-      const [mintfunRes, questRes] = await Promise.all([
+      const [mintfunRes, questRes, xpQuestRes] = await Promise.all([
         supabase.from('mint_platform_mintfun_campaigns').select('id, slug, title, is_active, created_at, chain_id').order('created_at', { ascending: false }),
         supabase.from('mint_platform_quest_campaigns').select('id, slug, title, is_active, created_at, chain_id').order('created_at', { ascending: false }),
+        supabase.from('mint_platform_xp_quest_campaigns').select('id, slug, title, is_active, created_at, xp_reward').order('created_at', { ascending: false }),
       ]);
 
       if (mintfunRes.data) setMintfunCampaigns(mintfunRes.data);
       if (questRes.data) setQuestCampaigns(questRes.data);
+      if (xpQuestRes.data) setXpQuestCampaigns(xpQuestRes.data);
       setIsLoading(false);
     };
 
@@ -51,13 +63,16 @@ export default function CampaignsPage() {
   };
 
   const filteredCampaigns = () => {
-    let campaigns: (Campaign & { type: 'mintfun' | 'quest' })[] = [];
+    let campaigns: ((Campaign | XpQuestCampaign) & { type: 'mintfun' | 'quest' | 'xp-quest' })[] = [];
 
     if (filter === 'all' || filter === 'mintfun') {
       campaigns = [...campaigns, ...mintfunCampaigns.map(c => ({ ...c, type: 'mintfun' as const }))];
     }
     if (filter === 'all' || filter === 'quest') {
       campaigns = [...campaigns, ...questCampaigns.map(c => ({ ...c, type: 'quest' as const }))];
+    }
+    if (filter === 'all' || filter === 'xp-quest') {
+      campaigns = [...campaigns, ...xpQuestCampaigns.map(c => ({ ...c, type: 'xp-quest' as const }))];
     }
 
     if (search) {
@@ -90,6 +105,11 @@ export default function CampaignsPage() {
           <Link href="/admin/campaigns/quest/new">
             <Button variant="secondary">+ New Quest</Button>
           </Link>
+          <Link href="/admin/campaigns/xp-quest/new">
+            <Button variant="outline" className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10">
+              + New XP Quest
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -97,7 +117,7 @@ export default function CampaignsPage() {
       <Card padding="md">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex gap-2">
-            {(['all', 'mintfun', 'quest'] as CampaignType[]).map((type) => (
+            {(['all', 'mintfun', 'quest', 'xp-quest'] as CampaignType[]).map((type) => (
               <button
                 key={type}
                 onClick={() => setFilter(type)}
@@ -107,7 +127,7 @@ export default function CampaignsPage() {
                     : 'bg-foreground/5 text-muted-foreground hover:bg-foreground/10 hover:text-foreground'
                 }`}
               >
-                {type === 'all' ? 'All' : type === 'mintfun' ? 'MintFun' : 'Quests'}
+                {type === 'all' ? 'All' : type === 'mintfun' ? 'MintFun' : type === 'quest' ? 'Quests' : 'XP Quests'}
               </button>
             ))}
           </div>
@@ -147,10 +167,12 @@ export default function CampaignsPage() {
                       className={`rounded px-2 py-0.5 text-xs font-medium ${
                         campaign.type === 'mintfun'
                           ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400'
-                          : 'bg-blue-500/20 text-blue-600 dark:text-blue-400'
+                          : campaign.type === 'quest'
+                            ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400'
+                            : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
                       }`}
                     >
-                      {campaign.type === 'mintfun' ? 'MintFun' : 'Quest'}
+                      {campaign.type === 'mintfun' ? 'MintFun' : campaign.type === 'quest' ? 'Quest' : 'XP Quest'}
                     </span>
                     <div>
                       <h3 className="font-medium text-foreground">{campaign.title}</h3>
